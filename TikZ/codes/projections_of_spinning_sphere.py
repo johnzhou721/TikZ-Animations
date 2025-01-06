@@ -229,7 +229,7 @@ def main():
     for angle in np.linspace(15,180,numiter):
         with open(animatetex.TeX_file, 'w') as f:
             f.write(start)
-            f.write(r'\def \Vn {' + f'{angle}' + '}')
+            f.write(r'\pgfmathsetmacro\Vn{' + f'{angle}' + '}')
             f.write(end)
         animatetex.during_loop()
     animatetex.after_loop()

@@ -13,8 +13,8 @@ start = r'''
 \usetikzlibrary{arrows.meta,angles}
 \usepackage{tikz-3dplot}
 
-\newcommand{\lengthVOne}{0.75}
-\newcommand{\lengthVTwo}{1.75}
+\pgfmathsetmacro{\lengthVOne}{0.75}
+\pgfmathsetmacro{\lengthVTwo}{1.75}
 '''
 
 end = r'''
