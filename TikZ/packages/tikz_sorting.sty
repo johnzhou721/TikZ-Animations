@@ -1,0 +1,64 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{tikz_sorting}
+  [2024/11/28 v0.01 LaTeX package for drawing planes and their intesections]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The following sorting algorithm was introduced here:
+% https://tex.stackexchange.com/a/734099/319072
+%
+% You append a number, and several properties to a list, and that list
+% is sorted by the number. Then you can access the properties using a 
+% for loop after they are sorted.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ExplSyntaxOn
+% Create a new named segment list
+% #1: name of the new list
+\NewDocumentCommand \NewSegmentList { m }
+  {
+    \seq_new:c { g__thecommandname_segment_list_#1_seq }
+  }
+% Add a segment to a named segment list
+% #1: name of the list
+% #2: sorting data (should be a float)
+% #3: additional data you want to retrieve (should include assignments 
+% storing
+%     your data into locally used variables)
+\NewDocumentCommand \AddSegment { m m m }
+  {
+    \seq_gput_right:ce { g__thecommandname_segment_list_#1_seq }
+      { { \fp_eval:n {#2} } { \exp_not:n {#3} } }
+  }
+% Sort a named segment list
+% #1: > for ascending order, < for descending order (might be counter 
+% intuitive)
+% #2: name of the list
+\NewDocumentCommand \SortSegmentList { O{>} m }
+  {
+    \seq_gsort:cn { g__thecommandname_segment_list_#2_seq }
+      {
+        \fp_compare:nNnTF { \use_i:nn ##1 } #1 { \use_i:nn ##2 }
+          \sort_return_swapped:
+          \sort_return_same:
+      }
+  }
+% Loop over the elements of a list. Each item will be used inside of 
+% groups.
+% #1: name of the list
+% #2: code to execute inside each elements group after whatever was 
+% stored was
+%     run
+\NewDocumentCommand \LoopOverSegmentList { m m }
+  {
+    \seq_map_inline:cn { g__thecommandname_segment_list_#1_seq }
+      {
+        \group_begin:
+          \use_ii:nn ##1
+          #2
+        \group_end:
+      }
+  }
+% For debugging purposes, show the contents of a named segment list.
+% #1: name of the list
+\NewDocumentCommand \ShowSegmentList { m }
+  { \seq_show:c { g__thecommandname_segment_list_#1_seq } }
+\ExplSyntaxOff
