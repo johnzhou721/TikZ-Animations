@@ -62,7 +62,7 @@ postscript = r'''
             % lines of latitude on the plane
             \pgfmathsetmacro\longitudeStart{0}
             \pgfmathsetmacro\longitudeEnd{360}
-            \pgfmathsetmacro\longitudeSamples{20}
+            \pgfmathsetmacro\longitudeSamples{36}
             \pgfmathsetmacro\longitudeDifference{(\longitudeEnd-\longitudeStart)/\longitudeSamples}
             \foreach[parse=true, evaluate=\longitude] \longitude in {\longitudeStart,\longitudeStart+\longitudeDifference,...,\longitudeEnd-\longitudeDifference}{
                 \tdplottransformrotmain
@@ -105,7 +105,7 @@ postscript = r'''
             % lines of longitude on the plane
             \pgfmathsetmacro\latitudeStart{0}
             \pgfmathsetmacro\latitudeEnd{360}
-            \pgfmathsetmacro\latitudeSamples{20}
+            \pgfmathsetmacro\latitudeSamples{36}
             \pgfmathsetmacro\latitudeDifference{(\latitudeEnd-\latitudeStart)/\latitudeSamples}
             \foreach[parse=true, evaluate=\latitude] \latitude in {\latitudeStart,\latitudeStart+\latitudeDifference,...,\latitudeEnd-\latitudeDifference} {
                 \tdplottransformrotmain
@@ -222,7 +222,7 @@ postscript = r'''
             % longitudinal lines
             \pgfmathsetmacro\latitudeStart{0}
             \pgfmathsetmacro\latitudeEnd{360}
-            \pgfmathsetmacro\latitudeSamples{20}
+            \pgfmathsetmacro\latitudeSamples{36}
             \pgfmathsetmacro\latitudeDifference{(\latitudeEnd-\latitudeStart)/\latitudeSamples}
             \foreach[parse=true, evaluate=\latitude] \latitude in {\latitudeStart,\latitudeStart+\latitudeDifference,...,\latitudeEnd-\latitudeDifference} {
                 \tdplottransformrotmain
@@ -255,7 +255,7 @@ postscript = r'''
                         \lastz*\viewdirZ
                     }
                     % Check if the dot product is positive
-                    \pgfmathparse{\currentDotProduct>0 && \lastz>0 && \Vz>0}
+                    \pgfmathparse{\currentDotProduct>0 && \Vz>0}
                     \ifnum\pgfmathresult=1
                         \draw[ultra thin] (\lastx,\lasty,\lastz) -- (\Vx,\Vy,\Vz);
                     \fi
@@ -271,7 +271,7 @@ postscript = r'''
             % latitudinal lines
             \pgfmathsetmacro\longitudeStart{0}
             \pgfmathsetmacro\longitudeEnd{360}
-            \pgfmathsetmacro\longitudeSamples{20}
+            \pgfmathsetmacro\longitudeSamples{36}
             \pgfmathsetmacro\longitudeDifference{(\longitudeEnd-\longitudeStart)/\longitudeSamples}
             \foreach[parse=true, evaluate=\longitude] \longitude in {\longitudeStart,\longitudeStart+\longitudeDifference,...,\longitudeEnd-\longitudeDifference}{
                 \tdplottransformrotmain
@@ -304,7 +304,7 @@ postscript = r'''
                         \lastz*\viewdirZ
                     }
                     % Check if the dot product is positive
-                    \pgfmathparse{\currentDotProduct>0 && \lastz>0 && \Vz>0}
+                    \pgfmathparse{\currentDotProduct>0 && \Vz>0}
                     \ifnum\pgfmathresult=1
                         \draw[ultra thin] (\lastx,\lasty,\lastz) -- (\Vx,\Vy,\Vz);
                     \fi
@@ -327,7 +327,7 @@ postscript = r'''
             \pgfmathsetmacro\lastz{\tdplotresz}
             \pgfmathsetmacro\parameterStart{-1800}
             \pgfmathsetmacro\parameterEnd{1800}
-            \pgfmathsetmacro\parameterSamples{200}
+            \pgfmathsetmacro\parameterSamples{1000}
             \pgfmathsetmacro\parameterDifference{(\parameterEnd-\parameterStart)/\parameterSamples}
             \foreach[parse=true, evaluate=\parameter] \parameter in {\parameterStart,\parameterStart+\parameterDifference,...,\parameterEnd-\parameterDifference}{
                 \tdplottransformrotmain
