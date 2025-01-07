@@ -42,14 +42,16 @@ preamble= r'''
 postscript = r'''
 \begin{document}
     \begin{frame}
-    \tdplotsetmaincoords{\polar}{\azimuth}
-
+        \tdplotsetmaincoords{\polar}{\azimuth}
         \begin{tikzpicture}[tdplot_main_coords,scale=0.97]
+            
+            % set rotated coordinate frame
             \tdplotsetrotatedcoords
                 {\rotation}
                 {\rotation}
                 {\rotation}
 
+            % clip viewing rectangle
             \path[tdplot_screen_coords] 
                 (-\textwidth/2,-\textheight/2) rectangle 
                 (\textwidth/2,\textheight/2);
@@ -57,11 +59,11 @@ postscript = r'''
                 (-\textwidth/2,-\textheight/2) rectangle 
                 (\textwidth/2,\textheight/2);
 
+            % lines of latitude on the plane
             \pgfmathsetmacro\longitudeStart{0}
             \pgfmathsetmacro\longitudeEnd{360}
             \pgfmathsetmacro\longitudeSamples{20}
             \pgfmathsetmacro\longitudeDifference{(\longitudeEnd-\longitudeStart)/\longitudeSamples}
-            % lines of latitude on plane
             \foreach[parse=true, evaluate=\longitude] \longitude in {\longitudeStart,\longitudeStart+\longitudeDifference,...,\longitudeEnd-\longitudeDifference}{
                 \tdplottransformrotmain
                     {sphereX(0,\longitude)}
@@ -75,7 +77,7 @@ postscript = r'''
                 \gdef\opacity{1}
                 \pgfmathsetmacro\latitudeStart{0}
                 \pgfmathsetmacro\latitudeEnd{360}
-                \pgfmathsetmacro\latitudeSamples{20}
+                \pgfmathsetmacro\latitudeSamples{200}
                 \pgfmathsetmacro\latitudeDifference{(\latitudeEnd-\latitudeStart)/\latitudeSamples}
                 \foreach[parse=true, evaluate=\latitude] \latitude in {\latitudeStart,\latitudeStart+\latitudeDifference,...,\latitudeEnd-\latitudeDifference} {
                     \tdplottransformrotmain
@@ -100,13 +102,12 @@ postscript = r'''
                 }   
             }
 
-            % lines of longitude on plane
+            % lines of longitude on the plane
             \pgfmathsetmacro\latitudeStart{0}
             \pgfmathsetmacro\latitudeEnd{360}
             \pgfmathsetmacro\latitudeSamples{20}
             \pgfmathsetmacro\latitudeDifference{(\latitudeEnd-\latitudeStart)/\latitudeSamples}
             \foreach[parse=true, evaluate=\latitude] \latitude in {\latitudeStart,\latitudeStart+\latitudeDifference,...,\latitudeEnd-\latitudeDifference} {
-                 
                 \tdplottransformrotmain
                     {sphereX(\latitude,0)}
                     {sphereY(\latitude,0)}
@@ -119,11 +120,9 @@ postscript = r'''
                 \gdef\opacity{1}
                 \pgfmathsetmacro\longitudeStart{0}
                 \pgfmathsetmacro\longitudeEnd{360}
-                \pgfmathsetmacro\longitudeSamples{20}
+                \pgfmathsetmacro\longitudeSamples{200}
                 \pgfmathsetmacro\longitudeDifference{(\longitudeEnd-\longitudeStart)/\longitudeSamples}
-            
                 \foreach[parse=true, evaluate=\longitude] \longitude in {\longitudeStart,\longitudeStart+\longitudeDifference,...,\longitudeEnd-\longitudeDifference}{
-
                     \tdplottransformrotmain
                         {sphereX(\latitude,\longitude)}
                         {sphereY(\latitude,\longitude)}
@@ -144,7 +143,7 @@ postscript = r'''
                 }
             }
 
-            % projection of loxodrome on plane
+            % projection of the loxodrome on the plane
             \tdplottransformrotmain
                 {loxodromeX(-1800)}
                 {loxodromeY(-1800)}
@@ -157,10 +156,9 @@ postscript = r'''
             \gdef\opacity{1}
             \pgfmathsetmacro\parameterStart{-1800}
             \pgfmathsetmacro\parameterEnd{1800}
-            \pgfmathsetmacro\parameterSamples{200}
+            \pgfmathsetmacro\parameterSamples{1000}
             \pgfmathsetmacro\parameterDifference{(\parameterEnd-\parameterStart)/\parameterSamples}
-
-            \foreach \parameter in {\parameterStart,\parameterStart+\parameterDifference,...,\parameterEnd-\parameterDifference}{
+            \foreach[parse=true, evaluate=\parameter] \parameter in {\parameterStart,\parameterStart+\parameterDifference,...,\parameterEnd-\parameterDifference}{
                 \tdplottransformrotmain
                     {loxodromeX(\parameter)}
                     {loxodromeY(\parameter)}
@@ -222,27 +220,23 @@ postscript = r'''
 
 
             % longitudinal lines
-            
             \pgfmathsetmacro\latitudeStart{0}
             \pgfmathsetmacro\latitudeEnd{360}
             \pgfmathsetmacro\latitudeSamples{20}
             \pgfmathsetmacro\latitudeDifference{(\latitudeEnd-\latitudeStart)/\latitudeSamples}
             \foreach[parse=true, evaluate=\latitude] \latitude in {\latitudeStart,\latitudeStart+\latitudeDifference,...,\latitudeEnd-\latitudeDifference} {
-            
                 \tdplottransformrotmain
                     {sphereX(\latitude,0)}
-                    {sphereY(\Vlatitudenn,0)}
+                    {sphereY(\latitude,0)}
                     {sphereZ(\latitude,0)}
                 \pgfmathsetmacro\lastx{\tdplotresx}
                 \pgfmathsetmacro\lasty{\tdplotresy}
                 \pgfmathsetmacro\lastz{\tdplotresz}
                 \pgfmathsetmacro\longitudeStart{0}
                 \pgfmathsetmacro\longitudeEnd{360}
-                \pgfmathsetmacro\longitudeSamples{20}
+                \pgfmathsetmacro\longitudeSamples{200}
                 \pgfmathsetmacro\longitudeDifference{(\longitudeEnd-\longitudeStart)/\longitudeSamples}
-            
                 \foreach[parse=true, evaluate=\longitude] \longitude in {\longitudeStart,\longitudeStart+\longitudeDifference,...,\longitudeEnd-\longitudeDifference}{
-
                     \tdplottransformrotmain
                         {sphereX(\latitude,\longitude)}
                         {sphereY(\latitude,\longitude)}
@@ -254,69 +248,12 @@ postscript = r'''
                     \pgfmathsetmacro\viewdirX{sphereX(-\azimuth,90 - \polar)}
                     \pgfmathsetmacro\viewdirY{sphereY(-\azimuth,90 - \polar)}
                     \pgfmathsetmacro\viewdirZ{sphereZ(-\azimuth,90 - \polar)}
-
                     % Dot product with the viewer direction
                     \pgfmathsetmacro\currentDotProduct{
                         \lastx*\viewdirX + 
                         \lasty*\viewdirY + 
                         \lastz*\viewdirZ
                     }
-
-                    % Check if the dot product is positive
-                    \pgfmathparse{\currentDotProduct>0 && \lastz>0 && \Vz>0}
-                    \ifnum\pgfmathresult=1
-                        \draw[ultra thin] (\lastx,\lasty,\lastz) -- (\Vx,\Vy,\Vz);
-                    \fi
-                    \pgfmathsetmacro\lastx{\Vx}
-                    \pgfmathsetmacro\lasty{\Vy}
-                    \pgfmathsetmacro\lastz{\Vz}
-                    \global\let\lastx\lastx
-                    \global\let\lasty\lasty
-                    \global\let\lastz\lastz
-                } % end inner for loop
-            } % end outer for loop
-
-
-            % latitudinal lines
-            \pgfmathsetmacro\longitudeStart{0}
-            \pgfmathsetmacro\longitudeEnd{360}
-            \pgfmathsetmacro\longitudeSamples{20}
-            \pgfmathsetmacro\longitudeDifference{(\longitudeEnd-\longitudeStart)/\longitudeSamples}
-        
-            \foreach[parse=true, evaluate=\longitude] \longitude in {\longitudeStart,\longitudeStart+\longitudeDifference,...,\longitudeEnd-\longitudeDifference}{
-
-                \tdplottransformrotmain
-                    {sphereX(0,\Vnn)}
-                    {sphereY(0,\Vnn)}
-                    {sphereZ(0,\Vnn)}
-                \pgfmathsetmacro\lastx{\tdplotresx}
-                \pgfmathsetmacro\lasty{\tdplotresy}
-                \pgfmathsetmacro\lastz{\tdplotresz}
-                \pgfmathsetmacro\latitudeStart{0}
-                \pgfmathsetmacro\latitudeEnd{360}
-                \pgfmathsetmacro\latitudeSamples{20}
-                \pgfmathsetmacro\latitudeDifference{(\latitudeEnd-\latitudeStart)/\latitudeSamples}
-                \foreach[parse=true, evaluate=\latitude] \latitude in {\latitudeStart,\latitudeStart+\latitudeDifference,...,\latitudeEnd-\latitudeDifference} {
-                
-                    \tdplottransformrotmain
-                        {sphereX(\Vn,\Vnn)}
-                        {sphereY(\Vn,\Vnn)}
-                        {sphereZ(\Vn,\Vnn)}
-                    \pgfmathsetmacro\Vx{\tdplotresx}
-                    \pgfmathsetmacro\Vy{\tdplotresy}
-                    \pgfmathsetmacro\Vz{\tdplotresz}
-                    % Viewing direction components
-                    \pgfmathsetmacro\viewdirX{sphereX(-\azimuth,90 - \polar)}
-                    \pgfmathsetmacro\viewdirY{sphereY(-\azimuth,90 - \polar)}
-                    \pgfmathsetmacro\viewdirZ{sphereZ(-\azimuth,90 - \polar)}
-
-                    % Dot product with the viewer direction
-                    \pgfmathsetmacro\currentDotProduct{
-                        \lastx*\viewdirX + 
-                        \lasty*\viewdirY + 
-                        \lastz*\viewdirZ
-                    }
-
                     % Check if the dot product is positive
                     \pgfmathparse{\currentDotProduct>0 && \lastz>0 && \Vz>0}
                     \ifnum\pgfmathresult=1
@@ -331,9 +268,56 @@ postscript = r'''
                 }
             }
 
+            % latitudinal lines
+            \pgfmathsetmacro\longitudeStart{0}
+            \pgfmathsetmacro\longitudeEnd{360}
+            \pgfmathsetmacro\longitudeSamples{20}
+            \pgfmathsetmacro\longitudeDifference{(\longitudeEnd-\longitudeStart)/\longitudeSamples}
+            \foreach[parse=true, evaluate=\longitude] \longitude in {\longitudeStart,\longitudeStart+\longitudeDifference,...,\longitudeEnd-\longitudeDifference}{
+                \tdplottransformrotmain
+                    {sphereX(0,\longitude)}
+                    {sphereY(0,\longitude)}
+                    {sphereZ(0,\longitude)}
+                \pgfmathsetmacro\lastx{\tdplotresx}
+                \pgfmathsetmacro\lasty{\tdplotresy}
+                \pgfmathsetmacro\lastz{\tdplotresz}
+                \pgfmathsetmacro\latitudeStart{0}
+                \pgfmathsetmacro\latitudeEnd{360}
+                \pgfmathsetmacro\latitudeSamples{200}
+                \pgfmathsetmacro\latitudeDifference{(\latitudeEnd-\latitudeStart)/\latitudeSamples}
+                \foreach[parse=true, evaluate=\latitude] \latitude in {\latitudeStart,\latitudeStart+\latitudeDifference,...,\latitudeEnd-\latitudeDifference} {
+                    \tdplottransformrotmain
+                        {sphereX(\latitude,\longitude)}
+                        {sphereY(\latitude,\longitude)}
+                        {sphereZ(\latitude,\longitude)}
+                    \pgfmathsetmacro\Vx{\tdplotresx}
+                    \pgfmathsetmacro\Vy{\tdplotresy}
+                    \pgfmathsetmacro\Vz{\tdplotresz}
+                    % Viewing direction components
+                    \pgfmathsetmacro\viewdirX{sphereX(-\azimuth,90 - \polar)}
+                    \pgfmathsetmacro\viewdirY{sphereY(-\azimuth,90 - \polar)}
+                    \pgfmathsetmacro\viewdirZ{sphereZ(-\azimuth,90 - \polar)}
+                    % Dot product with the viewer direction
+                    \pgfmathsetmacro\currentDotProduct{
+                        \lastx*\viewdirX + 
+                        \lasty*\viewdirY + 
+                        \lastz*\viewdirZ
+                    }
+                    % Check if the dot product is positive
+                    \pgfmathparse{\currentDotProduct>0 && \lastz>0 && \Vz>0}
+                    \ifnum\pgfmathresult=1
+                        \draw[ultra thin] (\lastx,\lasty,\lastz) -- (\Vx,\Vy,\Vz);
+                    \fi
+                    \pgfmathsetmacro\lastx{\Vx}
+                    \pgfmathsetmacro\lasty{\Vy}
+                    \pgfmathsetmacro\lastz{\Vz}
+                    \global\let\lastx\lastx
+                    \global\let\lasty\lasty
+                    \global\let\lastz\lastz
+                }
+            }
 
-
-            % loxodrome
+            % the loxodrome on the sphere
             \tdplottransformrotmain
                 {loxodromeX(-1800)}
                 {loxodromeY(-1800)}
@@ -345,9 +329,7 @@ postscript = r'''
             \pgfmathsetmacro\parameterEnd{1800}
             \pgfmathsetmacro\parameterSamples{200}
             \pgfmathsetmacro\parameterDifference{(\parameterEnd-\parameterStart)/\parameterSamples}
-
-            \foreach \parameter in {\parameterStart,\parameterStart+\parameterDifference,...,\parameterEnd-\parameterDifference}{
-             
+            \foreach[parse=true, evaluate=\parameter] \parameter in {\parameterStart,\parameterStart+\parameterDifference,...,\parameterEnd-\parameterDifference}{
                 \tdplottransformrotmain
                     {loxodromeX(\parameter)}
                     {loxodromeY(\parameter)}
@@ -359,17 +341,15 @@ postscript = r'''
                 \pgfmathsetmacro\viewdirX{sphereX(-\azimuth,90 - \polar)}
                 \pgfmathsetmacro\viewdirY{sphereY(-\azimuth,90 - \polar)}
                 \pgfmathsetmacro\viewdirZ{sphereZ(-\azimuth,90 - \polar)}
-
                 \pgfmathsetmacro\currentDotProduct{
                     \lastx*\viewdirX + 
                     \lasty*\viewdirY + 
                     \lastz*\viewdirZ
                 } % Dot product with the viewer direction
-
                 % Check if the dot product is positive
                 \pgfmathparse{\currentDotProduct>0 && \lastz>0 && \Vz>0}
                 \ifnum\pgfmathresult=1
-                    \draw[ultra thin] (\lastx,\lasty,\lastz) -- (\Vx,\Vy,\Vz);
+                    \draw[ultra thin,red] (\lastx,\lasty,\lastz) -- (\Vx,\Vy,\Vz);
                 \fi
                 \pgfmathsetmacro\lastx{\Vx}
                 \pgfmathsetmacro\lasty{\Vy}
