@@ -44,7 +44,7 @@ postscript = r'''
     \begin{frame}
     \tdplotsetmaincoords{\polar}{\azimuth}
 
-        \begin{tikzpicture}[tdplot_main_coords]
+        \begin{tikzpicture}[tdplot_main_coords,scale=0.97]
             \tdplotsetrotatedcoords
                 {\rotation}
                 {\rotation}
@@ -57,8 +57,12 @@ postscript = r'''
                 (-\textwidth/2,-\textheight/2) rectangle 
                 (\textwidth/2,\textheight/2);
 
+            \pgfmathsetmacro\longitudeStart{0}
+            \pgfmathsetmacro\longitudeEnd{360}
+            \pgfmathsetmacro\longitudeSamples{20}
+            \pgfmathsetmacro\longitudeDifference{(\longitudeEnd-\longitudeStart)/\longitudeSamples}
             % lines of latitude on plane
-            \foreach \longitude in {0,10,...,350}{
+            \foreach[parse=true, evaluate=\longitude] \longitude in {\longitudeStart,\longitudeStart+\longitudeDifference,...,\longitudeEnd-\longitudeDifference}{
                 \tdplottransformrotmain
                     {sphereX(0,\longitude)}
                     {sphereY(0,\longitude)}
@@ -69,7 +73,11 @@ postscript = r'''
                     \pgfmathsetmacro\lasty{SP(\tdplotresy,\tdplotresz)}
                 \fi
                 \gdef\opacity{1}
-                \foreach \latitude in {0,5,...,355} {
+                \pgfmathsetmacro\latitudeStart{0}
+                \pgfmathsetmacro\latitudeEnd{360}
+                \pgfmathsetmacro\latitudeSamples{20}
+                \pgfmathsetmacro\latitudeDifference{(\latitudeEnd-\latitudeStart)/\latitudeSamples}
+                \foreach[parse=true, evaluate=\latitude] \latitude in {\latitudeStart,\latitudeStart+\latitudeDifference,...,\latitudeEnd-\latitudeDifference} {
                     \tdplottransformrotmain
                         {sphereX(\latitude,\longitude)}
                         {sphereY(\latitude,\longitude)}
@@ -93,7 +101,12 @@ postscript = r'''
             }
 
             % lines of longitude on plane
-            \foreach \latitude in {0,10,...,350}{
+            \pgfmathsetmacro\latitudeStart{0}
+            \pgfmathsetmacro\latitudeEnd{360}
+            \pgfmathsetmacro\latitudeSamples{20}
+            \pgfmathsetmacro\latitudeDifference{(\latitudeEnd-\latitudeStart)/\latitudeSamples}
+            \foreach[parse=true, evaluate=\latitude] \latitude in {\latitudeStart,\latitudeStart+\latitudeDifference,...,\latitudeEnd-\latitudeDifference} {
+                 
                 \tdplottransformrotmain
                     {sphereX(\latitude,0)}
                     {sphereY(\latitude,0)}
@@ -104,7 +117,13 @@ postscript = r'''
                     \pgfmathsetmacro\lasty{SP(\tdplotresy,\tdplotresz)}
                 \fi
                 \gdef\opacity{1}
-                \foreach \longitude in {0,5,...,355} {
+                \pgfmathsetmacro\longitudeStart{0}
+                \pgfmathsetmacro\longitudeEnd{360}
+                \pgfmathsetmacro\longitudeSamples{20}
+                \pgfmathsetmacro\longitudeDifference{(\longitudeEnd-\longitudeStart)/\longitudeSamples}
+            
+                \foreach[parse=true, evaluate=\longitude] \longitude in {\longitudeStart,\longitudeStart+\longitudeDifference,...,\longitudeEnd-\longitudeDifference}{
+
                     \tdplottransformrotmain
                         {sphereX(\latitude,\longitude)}
                         {sphereY(\latitude,\longitude)}
@@ -136,7 +155,12 @@ postscript = r'''
                 \pgfmathsetmacro\lasty{SP(\tdplotresy,\tdplotresz)}
             \fi
             \gdef\opacity{1}
-            \foreach \parameter in {-1800,-1790,...,1800}{
+            \pgfmathsetmacro\parameterStart{-1800}
+            \pgfmathsetmacro\parameterEnd{1800}
+            \pgfmathsetmacro\parameterSamples{200}
+            \pgfmathsetmacro\parameterDifference{(\parameterEnd-\parameterStart)/\parameterSamples}
+
+            \foreach \parameter in {\parameterStart,\parameterStart+\parameterDifference,...,\parameterEnd-\parameterDifference}{
                 \tdplottransformrotmain
                     {loxodromeX(\parameter)}
                     {loxodromeY(\parameter)}
@@ -198,7 +222,13 @@ postscript = r'''
 
 
             % longitudinal lines
-            \foreach \latitude in {0,10,...,350}{
+            
+            \pgfmathsetmacro\latitudeStart{0}
+            \pgfmathsetmacro\latitudeEnd{360}
+            \pgfmathsetmacro\latitudeSamples{20}
+            \pgfmathsetmacro\latitudeDifference{(\latitudeEnd-\latitudeStart)/\latitudeSamples}
+            \foreach[parse=true, evaluate=\latitude] \latitude in {\latitudeStart,\latitudeStart+\latitudeDifference,...,\latitudeEnd-\latitudeDifference} {
+            
                 \tdplottransformrotmain
                     {sphereX(\latitude,0)}
                     {sphereY(\Vlatitudenn,0)}
@@ -206,7 +236,13 @@ postscript = r'''
                 \pgfmathsetmacro\lastx{\tdplotresx}
                 \pgfmathsetmacro\lasty{\tdplotresy}
                 \pgfmathsetmacro\lastz{\tdplotresz}
-                \foreach \longitude in {5,10,...,360}{
+                \pgfmathsetmacro\longitudeStart{0}
+                \pgfmathsetmacro\longitudeEnd{360}
+                \pgfmathsetmacro\longitudeSamples{20}
+                \pgfmathsetmacro\longitudeDifference{(\longitudeEnd-\longitudeStart)/\longitudeSamples}
+            
+                \foreach[parse=true, evaluate=\longitude] \longitude in {\longitudeStart,\longitudeStart+\longitudeDifference,...,\longitudeEnd-\longitudeDifference}{
+
                     \tdplottransformrotmain
                         {sphereX(\latitude,\longitude)}
                         {sphereY(\latitude,\longitude)}
@@ -242,7 +278,13 @@ postscript = r'''
 
 
             % latitudinal lines
-            \foreach \Vnn in {0,10,...,350}{
+            \pgfmathsetmacro\longitudeStart{0}
+            \pgfmathsetmacro\longitudeEnd{360}
+            \pgfmathsetmacro\longitudeSamples{20}
+            \pgfmathsetmacro\longitudeDifference{(\longitudeEnd-\longitudeStart)/\longitudeSamples}
+        
+            \foreach[parse=true, evaluate=\longitude] \longitude in {\longitudeStart,\longitudeStart+\longitudeDifference,...,\longitudeEnd-\longitudeDifference}{
+
                 \tdplottransformrotmain
                     {sphereX(0,\Vnn)}
                     {sphereY(0,\Vnn)}
@@ -250,7 +292,12 @@ postscript = r'''
                 \pgfmathsetmacro\lastx{\tdplotresx}
                 \pgfmathsetmacro\lasty{\tdplotresy}
                 \pgfmathsetmacro\lastz{\tdplotresz}
-                \foreach \Vn in {5,10,...,360}{
+                \pgfmathsetmacro\latitudeStart{0}
+                \pgfmathsetmacro\latitudeEnd{360}
+                \pgfmathsetmacro\latitudeSamples{20}
+                \pgfmathsetmacro\latitudeDifference{(\latitudeEnd-\latitudeStart)/\latitudeSamples}
+                \foreach[parse=true, evaluate=\latitude] \latitude in {\latitudeStart,\latitudeStart+\latitudeDifference,...,\latitudeEnd-\latitudeDifference} {
+                
                     \tdplottransformrotmain
                         {sphereX(\Vn,\Vnn)}
                         {sphereY(\Vn,\Vnn)}
@@ -294,11 +341,17 @@ postscript = r'''
             \pgfmathsetmacro\lastx{\tdplotresx}
             \pgfmathsetmacro\lasty{\tdplotresy}
             \pgfmathsetmacro\lastz{\tdplotresz}
-            \foreach \Vt in {-1800,-1790,...,1800}{
+            \pgfmathsetmacro\parameterStart{-1800}
+            \pgfmathsetmacro\parameterEnd{1800}
+            \pgfmathsetmacro\parameterSamples{200}
+            \pgfmathsetmacro\parameterDifference{(\parameterEnd-\parameterStart)/\parameterSamples}
+
+            \foreach \parameter in {\parameterStart,\parameterStart+\parameterDifference,...,\parameterEnd-\parameterDifference}{
+             
                 \tdplottransformrotmain
-                    {loxodromeX(\Vt)}
-                    {loxodromeY(\Vt)}
-                    {loxodromeZ(\Vt)}
+                    {loxodromeX(\parameter)}
+                    {loxodromeY(\parameter)}
+                    {loxodromeZ(\parameter)}
                 \pgfmathsetmacro\Vx{\tdplotresx}
                 \pgfmathsetmacro\Vy{\tdplotresy}
                 \pgfmathsetmacro\Vz{\tdplotresz}
