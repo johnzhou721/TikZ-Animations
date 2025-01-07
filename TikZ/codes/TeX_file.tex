@@ -1,10 +1,4 @@
 
-import numpy as np
-import Animation_Modules.animatetex as animatetex
-
-numiter = 24
-
-preamble= r'''
 \documentclass{beamer}
 \beamertemplatenavigationsymbolsempty
 \usepackage{
@@ -37,9 +31,7 @@ preamble= r'''
 \pgfmathdeclarefunction{loxodromeZ}{1}{%
     \pgfmathparse{#1/360/sqrt((cos(#1))^2+(sin(#1))^2+(#1/360)^2)}%
 }
-'''
-
-postscript = r'''
+\pgfmathsetmacro{\rotation}{0.0}
 \begin{document}
     \begin{frame}
     \tdplotsetmaincoords{\polar}{\azimuth}
@@ -74,8 +66,7 @@ postscript = r'''
                         {sphereX(\latitude,\longitude)}
                         {sphereY(\latitude,\longitude)}
                         {sphereZ(\latitude,\longitude)}
-                    \pgfmathparse{\tdplotresz<0.998}
-                    \ifnum\pgfmathresult=1
+                    \ifdim \tdplotresz pt<0.998pt
                         \pgfmathsetmacro\nextx{SP(\tdplotresx,\tdplotresz)}
                         \pgfmathsetmacro\nexty{SP(\tdplotresy,\tdplotresz)}
                         \draw[opacity=\opacity,ultra thin] 
@@ -98,8 +89,7 @@ postscript = r'''
                     {sphereX(\latitude,0)}
                     {sphereY(\latitude,0)}
                     {sphereZ(\latitude,0)}
-                \pgfmathparse{\tdplotresz<0.998}
-                \ifnum\pgfmathresult=1
+                \ifdim \tdplotresz pt<0.998pt
                     \pgfmathsetmacro\lastx{SP(\tdplotresx,\tdplotresz)}
                     \pgfmathsetmacro\lasty{SP(\tdplotresy,\tdplotresz)}
                 \fi
@@ -109,8 +99,7 @@ postscript = r'''
                         {sphereX(\latitude,\longitude)}
                         {sphereY(\latitude,\longitude)}
                         {sphereZ(\latitude,\longitude)}
-                    \pgfmathparse{\tdplotresz<0.998}
-                    \ifnum\pgfmathresult=1
+                    \ifdim \tdplotresz pt<0.998pt
                         \pgfmathsetmacro\nextx{SP(\tdplotresx,\tdplotresz)}
                         \pgfmathsetmacro\nexty{SP(\tdplotresy,\tdplotresz)}
                         \draw[opacity=\opacity,ultra thin] (\lastx,\lasty) -- (\nextx,\nexty);
@@ -130,8 +119,7 @@ postscript = r'''
                 {loxodromeX(-1800)}
                 {loxodromeY(-1800)}
                 {loxodromeZ(-1800)}
-            \pgfmathparse{\tdplotresz<0.998}
-            \ifnum\pgfmathresult=1
+            \ifdim \tdplotresz pt<0.998pt
                 \pgfmathsetmacro\lastx{SP(\tdplotresx,\tdplotresz)}
                 \pgfmathsetmacro\lasty{SP(\tdplotresy,\tdplotresz)}
             \fi
@@ -141,8 +129,7 @@ postscript = r'''
                     {loxodromeX(\parameter)}
                     {loxodromeY(\parameter)}
                     {loxodromeZ(\parameter)}
-                \pgfmathparse{\tdplotresz<0.998}
-                \ifnum\pgfmathresult=1
+                \ifdim \tdplotresz pt<0.999pt
                     \pgfmathsetmacro\nextx{SP(\tdplotresx,\tdplotresz)}
                     \pgfmathsetmacro\nexty{SP(\tdplotresy,\tdplotresz)}
                     \draw[opacity=\opacity,very thin,red] 
@@ -227,10 +214,11 @@ postscript = r'''
                     }
 
                     % Check if the dot product is positive
-                    \pgfmathparse{\currentDotProduct>0 && \lastz>0 && \Vz>0}
-                    \ifnum\pgfmathresult=1
+                    \ifdim\currentDotProduct pt > 0 pt
+                    \ifdim\lastz pt>-0.049pt
+                    \ifdim\Vz pt>-0.049pt
                         \draw[ultra thin] (\lastx,\lasty,\lastz) -- (\Vx,\Vy,\Vz);
-                    \fi
+                    \fi\fi\fi
                     \pgfmathsetmacro\lastx{\Vx}
                     \pgfmathsetmacro\lasty{\Vy}
                     \pgfmathsetmacro\lastz{\Vz}
@@ -271,10 +259,11 @@ postscript = r'''
                     }
 
                     % Check if the dot product is positive
-                    \pgfmathparse{\currentDotProduct>0 && \lastz>0 && \Vz>0}
-                    \ifnum\pgfmathresult=1
+                    \ifdim\currentDotProduct pt > -0.3 pt
+                    \ifdim\lastz pt>-0.049pt
+                    \ifdim\Vz pt>-0.049pt
                         \draw[ultra thin] (\lastx,\lasty,\lastz) -- (\Vx,\Vy,\Vz);
-                    \fi
+                    \fi\fi\fi
                     \pgfmathsetmacro\lastx{\Vx}
                     \pgfmathsetmacro\lasty{\Vy}
                     \pgfmathsetmacro\lastz{\Vz}
@@ -314,9 +303,11 @@ postscript = r'''
                 } % Dot product with the viewer direction
 
                 % Check if the dot product is positive
-                \pgfmathparse{\currentDotProduct>0 && \lastz>0 && \Vz>0}
-                \ifnum\pgfmathresult=1
-                    \draw[ultra thin] (\lastx,\lasty,\lastz) -- (\Vx,\Vy,\Vz);
+                \ifdim\currentDotProduct pt > -0.3 pt
+                \ifdim\lastz pt>-0.049pt
+                \ifdim\Vz pt>-0.049pt
+                \draw[very thin,red] (\lastx,\lasty,\lastz) -- (\Vx,\Vy,\Vz);
+                \fi\fi
                 \fi
                 \pgfmathsetmacro\lastx{\Vx}
                 \pgfmathsetmacro\lasty{\Vy}
@@ -328,25 +319,3 @@ postscript = r'''
         \end{tikzpicture}
     \end{frame}
 \end{document}
-'''
-
-def main():
-    """
-    Purpose:
-        Makes a spinning loxodrome projection.
-    Parameters:
-        No parameters.
-    Return:
-        Void.
-    """
-    animatetex.before_loop()
-    for theta in np.linspace(0,60,numiter):
-        with open(animatetex.TeX_file, 'w') as TeX:
-            TeX.write(preamble)
-            TeX.write(r'\pgfmathsetmacro{\rotation}{' +f'{theta}' +'}')
-            TeX.write(postscript)
-        animatetex.during_loop()
-    animatetex.after_loop()
-
-if __name__ == "__main__":
-    main()
