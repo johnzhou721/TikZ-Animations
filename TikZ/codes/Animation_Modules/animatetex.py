@@ -1,6 +1,4 @@
 """
-File name: animatetex.py
-Author: Jasper Nice
 Purpose:
     This module simplifies the creation of LaTeX animations by 
     condensing the code required to:
