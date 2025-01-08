@@ -373,7 +373,7 @@ def main():
         Void.
     """
     animatetex.before_loop()
-    for theta in np.linspace(0,60,numiter):
+    for theta in np.linspace(0,40,numiter):
         with open(animatetex.TeX_file, 'w') as TeX:
             TeX.write(preamble)
             TeX.write(r'\pgfmathsetmacro{\rotation}{' +f'{theta}' +'}')
