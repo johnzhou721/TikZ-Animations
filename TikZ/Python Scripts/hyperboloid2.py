@@ -1,7 +1,7 @@
 import math
 import numpy as np
 import subprocess
-import Animation_Modules.animatetex as animatetex
+import Modules.animatetex as animatetex
 animatetex.before_loop()
 polar_angle = 60
 azimuthal_angle = 30

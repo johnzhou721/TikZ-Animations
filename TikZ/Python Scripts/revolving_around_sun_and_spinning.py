@@ -1,5 +1,5 @@
 
-import Animation_Modules.animatetex as animatetex
+import Modules.animatetex as animatetex
 preamble = r"""
 \documentclass{beamer}
 \beamertemplatenavigationsymbolsempty

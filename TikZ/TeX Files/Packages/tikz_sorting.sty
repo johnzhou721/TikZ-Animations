@@ -1,17 +1,13 @@
+% ----------------------------------------------------------------------------
+% "THE BEER-WARE LICENSE" (Revision 42):
+% Jonathan P. Spratte  wrote this code.  As long as you retain this notice you
+% can do whatever you want with this stuff. If we meet some day, and you think
+% this stuff is worth it, you can buy me a beer in return. Jonathan P. Spratte
+% ----------------------------------------------------------------------------
+% https://tex.stackexchange.com/a/734099/319072
 \NeedsTeXFormat{LaTeX2e}[1994/06/01]
 \ProvidesPackage{tikz_sorting}
   [2024/11/28 v0.01 LaTeX package for sorting tikz segments]
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% The following sorting algorithm was introduced here:
-% https://tex.stackexchange.com/a/734099/319072
-% 
-% I DID NOT WRITE THIS, IT WAS WRITTEN FOR ME.
-%
-% You append a number, and several properties to a list, and that list
-% is sorted by the number. Then you can access the properties using a 
-% for loop after they are sorted.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \ExplSyntaxOn
 % Create a new named segment list
 % #1: name of the new list

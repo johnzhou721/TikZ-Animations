@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import Animation_Modules.animatetex as animatetex
+import Modules.animatetex as animatetex
 
 
 animatetex.before_loop()

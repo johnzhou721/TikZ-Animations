@@ -1,5 +1,5 @@
-import Animation_Modules.Riemann_integral as Ri
-import Animation_Modules.animatetex as animatetex
+import Modules.Riemann_integral as Ri
+import Modules.animatetex as animatetex
 
 preamble = r"""
 \documentclass{beamer}

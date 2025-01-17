@@ -12,7 +12,7 @@ Credit:
 """
 
 import numpy as np
-import Animation_Modules.animatetex as animatetex
+import Modules.animatetex as animatetex
 
 numiter = 24
 

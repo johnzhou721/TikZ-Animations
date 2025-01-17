@@ -1,5 +1,6 @@
 import numpy as np
-import Animation_Modules.animatetex as animatetex
+from Modules import animatetex
+
 # Credit for formulae: https://www.researchgate.net/publication/376028984_Visualizing_atomic_orbitals_of_an_electron_by_Latex
 
 numiter = 24
@@ -62,7 +63,7 @@ postscript = r'''
                 {\path[color=black,thick,->] (0,0,0)
                 -- (0,0,1) node[anchor=south]{};}%
 
-                \draw[white,tdplot_screen_coords] 
+                \draw[white,tdplot_screen_coords]
                 (0,0) circle({sqrt(110)/(4*sqrt(pi))});
             \end{tikzpicture}
             &
