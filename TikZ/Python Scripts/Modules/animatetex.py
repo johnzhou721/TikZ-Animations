@@ -49,11 +49,20 @@ def file_names():
     """
     global TeX_file, pdf_file, output_directory, merged_temp, merged_pdf
     output_directory = os.path.abspath(os.path.join(\
-        os.path.dirname(__file__), '..'))
-    TeX_file = os.path.join(output_directory, "TeX_file.tex")
-    pdf_file = os.path.join(output_directory, "TeX_file.pdf")
+        os.path.dirname(__file__), '..')).replace('\\', '/')
+    TeX_file = os.path.join(output_directory,\
+                             "TeX_file.tex").replace('\\', '/')
+    pdf_file = os.path.join(output_directory,\
+                             "TeX_file.pdf").replace('\\', '/')
     merged_temp = 'TeX_file_merged_output_temp.pdf'
     merged_pdf = 'TeX_file_merged_output.pdf'
+
+    print(f"Output directory: {output_directory}")
+    print(f"TeX file: {TeX_file}")
+    print(f"PDF file: {pdf_file}")
+    print(f"Merged temp file: {merged_temp}")
+    print(f"Merged PDF file: {merged_pdf}")
+
 
 def make_merged():
     """
