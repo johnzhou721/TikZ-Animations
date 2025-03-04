@@ -63,6 +63,7 @@ end = r'''
             \clip[tdplot_screen_coords] 
             (-\textwidth/2,-\textheight/2) rectangle 
             (\textwidth/2,\textheight/2);
+            
             \tdplotsetrotatedcoords{\rotation}{\rotation}{\rotation}
             \pgfmathsetmacro{\samples}{36}
             \foreach[parse=true, evaluate=\x] \x in {-5,-5+(5-(-5))/\samples,...,5} {

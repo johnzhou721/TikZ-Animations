@@ -1,18 +1,3 @@
-\NeedsTeXFormat{LaTeX2e}[1994/06/01]
-\ProvidesPackage{pline}
-  [2024/11/28 v0.01 LaTeX package for drawing planes and their intesections]
-
-\RequirePackage{
-    tikz
-    ,tikz-3dplot
-}
-
-\usetikzlibrary{
-    spath3
-    ,intersections
-    ,decorations.markings
-}
-
 % https://tex.stackexchange.com/a/509766/319072
 \newcommand{\neworrenewcommand}[1]{\providecommand{#1}{}\renewcommand{#1}}
 
@@ -44,6 +29,11 @@
 \pgfmathsetmacro\bP{#3}
 \pgfmathsetmacro\cP{#4}
 \pgfmathsetmacro\dP{#5}
+
+\pgfmathparse{\aP != 0}\ifnum\pgfmathresult=1\pgfmathsetmacro{\plinexint}{\dP/\aP}\fi
+\pgfmathparse{\bP != 0}\ifnum\pgfmathresult=1\pgfmathsetmacro{\plineyint}{\dP/\bP}\fi
+\pgfmathparse{\cP != 0}\ifnum\pgfmathresult=1\pgfmathsetmacro{\plinezint}{\dP/\cP}\fi
+
 \renewcommand{\xP}[2]{
 % #1  - y
 % #2  - z
@@ -179,7 +169,7 @@
         \pgfmathsetmacro\yzlower{\yP{0}{\pline@zmax}}
     \fi
 
-    \pgfmathsetmacro\xzupper{\pline@ymax}
+    \pgfmathsetmacro\yzupper{\pline@ymax}
     \pgfmathparse{\pline@zmax < \zP{0}{\pline@ymax} || \zP{0}{\pline@ymax} < \pline@zmin}
     \ifnum\pgfmathresult=1
         \pgfmathsetmacro\yzupper{\yP{0}{\pline@zmin}}
@@ -748,20 +738,52 @@
 % https://tex.stackexchange.com/a/731044/319072
 \tikzset{tdplot_scaled_coords/.style n args={3}{x={(#1*\raarot cm,#1*\rbarot cm)},y={(#2*\rabrot cm, #2*\rbbrot cm)},z={(#3*\racrot cm, #3*\rbcrot cm)}}}%
 
-\newcommand{\LabelPath}[6]{
-% Labels a path
-% #1  - Start Coordinate
-% #2  - End Coordinate
-% #3  - Position along path
-% #4  - Relative X-POS
-% #5  - Relative Y-POS
-% #6  - The label
-\path[
-decoration={markings,
-mark=at position #3 with {\node at (#4,#5) {#6};},
-},
-postaction={decorate}]
-(#1) -- ++(#2);
-}
 
-\endinput
+\newcommand{\getpointinplane}[7]{
+    \pgfmathsetmacro{\apx}{#1}
+    \pgfmathsetmacro{\apy}{#2}
+    \pgfmathsetmacro{\apz}{#3}
+    \pgfmathsetmacro{\nx}{#4}
+    \pgfmathsetmacro{\ny}{#5}
+    \pgfmathsetmacro{\nz}{#6}
+    \pgfmathsetmacro{\nd}{#7}
+    \pgfmathsetmacro{\nl}{sqrt((\nx)^2+(\ny)^2+(\nz)^2)}
+    \pgfmathsetmacro{\zpx}{\nx/\nl}
+    \pgfmathsetmacro{\zpy}{\ny/\nl}
+    \pgfmathsetmacro{\zpz}{\nz/\nl}
+    \pgfmathsetmacro{\ipx}{0}
+    \pgfmathsetmacro{\ipy}{0}
+    \pgfmathsetmacro{\ipz}{0}
+    \pgfmathsetmacro{\ipl}{(\nx*\ipx + \ny*\ipy + \nz*\ipz - \nd)/(\nl)^2}
+    \pgfmathsetmacro{\ipx}{\ipx-\ipl*\nx}
+    \pgfmathsetmacro{\ipy}{\ipy-\ipl*\ny}
+    \pgfmathsetmacro{\ipz}{\ipz-\ipl*\nz}
+    \pgfmathsetmacro{\ppx}{\nx+1}
+    \pgfmathsetmacro{\ppy}{\ny}
+    \pgfmathsetmacro{\ppz}{\nz}
+    \tdplotcrossprod(\ppx,\ppy,\ppz)(\nx,\ny,\nz)
+    \pgfmathsetmacro{\ppx}{\tdplotresx}
+    \pgfmathsetmacro{\ppy}{\tdplotresy}
+    \pgfmathsetmacro{\ppz}{\tdplotresz}
+    \pgfmathsetmacro{\xpx}{\ppx-\ipx}
+    \pgfmathsetmacro{\xpy}{\ppy-\ipy}
+    \pgfmathsetmacro{\xpz}{\ppz-\ipz}
+    \pgfmathsetmacro{\xpl}{sqrt((\xpx)^2 + (\xpy)^2 + (\xpz)^2)}
+    \pgfmathsetmacro{\xpx}{\xpx/\xpl}
+    \pgfmathsetmacro{\xpy}{\xpy/\xpl}
+    \pgfmathsetmacro{\xpz}{\xpz/\xpl}
+    \tdplotcrossprod(\nx,\ny,\nz)(\xpx,\xpy,\xpz)
+    \pgfmathsetmacro{\ypx}{\tdplotresx}
+    \pgfmathsetmacro{\ypy}{\tdplotresy}
+    \pgfmathsetmacro{\ypz}{\tdplotresz}
+    \pgfmathsetmacro{\ypl}{sqrt((\ypx)^2 + (\ypy)^2 + (\ypz)^2)}
+    \pgfmathsetmacro{\ypx}{\ypx/\ypl}
+    \pgfmathsetmacro{\ypy}{\ypy/\ypl}
+    \pgfmathsetmacro{\ypz}{\ypz/\ypl}
+    \pgfmathsetmacro{\vpx}{\apx-\ipx}
+    \pgfmathsetmacro{\vpy}{\apy-\ipy}
+    \pgfmathsetmacro{\vpz}{\apz-\ipz}
+    % output below
+    \pgfmathsetmacro{\bpx}{-(\vpx*\xpx + \vpy*\xpy + \vpz*\xpz)}
+    \pgfmathsetmacro{\bpy}{-(\vpx*\ypx + \vpy*\ypy + \vpz*\ypz)}
+}
