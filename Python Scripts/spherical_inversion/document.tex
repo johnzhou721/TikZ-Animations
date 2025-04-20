@@ -1,45 +1,3 @@
-
-import numpy as np
-import Modules.animatetex as animatetex
-
-numiter = 24
-
-preamble= r'''
-\documentclass{beamer}
-\beamertemplatenavigationsymbolsempty
-\usepackage{
-    tikz
-    ,tikz-3dplot
-}
-\pgfmathdeclarefunction{sphereX}{2}{%
-    \pgfmathparse{cos(#2)*cos(#1)}%
-}
-\pgfmathdeclarefunction{sphereY}{2}{%
-    \pgfmathparse{cos(#2)*sin(#1)}%
-}
-\pgfmathdeclarefunction{sphereZ}{2}{%
-    \pgfmathparse{sin(#2)}%
-}
-
-\pgfmathsetmacro{\polar}{60}
-\pgfmathsetmacro{\azimuth}{45}
-
-\pgfmathdeclarefunction{SP}{2}{%
-    \pgfmathparse{#1/(1-#2)}%
-}
-
-\pgfmathdeclarefunction{loxodromeX}{1}{%
-    \pgfmathparse{cos(#1)/sqrt((cos(#1))^2+(sin(#1))^2+(#1/360)^2)}%
-}
-\pgfmathdeclarefunction{loxodromeY}{1}{%
-    \pgfmathparse{sin(#1)/sqrt((cos(#1))^2+(sin(#1))^2+(#1/360)^2)}%
-}
-\pgfmathdeclarefunction{loxodromeZ}{1}{%
-    \pgfmathparse{#1/360/sqrt((cos(#1))^2+(sin(#1))^2+(#1/360)^2)}%
-}
-'''
-
-postscript = r'''
 \begin{document}
     \begin{frame}
         \tdplotsetmaincoords{\polar}{\azimuth}
@@ -361,25 +319,3 @@ postscript = r'''
         \end{tikzpicture}
     \end{frame}
 \end{document}
-'''
-
-def main():
-    """
-    Purpose:
-        Makes a spinning loxodrome projection.
-    Parameters:
-        No parameters.
-    Return:
-        Void.
-    """
-    animatetex.before_loop()
-    for theta in np.linspace(0,40,numiter):
-        with open(animatetex.TeX_file, 'w') as TeX:
-            TeX.write(preamble)
-            TeX.write(r'\pgfmathsetmacro{\rotation}{' +f'{theta}' +'}')
-            TeX.write(postscript)
-        animatetex.during_loop()
-    animatetex.after_loop()
-
-if __name__ == "__main__":
-    main()

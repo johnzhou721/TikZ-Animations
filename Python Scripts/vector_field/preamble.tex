@@ -1,0 +1,19 @@
+\documentclass{beamer}
+\beamertemplatenavigationsymbolsempty
+\usepackage{tikz}
+\usepackage{tikz-3dplot}
+
+\pgfmathsetmacro{\qx}{0}
+\pgfmathsetmacro{\qy}{0}
+\pgfmathsetmacro{\qz}{0}
+
+% https://tex.stackexchange.com/a/15449/319072
+\pgfmathdeclarefunction{sphereX}{2}{%
+  \pgfmathparse{cos(#2)*cos(#1)}%
+}
+\pgfmathdeclarefunction{sphereY}{2}{%
+  \pgfmathparse{cos(#2)*sin(#1)}%
+}
+\pgfmathdeclarefunction{sphereZ}{2}{%
+  \pgfmathparse{sin(#2)}%
+}
