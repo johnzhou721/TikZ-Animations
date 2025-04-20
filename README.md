@@ -13,8 +13,8 @@ I also enjoy contributing to TeX.SE and TikZ.net.
 https://tex.stackexchange.com/users/319072/jasper
 https://tikz.net/author/jasper/
 
-One of my goals is to one day use my skills in TikZ to illustrate math
-publications.
+One of my goals is to one day use my skills in TikZ to make really
+cool illustrations in math publications.
 
 Besides my academic work, I'm passionate about volunteering.
 I've dedicated over 900 hours to various animal rescue organizations.
