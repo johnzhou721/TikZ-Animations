@@ -9,20 +9,17 @@ def main():
   """
   animatetex.before_loop()
   for angle in np.linspace(0,40,iterations):
-      with open(
-          r"Python Scripts\bumpy_sphere\preamble.tex", "r"
-      ) as preamble:
-          preamble = preamble.read()
-      with open(
-          r"Python Scripts\bumpy_sphere\document.tex", "r"
-      ) as document:
-          document = document.read()
       with open(animatetex.TeX_file, 'w') as latex:
-          latex.write(preamble)
-          latex.write(r'\pgfmathsetmacro{\azimuthchange}{' + f'{angle}' + '}')
-          latex.write(document)
+          latex.write(
+              '\\documentclass{beamer}\n' +
+              '\\beamertemplatenavigationsymbolsempty\n'
+              '\\usepackage{Sources/bumpy_sphere/preamble}\n' +
+              r'\pgfmathsetmacro{\azimuthchange}{' + f'{angle}' + '}\n' +
+              '\\begin{document}\n' +
+              '\\input{Sources/bumpy_sphere/document}\n' +
+              '\\end{document}'
+          )
       animatetex.during_loop()
   animatetex.after_loop()
-
 if __name__ == "__main__":
     main()

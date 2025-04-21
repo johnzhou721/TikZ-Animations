@@ -1,0 +1,13 @@
+\begin{frame}[fragile]
+    \centering
+    \tdplotsetmaincoords{90-\directlua{tex.print(elevation)}}{\directlua{tex.print(azimuth)}}
+    \begin{tikzpicture}[tdplot_main_coords]
+        \path[tdplot_screen_coords] 
+        (-\textwidth/2,-\textheight/2) rectangle 
+        (\textwidth/2,\textheight/2);
+        \clip[tdplot_screen_coords] 
+        (-\textwidth/2,-\textheight/2) rectangle 
+        (\textwidth/2,\textheight/2);
+        \directlua{make_tikzpicture(rotation)}
+    \end{tikzpicture}
+\end{frame}

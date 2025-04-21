@@ -1,11 +1,7 @@
-\documentclass{beamer}
-\beamertemplatenavigationsymbolsempty
-
 \usepackage{
     tikz
     ,tikz-3dplot
 }
-
 % https://tex.stackexchange.com/a/15449/319072
 \pgfmathdeclarefunction{sphereX}{2}{%
     \pgfmathparse{2*cos(#2)*cos(#1)}%
@@ -28,8 +24,6 @@
 \pgfmathdeclarefunction{BsphereZ}{2}{%
     \pgfmathparse{perturbation(#1,#2)*sphereZ(#1,#2)+sphereZ(#1,#2)}%
 }
-
-
 % The below code is credited to the author of 
 % https://tex.stackexchange.com/a/734099/319072
 \ExplSyntaxOn

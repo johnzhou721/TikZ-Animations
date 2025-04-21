@@ -15,18 +15,16 @@ def main():
     """
     animatetex.before_loop()
     for angle in np.linspace(0,360,iterations):
-      with open(
-          r"Python Scripts\vector_field\preamble.tex", "r"
-      ) as preamble:
-          preamble = preamble.read()
-      with open(
-          r"Python Scripts\vector_field\document.tex", "r"
-      ) as document:
-          document = document.read()
       with open(animatetex.TeX_file, 'w') as latex:
-          latex.write(preamble)
-          latex.write(r'\pgfmathsetmacro{\t}{' + f'{angle}' + '}')
-          latex.write(document)
+          latex.write(
+              '\\documentclass{beamer}\n' +
+              '\\beamertemplatenavigationsymbolsempty\n'
+              '\\usepackage{Sources/vector_field/preamble}\n' +
+              r'\pgfmathsetmacro{\t}{' + f'{angle}' + '}\n' +
+              '\\begin{document}\n' +
+              '\\input{Sources/vector_field/document}\n' +
+              '\\end{document}'
+          )
       animatetex.during_loop()
     animatetex.after_loop()
 if __name__ == "__main__":
