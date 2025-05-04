@@ -54,7 +54,7 @@ disabilities.
 
 ## Future Aspirations
 
-I aim to leverage my skills in TikZ and mathematical visualization to contribute to academic publications and educational resources, making complex mathematical ideas more accessible and engaging.
+I am only in my undergraduate degree now, but I aim to leverage my skills in TikZ and mathematical visualization to contribute to academic publications and educational resources, making complex mathematical ideas more accessible and engaging.
 
 ## Contact
 

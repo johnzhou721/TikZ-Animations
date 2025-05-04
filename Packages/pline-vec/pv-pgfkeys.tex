@@ -1,0 +1,43 @@
+\pgfqkeys{/pline}{
+    .is family
+    % normal equation of plane
+    ,nx/.store in = \pline@na
+    ,ny/.store in = \pline@nb
+    ,nz/.store in = \pline@nc
+    ,nd/.store in = \pline@nd
+    % normal equation of "second" plane (only for taking intersections)
+    ,snx/.store in = \pline@snx
+    ,sny/.store in = \pline@sny
+    ,snz/.store in = \pline@snz
+    ,snd/.store in = \pline@snd
+    % 3D boundaries
+    ,xmin/.store in = \pline@xmin
+    ,xmax/.store in = \pline@xmax
+    ,ymin/.store in = \pline@ymin
+    ,ymax/.store in = \pline@ymax
+    ,zmin/.store in = \pline@zmin
+    ,zmax/.store in = \pline@zmax
+    % size of the "cube"
+    ,size/.store in = \pline@size
+    ,alpha/.store in = \pline@alpha % Z
+    ,beta/.store in = \pline@beta % Y
+    ,gamma/.store in = \pline@gamma % Z
+    ,nx = 1
+    ,ny = 1
+    ,nz = 1
+    ,nd = 0
+    ,snx = 1
+    ,sny = 1
+    ,snz = 1
+    ,snd = 0
+    ,xmin = -5
+    ,xmax = 5
+    ,ymin = -5
+    ,ymax = 5
+    ,zmin = -5
+    ,zmax = 5
+    ,size = 5
+    ,alpha = 0
+    ,beta = 0
+    ,gamma = 0
+}

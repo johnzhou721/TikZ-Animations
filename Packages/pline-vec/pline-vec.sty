@@ -1,0 +1,24 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{pline-vec}[
+    2025/04/27 v0.01 LaTeX package for drawing planes and their 
+    intesections, as well as vectors.
+]
+\RequirePackage{
+    tikz
+    ,tikz-3dplot
+}
+\usetikzlibrary{
+    calc
+    ,spath3
+    ,intersections
+    ,arrows.meta
+    ,decorations.markings
+}
+\input{pv-segment_sorting}
+\input{pv-math}
+\input{pv-pgfkeys}
+\input{pv-get_plane}
+\input{pv-get_line}
+\input{pv-vectors}
+\input{pv-pgflowlevelsynccm}
+\input{pv-tikzplanes}

@@ -1,0 +1,70 @@
+\pgfmathdeclarefunction{crossX}{6}{%
+    \pgfmathparse{#2*#6-#3*#5}%
+}
+\pgfmathdeclarefunction{crossY}{6}{%
+    \pgfmathparse{#3*#4-#1*#6}%
+}
+\pgfmathdeclarefunction{crossZ}{6}{%
+    \pgfmathparse{#1*#5-#2*#4}%
+}
+\pgfmathdeclarefunction{dotproduct}{6}{%
+    \pgfmathparse{#1*#4+#2*#5+#3*#6}%
+}
+% https://tex.stackexchange.com/a/736767/319072
+\pgfmathdeclarefunction{tdplottransformrotmainX}{6}{%
+    % #1  - Z rotation
+    % #2  - Y rotation
+    % #3  - Z rotation
+    % #4  - x value
+    % #5  - y value
+    % #6  - z value
+    \pgfmathparse{
+        (
+            (
+                sin(#1) * cos(#2) * cos(#3) + 
+                cos(#1) * sin(#3)
+            ) * #4 +
+            (
+                -sin(#1) * cos(#2) * sin(#3) + 
+                cos(#1) * cos(#3)
+            ) * #5 +
+            sin(#1) * sin(#2) * #6
+        ) * -1
+    }%
+}
+\pgfmathdeclarefunction{tdplottransformrotmainY}{6}{%
+    \pgfmathparse{
+        (
+            cos(#1) * cos(#2) * cos(#3) - 
+            sin(#1) * sin(#3)
+        ) * #4 +
+        (
+            -cos(#1) * cos(#2) * sin(#3) - 
+            sin(#1) * cos(#3)
+        ) * #5 +
+        cos(#1) * sin(#2) * #6
+    }%
+}
+\pgfmathdeclarefunction{tdplottransformrotmainZ}{6}{%
+    \pgfmathparse{
+        -sin(#2) * cos(#3) * #4 +
+        sin(#2) * sin(#3) * #5 + 
+        cos(#2) * #6
+    }%
+}
+
+\pgfmathdeclarefunction{sphereX}{2}{%
+  \pgfmathparse{cos(#2)*cos(#1)}%
+}
+\pgfmathdeclarefunction{sphereY}{2}{%
+  \pgfmathparse{cos(#2)*sin(#1)}%
+}
+\pgfmathdeclarefunction{sphereZ}{2}{%
+  \pgfmathparse{sin(#2)}%
+}
+\pgfmathsetmacro{\azimuth}{130}
+\pgfmathsetmacro{\elevation}{30}
+% https://tex.stackexchange.com/a/729510/319072
+\pgfmathsetmacro{\CameraX}{sin(\azimuth)*cos(\elevation)}
+\pgfmathsetmacro{\CameraY}{-cos(\azimuth)*cos(\elevation)}
+\pgfmathsetmacro{\CameraZ}{sin(\elevation)}

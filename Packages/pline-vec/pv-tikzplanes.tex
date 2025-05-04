@@ -1,0 +1,325 @@
+% https://tex.stackexchange.com/a/509766/319072
+\newcommand{\neworrenewcommand}[1]{\providecommand{#1}{}\renewcommand{#1}}
+\newcommand{\plinepointinplane}[7]{
+    \pgfmathsetmacro{\apx}{#1}
+    \pgfmathsetmacro{\apy}{#2}
+    \pgfmathsetmacro{\apz}{#3}
+    \pgfmathsetmacro{\nx}{#4}
+    \pgfmathsetmacro{\ny}{#5}
+    \pgfmathsetmacro{\nz}{#6}
+    \pgfmathsetmacro{\nd}{#7}
+    \pgfmathsetmacro{\nl}{sqrt((\nx)^2+(\ny)^2+(\nz)^2)}
+    \pgfmathsetmacro{\zpx}{\nx/\nl}
+    \pgfmathsetmacro{\zpy}{\ny/\nl}
+    \pgfmathsetmacro{\zpz}{\nz/\nl}
+    \pgfmathsetmacro{\ipx}{0}
+    \pgfmathsetmacro{\ipy}{0}
+    \pgfmathsetmacro{\ipz}{0}
+    \pgfmathsetmacro{\ipl}{(\nx*\ipx + \ny*\ipy + \nz*\ipz - \nd)/(\nl)^2}
+    \pgfmathsetmacro{\ipx}{\ipx-\ipl*\nx}
+    \pgfmathsetmacro{\ipy}{\ipy-\ipl*\ny}
+    \pgfmathsetmacro{\ipz}{\ipz-\ipl*\nz}
+    \pgfmathsetmacro{\ppx}{\nx+1}
+    \pgfmathsetmacro{\ppy}{\ny}
+    \pgfmathsetmacro{\ppz}{\nz}
+    \tdplotcrossprod(\ppx,\ppy,\ppz)(\nx,\ny,\nz)
+    \pgfmathsetmacro{\ppx}{\tdplotresx}
+    \pgfmathsetmacro{\ppy}{\tdplotresy}
+    \pgfmathsetmacro{\ppz}{\tdplotresz}
+    \pgfmathsetmacro{\xpx}{\ppx-\ipx}
+    \pgfmathsetmacro{\xpy}{\ppy-\ipy}
+    \pgfmathsetmacro{\xpz}{\ppz-\ipz}
+    \pgfmathsetmacro{\xpl}{sqrt((\xpx)^2 + (\xpy)^2 + (\xpz)^2)}
+    \pgfmathsetmacro{\xpx}{\xpx/\xpl}
+    \pgfmathsetmacro{\xpy}{\xpy/\xpl}
+    \pgfmathsetmacro{\xpz}{\xpz/\xpl}
+    \tdplotcrossprod(\nx,\ny,\nz)(\xpx,\xpy,\xpz)
+    \pgfmathsetmacro{\ypx}{\tdplotresx}
+    \pgfmathsetmacro{\ypy}{\tdplotresy}
+    \pgfmathsetmacro{\ypz}{\tdplotresz}
+    \pgfmathsetmacro{\ypl}{sqrt((\ypx)^2 + (\ypy)^2 + (\ypz)^2)}
+    \pgfmathsetmacro{\ypx}{\ypx/\ypl}
+    \pgfmathsetmacro{\ypy}{\ypy/\ypl}
+    \pgfmathsetmacro{\ypz}{\ypz/\ypl}
+    \pgfmathsetmacro{\vpx}{\apx-\ipx}
+    \pgfmathsetmacro{\vpy}{\apy-\ipy}
+    \pgfmathsetmacro{\vpz}{\apz-\ipz}
+    % output below
+    \pgfmathsetmacro{\bpx}{-(\vpx*\xpx + \vpy*\xpy + \vpz*\xpz)}
+    \pgfmathsetmacro{\bpy}{-(\vpx*\ypx + \vpy*\ypy + \vpz*\ypz)}
+}
+
+\pgfqkeys{/pline}{
+    .is family
+    ,xmin/.store in = \pline@xmin
+    ,xmax/.store in = \pline@xmax
+    ,ymin/.store in = \pline@ymin
+    ,ymax/.store in = \pline@ymax
+    ,zmin/.store in = \pline@zmin
+    ,zmax/.store in = \pline@zmax
+    ,xmin=-5
+    ,xmax=5
+    ,ymin=-5
+    ,ymax=5
+    ,zmin=-5
+    ,zmax=5
+}
+
+\newcommand{\Lyofx}[1]{}
+\newcommand{\Lxofy}[1]{}
+
+\newcommand{\Lzofx}[1]{}
+\newcommand{\Lxofz}[1]{}
+
+\newcommand{\Lzofy}[1]{}
+\newcommand{\Lyofz}[1]{}
+
+\newcommand{\getLine}[9][]{
+\neworrenewcommand{\getLineinner}[1]{
+\pgfqkeys{/pline}{#1}%
+
+\pgfmathsetmacro\aPone{#2}
+\pgfmathsetmacro\bPone{#3}
+\pgfmathsetmacro\cPone{#4}
+\pgfmathsetmacro\dPone{#5}
+
+\pgfmathsetmacro\aPtwo{#6}
+\pgfmathsetmacro\bPtwo{#7}
+\pgfmathsetmacro\cPtwo{#8}
+\pgfmathsetmacro\dPtwo{#9}
+
+\renewcommand{\Lyofx}[1]{((\dPtwo-(\cPtwo)*(\dPone)/(\cPone))-(\aPtwo-(\cPtwo)*(\aPone)/(\cPone))*(####1))/(\bPtwo-(\cPtwo)*(\bPone)/(\cPone))}
+\renewcommand{\Lzofx}[1]{((\dPtwo-(\bPtwo)*(\dPone)/(\bPone))-(\aPtwo-(\bPtwo)*(\aPone)/(\bPone))*(####1))/(\cPtwo-(\bPtwo)*(\cPone)/(\bPone))}
+
+\renewcommand{\Lzofy}[1]{((\dPtwo-(\aPtwo)*(\dPone)/(\aPone))-(\bPtwo-(\aPtwo)*(\bPone)/(\aPone))*(####1))/(\cPtwo-(\aPtwo)*(\cPone)/(\aPone))}
+\renewcommand{\Lxofy}[1]{((\dPtwo-(\cPtwo)*(\dPone)/(\cPone))-(\bPtwo-(\cPtwo)*(\bPone)/(\cPone))*(####1))/(\aPtwo-(\cPtwo)*(\aPone)/(\cPone))}
+
+\renewcommand{\Lyofz}[1]{((\dPtwo-(\aPtwo)*(\dPone)/(\aPone))-(\cPtwo-(\aPtwo)*(\cPone)/(\aPone))*(####1))/(\bPtwo-(\aPtwo)*(\bPone)/(\aPone))}
+\renewcommand{\Lxofz}[1]{((\dPtwo-(\bPtwo)*(\dPone)/(\bPone))-(\cPtwo-(\bPtwo)*(\cPone)/(\bPone))*(####1))/(\aPtwo-(\bPtwo)*(\aPone)/(\bPone))}
+
+
+% nonparallel test
+%\eqFrac{\aPone}{\aPtwo}{\bPone}{\bPtwo}
+%\pgfmathsetmacro{\testone}{\pgfmathresult}
+
+%\eqFrac{\aPone}{\aPtwo}{\cPone}{\cPtwo}
+%\pgfmathsetmacro{\testtwo}{\pgfmathresult}
+
+%\pgfmathparse{!(\testone && \testtwo)}
+%\ifnum\pgfmathresult=1
+\ifnum1=1
+
+    \pgfmathparse{!(\bPtwo == \cPtwo*(\bPone)/(\cPone) || \cPtwo == \bPtwo*(\cPone)/(\bPone))}
+    \ifnum\pgfmathresult=1
+        \pgfmathsetmacro\Lstartx{\pline@xmin}
+        \pgfmathsetmacro\Lstarty{\Lyofx{\pline@xmin}}
+        \pgfmathsetmacro\Lstartz{\Lzofx{\pline@xmin}}
+        \pgfmathsetmacro\Lendx{\pline@xmax}
+        \pgfmathsetmacro\Lendy{\Lyofx{\pline@xmax}}
+        \pgfmathsetmacro\Lendz{\Lzofx{\pline@xmax}}
+
+        \pgfmathparse{\Lendy > \pline@ymax}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lendx{\Lxofy{\pline@ymax}}
+            \pgfmathsetmacro\Lendy{\Lyofx{\Lxofy{\pline@ymax}}}
+            \pgfmathsetmacro\Lendz{\Lzofx{\Lxofy{\pline@ymax}}}
+        \fi
+        \pgfmathparse{\Lendy < \pline@ymin}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lendx{\Lxofy{\pline@ymin}}
+            \pgfmathsetmacro\Lendy{\Lyofx{\Lxofy{\pline@ymin}}}
+            \pgfmathsetmacro\Lendz{\Lzofx{\Lxofy{\pline@ymin}}}
+        \fi
+
+        \pgfmathparse{\Lstarty > \pline@ymax}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lstartx{\Lxofy{\pline@ymax}}
+            \pgfmathsetmacro\Lstarty{\Lyofx{\Lxofy{\pline@ymax}}}
+            \pgfmathsetmacro\Lstartz{\Lzofx{\Lxofy{\pline@ymax}}}
+        \fi
+        \pgfmathparse{\Lstarty < \pline@ymin}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lstartx{\Lxofy{\pline@ymin}}
+            \pgfmathsetmacro\Lstarty{\Lyofx{\Lxofy{\pline@ymin}}}
+            \pgfmathsetmacro\Lstartz{\Lzofx{\Lxofy{\pline@ymin}}}
+        \fi
+
+        %%%
+
+        \pgfmathparse{\Lendz > \pline@zmax}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lendx{\Lxofz{\pline@zmax}}
+            \pgfmathsetmacro\Lendy{\Lyofx{\Lxofz{\pline@zmax}}}
+            \pgfmathsetmacro\Lendz{\Lzofx{\Lxofz{\pline@zmax}}}
+        \fi
+        \pgfmathparse{\Lendz < \pline@zmin}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lendx{\Lxofz{\pline@zmin}}
+            \pgfmathsetmacro\Lendy{\Lyofx{\Lxofz{\pline@zmin}}}
+            \pgfmathsetmacro\Lendz{\Lzofx{\Lxofz{\pline@zmin}}}
+        \fi
+
+        \pgfmathparse{\Lstartz > \pline@zmax}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lstartx{\Lxofz{\pline@zmax}}
+            \pgfmathsetmacro\Lstarty{\Lyofx{\Lxofz{\pline@zmax}}}
+            \pgfmathsetmacro\Lstartz{\Lzofx{\Lxofz{\pline@zmax}}}
+        \fi
+        \pgfmathparse{\Lstartz < \pline@zmin}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lstartx{\Lxofz{\pline@zmin}}
+            \pgfmathsetmacro\Lstarty{\Lyofx{\Lxofz{\pline@zmin}}}
+            \pgfmathsetmacro\Lstartz{\Lzofx{\Lxofz{\pline@zmin}}}
+        \fi
+               
+        \coordinate (Lstart) at (\plinescalex*\Lstartx,\plinescaley*\Lstarty,\plinescalez*\Lstartz);
+        \coordinate (Lend) at (\plinescalex*\Lendx,\plinescaley*\Lendy,\plinescalez*\Lendz);
+        
+    \else
+
+        \pgfmathparse{!(\cPtwo == \aPtwo*(\cPone)/(\aPone) || \aPtwo == \cPtwo*(\aPone)/(\cPone))}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lstartx{\Lxofy{\pline@ymin}}
+            \pgfmathsetmacro\Lstarty{\pline@ymin}
+            \pgfmathsetmacro\Lstartz{\Lzofy{\pline@ymin}}
+            \pgfmathsetmacro\Lendx{\Lxofy{\pline@ymax}}
+            \pgfmathsetmacro\Lendy{\pline@ymax}
+            \pgfmathsetmacro\Lendz{\Lzofy{\pline@ymax}}
+    
+            \pgfmathparse{\Lendx > \pline@xmax}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro\Lendx{\Lxofy{\Lyofx{\pline@xmax}}}
+                \pgfmathsetmacro\Lendy{\Lyofx{\pline@xmax}}
+                \pgfmathsetmacro\Lendz{\Lzofy{\Lyofx{\pline@xmax}}}
+            \fi
+            \pgfmathparse{\Lendx < \pline@xmin}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro\Lendx{\Lxofy{\Lyofx{\pline@xmin}}}
+                \pgfmathsetmacro\Lendy{\Lyofx{\pline@xmin}}
+                \pgfmathsetmacro\Lendz{\Lzofy{\Lyofx{\pline@xmin}}}
+            \fi
+    
+            \pgfmathparse{\Lstartx > \pline@xmax}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro\Lstartx{\Lxofy{\Lyofx{\pline@xmax}}}
+                \pgfmathsetmacro\Lstarty{\Lyofx{\pline@xmax}}
+                \pgfmathsetmacro\Lstartz{\Lzofy{\Lyofx{\pline@xmax}}}
+            \fi
+            \pgfmathparse{\Lstartx < \pline@xmin}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro\Lstartx{\Lxofy{\Lyofx{\pline@xmin}}}
+                \pgfmathsetmacro\Lstarty{\Lyofx{\pline@xmin}}
+                \pgfmathsetmacro\Lstartz{\Lzofy{\Lyofx{\pline@xmin}}}
+            \fi
+    
+            %%%
+    
+            \pgfmathparse{\Lendz > \pline@zmax}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro\Lendx{\Lxofy{\Lyofz{\pline@zmax}}}
+                \pgfmathsetmacro\Lendy{\Lyofz{\pline@zmax}}
+                \pgfmathsetmacro\Lendz{\Lzofy{\Lyofz{\pline@zmax}}}
+            \fi
+            \pgfmathparse{\Lendz < \pline@zmin}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro\Lendx{\Lxofy{\Lyofz{\pline@zmin}}}
+                \pgfmathsetmacro\Lendy{\Lyofz{\pline@zmin}}
+                \pgfmathsetmacro\Lendz{\Lzofy{\Lyofz{\pline@zmin}}}
+            \fi
+    
+            \pgfmathparse{\Lstartz > \pline@zmax}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro\Lstartx{\Lxofy{\Lyofz{\pline@zmax}}}
+                \pgfmathsetmacro\Lstarty{\Lyofz{\pline@zmax}}
+                \pgfmathsetmacro\Lstartz{\Lzofy{\Lyofz{\pline@zmax}}}
+            \fi
+            \pgfmathparse{\Lstartz < \pline@zmin}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro\Lstartx{\Lxofy{\Lyofz{\pline@zmin}}}
+                \pgfmathsetmacro\Lstarty{\Lyofz{\pline@zmin}}
+                \pgfmathsetmacro\Lstartz{\Lzofy{\Lyofz{\pline@zmin}}}
+            \fi
+                   
+            \coordinate (Lstart) at (\plinescalex*\Lstartx,\plinescaley*\Lstarty,\plinescalez*\Lstartz);
+        \coordinate (Lend) at (\plinescalex*\Lendx,\plinescaley*\Lendy,\plinescalez*\Lendz);
+        \fi
+
+    \else
+
+    \pgfmathparse{!(\bPtwo == \aPtwo*(\bPone)/(\aPone) || \aPtwo == \bPtwo*(\aPone)/(\bPone))}
+    \ifnum\pgfmathresult=1
+        \pgfmathsetmacro\Lstartx{\Lxofz{\pline@zmin}}
+        \pgfmathsetmacro\Lstarty{\Lyofz{\pline@zmin}}
+        \pgfmathsetmacro\Lstartz{\pline@zmin}
+        \pgfmathsetmacro\Lendx{\Lxofz{\pline@zmax}}
+        \pgfmathsetmacro\Lendy{\Lyofz{\pline@zmax}}
+        \pgfmathsetmacro\Lendz{\pline@zmax}
+
+        \pgfmathparse{\Lendx > \pline@xmax}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lendx{\Lxofz{\Lzofx{\pline@xmax}}}
+            \pgfmathsetmacro\Lendy{\Lyofz{\Lzofx{\pline@xmax}}}
+            \pgfmathsetmacro\Lendz{\Lzofx{\pline@xmax}}
+        \fi
+        \pgfmathparse{\Lendx < \pline@xmin}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lendx{\Lxofz{\Lzofx{\pline@xmin}}}
+            \pgfmathsetmacro\Lendy{\Lyofz{\Lzofx{\pline@xmin}}}
+            \pgfmathsetmacro\Lendz{\Lzofx{\pline@xmin}}
+        \fi
+
+        \pgfmathparse{\Lendy > \pline@ymax}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lendx{\Lxofz{\Lzofy{\pline@ymax}}}
+            \pgfmathsetmacro\Lendy{\Lyofz{\Lzofy{\pline@ymax}}}
+            \pgfmathsetmacro\Lendz{\Lzofy{\pline@ymax}}
+        \fi
+        \pgfmathparse{\Lendy < \pline@ymin}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lendx{\Lxofz{\Lzofy{\pline@ymin}}}
+            \pgfmathsetmacro\Lendy{\Lyofz{\Lzofy{\pline@ymin}}}
+            \pgfmathsetmacro\Lendz{\Lzofy{\pline@ymin}}
+        \fi
+
+        %%%
+
+        \pgfmathparse{\Lstartx > \pline@xmax}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lstartx{\Lxofz{\Lzofx{\pline@xmax}}}
+            \pgfmathsetmacro\Lstarty{\Lyofz{\Lzofx{\pline@xmax}}}
+            \pgfmathsetmacro\Lstartz{\Lzofx{\pline@xmax}}
+        \fi
+        \pgfmathparse{\Lstartx < \pline@xmin}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lstartx{\Lxofz{\Lzofx{\pline@xmin}}}
+            \pgfmathsetmacro\Lstarty{\Lyofz{\Lzofx{\pline@xmin}}}
+            \pgfmathsetmacro\Lendz{\Lzofx{\pline@xmin}}
+        \fi
+
+        \pgfmathparse{\Lstarty > \pline@ymax}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lstartx{\Lxofz{\Lzofy{\pline@ymax}}}
+            \pgfmathsetmacro\Lstarty{\Lyofz{\Lzofy{\pline@ymax}}}
+            \pgfmathsetmacro\Lstartz{\Lzofy{\pline@ymax}}
+        \fi
+        \pgfmathparse{\Lstarty < \pline@ymin}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro\Lstartx{\Lxofz{\Lzofy{\pline@ymin}}}
+            \pgfmathsetmacro\Lstarty{\Lyofz{\Lzofy{\pline@ymin}}}
+            \pgfmathsetmacro\Lstartz{\Lzofy{\pline@ymin}}
+        \fi
+               
+        \coordinate (Lstart) at (\plinescalex*\Lstartx,\plinescaley*\Lstarty,\plinescalez*\Lstartz);
+        \coordinate (Lend) at (\plinescalex*\Lendx,\plinescaley*\Lendy,\plinescalez*\Lendz);
+
+    \fi\fi
+
+           \path[spath/save=##1] (Lstart) -- (Lend);
+
+\else
+    % if they are parallel, do nothing
+    \path[spath/save=##1];
+\fi
+    }% ends inner newcommand
+    \getLineinner
+}

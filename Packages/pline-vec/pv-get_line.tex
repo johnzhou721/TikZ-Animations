@@ -1,0 +1,330 @@
+% Initialize line functions to be renewed multiple times later
+% x and y
+\pgfmathdeclarefunction{Lyofx}{1}{\pgfmathparse{100}}
+\pgfmathdeclarefunction{Lxofy}{1}{\pgfmathparse{100}}
+% z and x
+\pgfmathdeclarefunction{Lzofx}{1}{\pgfmathparse{100}}
+\pgfmathdeclarefunction{Lxofz}{1}{\pgfmathparse{100}}
+% z and y
+\pgfmathdeclarefunction{Lzofy}{1}{\pgfmathparse{100}}
+\pgfmathdeclarefunction{Lyofz}{1}{\pgfmathparse{100}}
+\newcommand{\getline}[2][]{
+    \begingroup
+    % #1  - the options
+    % #2  - the name of the line's path
+    \pgfqkeys{/pline}{#1}
+    % Initialize line functions to be renewed multiple times later
+    % x and y
+    \pgfmathredeclarefunction{Lyofx}{%
+        \pgfmathparse{
+            (
+                (
+                    \pline@snd - 
+                    \pline@snz * \pline@nd / \pline@nc
+                ) - (
+                    \pline@snx -
+                    \pline@snz * \pline@na / \pline@nc
+                ) * ##1
+            ) / (
+                \pline@sny -
+                \pline@snz * \pline@na / \pline@nc
+            )
+        }%
+    }
+    \pgfmathredeclarefunction{Lxofy}{%
+        \pgfmathparse{
+            (
+                (
+                    \pline@snd - 
+                    \pline@sny * \pline@nd / \pline@nb
+                ) - (
+                    \pline@snx -
+                    \pline@sny * \pline@na / \pline@nb
+                ) * ##1
+            ) / (
+                \pline@snz -
+                \pline@sny * \pline@nc / \pline@nb
+            )
+        }%
+    }
+    % z and x
+    \pgfmathredeclarefunction{Lzofx}{%
+        \pgfmathparse{
+            (
+                (
+                    \pline@snd - 
+                    \pline@snx * \pline@nd / \pline@na
+                ) - (
+                    \pline@sny -
+                    \pline@snx * \pline@nb / \pline@na
+                ) * ##1
+            ) / (
+                \pline@snz -
+                \pline@snx * \pline@nc / \pline@na
+            )
+        }%
+    }
+    \pgfmathredeclarefunction{Lxofz}{%
+        \pgfmathparse{
+            (
+                (
+                    \pline@snd - 
+                    \pline@snz * \pline@nd / \pline@nc
+                ) - (
+                    \pline@sny -
+                    \pline@snz * \pline@nb / \pline@nc
+                ) * ##1
+            ) / (
+                \pline@snx -
+                \pline@snz * \pline@na / \pline@nc
+            )
+        }%
+    }
+    % z and y
+    \pgfmathredeclarefunction{Lzofy}{%
+        \pgfmathparse{
+            (
+                (
+                    \pline@snd - 
+                    \pline@snx * \pline@nd / \pline@na
+                ) - (
+                    \pline@snz -
+                    \pline@snx * \pline@nc / \pline@na
+                ) * ##1
+            ) / ( \pline@snz - \pline@snx*\pline@nc/\pline@na )
+        }%
+    }
+    \pgfmathredeclarefunction{Lyofz}{%
+        \pgfmathparse{
+            (
+                (
+                    \pline@snd - 
+                    \pline@sny * \pline@nd / \pline@nb
+                ) - (
+                    \pline@snz -
+                    \pline@sny * \pline@nc / \pline@nb
+                ) * ##1
+            ) / ( \pline@sny - \pline@snx*\pline@nb/\pline@na )
+        }%
+    }
+    \pgfmathparse{
+        !(
+            \pline@sny == \pline@snz * \pline@nb / \pline@nc || 
+            \pline@snz == \pline@sny * \pline@nc / \pline@nb
+        )
+    }
+    \ifnum\pgfmathresult=1
+        \pgfmathsetmacro{\Lstartx}{\pline@xmin}
+        \pgfmathsetmacro{\Lstarty}{Lyofx(\pline@xmin)}
+        \pgfmathsetmacro{\Lstartz}{Lzofx(\pline@xmin)}
+        \pgfmathsetmacro{\Lendx}{\pline@xmax}
+        \pgfmathsetmacro{\Lendy}{Lyofx(\pline@xmax)}
+        \pgfmathsetmacro{\Lendz}{Lzofx(\pline@xmax)}
+
+        \pgfmathparse{\Lendy > \pline@ymax}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro{\Lendx}{Lxofy(\pline@ymax)}
+            \pgfmathsetmacro{\Lendy}{Lyofx(Lxofy(\pline@ymax))}
+            \pgfmathsetmacro{\Lendz}{Lzofx(Lxofy(\pline@ymax))}
+        \fi
+        \pgfmathparse{\Lendy < \pline@ymin}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro{\Lendx}{Lxofy(\pline@ymin)}
+            \pgfmathsetmacro{\Lendy}{Lyofx(Lxofy(\pline@ymin))}
+            \pgfmathsetmacro{\Lendz}{Lzofx(Lxofy(\pline@ymin))}
+        \fi
+
+        \pgfmathparse{\Lstarty > \pline@ymax}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro{\Lstartx}{Lxofy(\pline@ymax)}
+            \pgfmathsetmacro{\Lstarty}{Lyofx(Lxofy(\pline@ymax))}
+            \pgfmathsetmacro{\Lstartz}{Lzofx(Lxofy(\pline@ymax))}
+        \fi
+        \pgfmathparse{\Lstarty < \pline@ymin}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro{\Lstartx}{Lxofy(\pline@ymin)}
+            \pgfmathsetmacro{\Lstarty}{Lyofx(Lxofy(\pline@ymin))}
+            \pgfmathsetmacro{\Lstartz}{Lzofx(Lxofy(\pline@ymin))}
+        \fi
+        %%%%%%%%%%
+        \pgfmathparse{\Lendz > \pline@zmax}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro{\Lendx}{Lxofz(\pline@zmax)}
+            \pgfmathsetmacro{\Lendy}{Lyofx(Lxofz(\pline@zmax))}
+            \pgfmathsetmacro{\Lendz}{Lzofx(Lxofz(\pline@zmax))}
+        \fi
+        \pgfmathparse{\Lendz < \pline@zmin}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro{\Lendx}{Lxofz(\pline@zmin)}
+            \pgfmathsetmacro{\Lendy}{Lyofx(Lxofz(\pline@zmin))}
+            \pgfmathsetmacro{\Lendz}{Lzofx(Lxofz(\pline@zmin))}
+        \fi
+
+        \pgfmathparse{\Lstartz > \pline@zmax}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro{\Lstartx}{Lxofz(\pline@zmax)}
+            \pgfmathsetmacro{\Lstarty}{Lyofx(Lxofz(\pline@zmax))}
+            \pgfmathsetmacro{\Lstartz}{Lzofx(Lxofz(\pline@zmax))}
+        \fi
+        \pgfmathparse{\Lstartz < \pline@zmin}
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro{\Lstartx}{Lxofz(\pline@zmin)}
+            \pgfmathsetmacro{\Lstarty}{Lyofx(Lxofz(\pline@zmin))}
+            \pgfmathsetmacro{\Lstartz}{Lzofx(Lxofz(\pline@zmin))}
+        \fi
+    \else
+        \pgfmathparse{
+            !(
+                \pline@snz == \pline@snx * \pline@nc / \pline@na || 
+                \pline@snx == \pline@snz * \pline@na / \pline@nc
+            )
+        }
+        \ifnum\pgfmathresult=1
+            \pgfmathsetmacro{\Lstartx}{Lxofy(\pline@ymin)}
+            \pgfmathsetmacro{\Lstarty}{\pline@ymin}
+            \pgfmathsetmacro{\Lstartz}{Lzofy(\pline@ymin)}
+            \pgfmathsetmacro{\Lendx}{Lxofy(\pline@ymax)}
+            \pgfmathsetmacro{\Lendy}{\pline@ymax}
+            \pgfmathsetmacro{\Lendz}{Lzofy(\pline@ymax)}
+
+            \pgfmathparse{\Lendx > \pline@xmax}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro{\Lendx}{Lxofy(Lyofx(\pline@xmax))}
+                \pgfmathsetmacro{\Lendy}{Lyofx(\pline@xmax)}
+                \pgfmathsetmacro{\Lendz}{Lzofy(Lyofx(\pline@xmax))}
+            \fi
+            \pgfmathparse{\Lendx < \pline@xmin}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro{\Lendx}{Lxofy(Lyofx(\pline@xmin))}
+                \pgfmathsetmacro{\Lendy}{Lyofx(\pline@xmin)}
+                \pgfmathsetmacro{\Lendz}{Lzofy(Lyofx(\pline@xmin))}
+            \fi
+
+            \pgfmathparse{\Lstartx > \pline@xmax}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro{\Lstartx}{Lxofy(Lyofx(\pline@xmax))}
+                \pgfmathsetmacro{\Lstarty}{Lyofx(\pline@xmax)}
+                \pgfmathsetmacro{\Lstartz}{Lzofy(Lyofx(\pline@xmax))}
+            \fi
+            \pgfmathparse{\Lstartx < \pline@xmin}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro{\Lstartx}{Lxofy(Lyofx(\pline@xmin))}
+                \pgfmathsetmacro{\Lstarty}{Lyofx(\pline@xmin)}
+                \pgfmathsetmacro{\Lstartz}{Lzofy(Lyofx(\pline@xmin))}
+            \fi
+
+            %%%
+
+            \pgfmathparse{\Lendz > \pline@zmax}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro{\Lendx}{Lxofy(Lyofz(\pline@zmax))}
+                \pgfmathsetmacro{\Lendy}{Lyofz(\pline@zmax)}
+                \pgfmathsetmacro{\Lendz}{Lzofy(Lyofz(\pline@zmax))}
+            \fi
+            \pgfmathparse{\Lendz < \pline@zmin}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro{\Lendx}{Lxofy(Lyofz(\pline@zmin))}
+                \pgfmathsetmacro{\Lendy}{Lyofz(\pline@zmin)}
+                \pgfmathsetmacro{\Lendz}{Lzofy(Lyofz(\pline@zmin))}
+            \fi
+
+            \pgfmathparse{\Lstartz > \pline@zmax}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro{\Lstartx}{Lxofy(Lyofz(\pline@zmax))}
+                \pgfmathsetmacro{\Lstarty}{Lyofz(\pline@zmax)}
+                \pgfmathsetmacro{\Lstartz}{Lzofy(Lyofz(\pline@zmax))}
+            \fi
+            \pgfmathparse{\Lstartz < \pline@zmin}
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro{\Lstartx}{Lxofy(Lyofz(\pline@zmin))}
+                \pgfmathsetmacro{\Lstarty}{Lyofz(\pline@zmin)}
+                \pgfmathsetmacro{\Lstartz}{Lzofy(Lyofz(\pline@zmin))}
+            \fi
+        \else
+            \pgfmathparse{
+                !(
+                    \pline@sny == \pline@snx * \pline@nb / \pline@na || 
+                    \pline@snx == \pline@sny * \pline@na / \pline@nb
+                )
+            }
+            \ifnum\pgfmathresult=1
+                \pgfmathsetmacro{\Lstartx}{Lxofz(\pline@zmin)}
+                \pgfmathsetmacro{\Lstarty}{Lyofz(\pline@zmin)}
+                \pgfmathsetmacro{\Lstartz}{\pline@zmin}
+                \pgfmathsetmacro{\Lendx}{Lxofz(\pline@zmax)}
+                \pgfmathsetmacro{\Lendy}{Lyofz(\pline@zmax)}
+                \pgfmathsetmacro{\Lendz}{\pline@zmax}
+
+                \pgfmathparse{\Lendx > \pline@xmax}
+                \ifnum\pgfmathresult=1
+                    \pgfmathsetmacro{\Lendx}{Lxofz(Lzofx(\pline@xmax))}
+                    \pgfmathsetmacro{\Lendy}{Lyofz(Lzofx(\pline@xmax))}
+                    \pgfmathsetmacro{\Lendz}{Lzofx(\pline@xmax)}
+                \fi
+                \pgfmathparse{\Lendx < \pline@xmin}
+                \ifnum\pgfmathresult=1
+                    \pgfmathsetmacro{\Lendx}{Lxofz(Lzofx(\pline@xmin))}
+                    \pgfmathsetmacro{\Lendy}{Lyofz(Lzofx(\pline@xmin))}
+                    \pgfmathsetmacro{\Lendz}{Lzofx(\pline@xmin)}
+                \fi
+
+                \pgfmathparse{\Lendy > \pline@ymax}
+                \ifnum\pgfmathresult=1
+                    \pgfmathsetmacro{\Lendx}{Lxofz(Lzofy(\pline@ymax))}
+                    \pgfmathsetmacro{\Lendy}{Lyofz(Lzofy(\pline@ymax))}
+                    \pgfmathsetmacro{\Lendz}{Lzofy(\pline@ymax)}
+                \fi
+                \pgfmathparse{\Lendy < \pline@ymin}
+                \ifnum\pgfmathresult=1
+                    \pgfmathsetmacro{\Lendx}{Lxofz(Lzofy(\pline@ymin))}
+                    \pgfmathsetmacro{\Lendy}{Lyofz(Lzofy(\pline@ymin))}
+                    \pgfmathsetmacro{\Lendz}{Lzofy(\pline@ymin)}
+                \fi
+
+                %%%
+
+                \pgfmathparse{\Lstartx > \pline@xmax}
+                \ifnum\pgfmathresult=1
+                    \pgfmathsetmacro{\Lstartx}{Lxofz(Lzofx(\pline@xmax))}
+                    \pgfmathsetmacro{\Lstarty}{Lyofz(Lzofx(\pline@xmax))}
+                    \pgfmathsetmacro{\Lstartz}{Lzofx(\pline@xmax)}
+                \fi
+                \pgfmathparse{\Lstartx < \pline@xmin}
+                \ifnum\pgfmathresult=1
+                    \pgfmathsetmacro{\Lstartx}{Lxofz(Lzofx(\pline@xmin))}
+                    \pgfmathsetmacro{\Lstarty}{Lyofz(Lzofx(\pline@xmin))}
+                    \pgfmathsetmacro{\Lstartz}{Lzofx(\pline@xmin)}
+                \fi
+
+                \pgfmathparse{\Lstarty > \pline@ymax}
+                \ifnum\pgfmathresult=1
+                    \pgfmathsetmacro{\Lstartx}{Lxofz(Lzofy(\pline@ymax))}
+                    \pgfmathsetmacro{\Lstarty}{Lyofz(Lzofy(\pline@ymax))}
+                    \pgfmathsetmacro{\Lstartz}{Lzofy(\pline@ymax)}
+                \fi
+                \pgfmathparse{\Lstarty < \pline@ymin}
+                \ifnum\pgfmathresult=1
+                    \pgfmathsetmacro{\Lstartx}{Lxofz(Lzofy(\pline@ymin))}
+                    \pgfmathsetmacro{\Lstarty}{Lyofz(Lzofy(\pline@ymin))}
+                    \pgfmathsetmacro{\Lstartz}{Lzofy(\pline@ymin)}
+                \fi
+            \fi
+        \fi
+    \fi
+    % \pgfmathsetmacro{\plinescalex}{\pline@size/(\pline@xmax-\pline@xmin)}
+    % \pgfmathsetmacro{\plinescaley}{\pline@size/(\pline@ymax-\pline@ymin)}
+    % \pgfmathsetmacro{\plinescalez}{\pline@size/(\pline@zmax-\pline@zmin)}
+    % \tdplotsetrotatedcoords{\pline@alpha}{\pline@beta}{\pline@gamma}
+    \begin{scope}
+        \path[spath/save global = line#2] 
+            (\plinescalex*\Lstartx,\plinescaley*\Lstarty,\plinescalez*\Lstartz) -- 
+            (\plinescalex*\Lendx,\plinescaley*\Lendy,\plinescalez*\Lendz);
+    \end{scope}
+    \endgroup
+}
+% \renewcommand{\Lyofx}[1]{((\dPtwo-(\cPtwo)*(\dPone)/(\cPone))-(\aPtwo-(\cPtwo)*(\aPone)/(\cPone))*(####1))/(\bPtwo-(\cPtwo)*(\bPone)/(\cPone))}
+% \renewcommand{\Lzofx}[1]{((\dPtwo-(\bPtwo)*(\dPone)/(\bPone))-(\aPtwo-(\bPtwo)*(\aPone)/(\bPone))*(####1))/(\cPtwo-(\bPtwo)*(\cPone)/(\bPone))}
+% \renewcommand{\Lzofy}[1]{((\dPtwo-(\aPtwo)*(\dPone)/(\aPone))-(\bPtwo-(\aPtwo)*(\bPone)/(\aPone))*(####1))/(\cPtwo-(\aPtwo)*(\cPone)/(\aPone))}
+% \renewcommand{\Lxofy}[1]{((\dPtwo-(\cPtwo)*(\dPone)/(\cPone))-(\bPtwo-(\cPtwo)*(\bPone)/(\cPone))*(####1))/(\aPtwo-(\cPtwo)*(\aPone)/(\cPone))}
+% \renewcommand{\Lyofz}[1]{((\dPtwo-(\aPtwo)*(\dPone)/(\aPone))-(\cPtwo-(\aPtwo)*(\cPone)/(\aPone))*(####1))/(\bPtwo-(\aPtwo)*(\bPone)/(\aPone))}
+% \renewcommand{\Lxofz}[1]{((\dPtwo-(\bPtwo)*(\dPone)/(\bPone))-(\cPtwo-(\bPtwo)*(\cPone)/(\bPone))*(####1))/(\aPtwo-(\bPtwo)*(\aPone)/(\bPone))}
