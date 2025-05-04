@@ -10,7 +10,7 @@
 \pgfmathdeclarefunction{Lyofz}{1}{\pgfmathparse{100}}
 \newcommand{\getline}[2][]{
     \begingroup
-    % #1  - the options
+    % #1  - the pline options
     % #2  - the name of the line's path
     \pgfqkeys{/pline}{#1}
     % Initialize line functions to be renewed multiple times later
@@ -31,7 +31,7 @@
             )
         }%
     }
-    \pgfmathredeclarefunction{Lxofy}{%
+    \pgfmathredeclarefunction{Lzofx}{%
         \pgfmathparse{
             (
                 (
@@ -48,7 +48,7 @@
         }%
     }
     % z and x
-    \pgfmathredeclarefunction{Lzofx}{%
+    \pgfmathredeclarefunction{Lzofy}{%
         \pgfmathparse{
             (
                 (
@@ -64,7 +64,7 @@
             )
         }%
     }
-    \pgfmathredeclarefunction{Lxofz}{%
+    \pgfmathredeclarefunction{Lxofy}{%
         \pgfmathparse{
             (
                 (
@@ -81,7 +81,7 @@
         }%
     }
     % z and y
-    \pgfmathredeclarefunction{Lzofy}{%
+    \pgfmathredeclarefunction{Lyofz}{%
         \pgfmathparse{
             (
                 (
@@ -91,10 +91,13 @@
                     \pline@snz -
                     \pline@snx * \pline@nc / \pline@na
                 ) * ##1
-            ) / ( \pline@snz - \pline@snx*\pline@nc/\pline@na )
+            ) / ( 
+                \pline@snz - 
+                \pline@snx*\pline@nc/\pline@na 
+            )
         }%
     }
-    \pgfmathredeclarefunction{Lyofz}{%
+    \pgfmathredeclarefunction{Lxofz}{%
         \pgfmathparse{
             (
                 (
@@ -104,7 +107,10 @@
                     \pline@snz -
                     \pline@sny * \pline@nc / \pline@nb
                 ) * ##1
-            ) / ( \pline@sny - \pline@snx*\pline@nb/\pline@na )
+            ) / ( 
+                \pline@sny - 
+                \pline@snx*\pline@nb/\pline@na 
+            )
         }%
     }
     \pgfmathparse{
@@ -315,16 +321,9 @@
     % \pgfmathsetmacro{\plinescaley}{\pline@size/(\pline@ymax-\pline@ymin)}
     % \pgfmathsetmacro{\plinescalez}{\pline@size/(\pline@zmax-\pline@zmin)}
     % \tdplotsetrotatedcoords{\pline@alpha}{\pline@beta}{\pline@gamma}
-    \begin{scope}
-        \path[spath/save global = line#2] 
-            (\plinescalex*\Lstartx,\plinescaley*\Lstarty,\plinescalez*\Lstartz) -- 
-            (\plinescalex*\Lendx,\plinescaley*\Lendy,\plinescalez*\Lendz);
-    \end{scope}
+    \coordinate (plineLineStart) at (\plinescalex*\Lstartx,\plinescaley*\Lstarty,\plinescalez*\Lstartz); 
+    \coordinate (plineLineEnd) at (\plinescalex*\Lendx,\plinescaley*\Lendy,\plinescalez*\Lendz);
+
     \endgroup
+    \path[spath/save = line#2] (plineLineStart) -- (plineLineEnd);
 }
-% \renewcommand{\Lyofx}[1]{((\dPtwo-(\cPtwo)*(\dPone)/(\cPone))-(\aPtwo-(\cPtwo)*(\aPone)/(\cPone))*(####1))/(\bPtwo-(\cPtwo)*(\bPone)/(\cPone))}
-% \renewcommand{\Lzofx}[1]{((\dPtwo-(\bPtwo)*(\dPone)/(\bPone))-(\aPtwo-(\bPtwo)*(\aPone)/(\bPone))*(####1))/(\cPtwo-(\bPtwo)*(\cPone)/(\bPone))}
-% \renewcommand{\Lzofy}[1]{((\dPtwo-(\aPtwo)*(\dPone)/(\aPone))-(\bPtwo-(\aPtwo)*(\bPone)/(\aPone))*(####1))/(\cPtwo-(\aPtwo)*(\cPone)/(\aPone))}
-% \renewcommand{\Lxofy}[1]{((\dPtwo-(\cPtwo)*(\dPone)/(\cPone))-(\bPtwo-(\cPtwo)*(\bPone)/(\cPone))*(####1))/(\aPtwo-(\cPtwo)*(\aPone)/(\cPone))}
-% \renewcommand{\Lyofz}[1]{((\dPtwo-(\aPtwo)*(\dPone)/(\aPone))-(\cPtwo-(\aPtwo)*(\cPone)/(\aPone))*(####1))/(\bPtwo-(\aPtwo)*(\bPone)/(\aPone))}
-% \renewcommand{\Lxofz}[1]{((\dPtwo-(\bPtwo)*(\dPone)/(\bPone))-(\cPtwo-(\bPtwo)*(\cPone)/(\bPone))*(####1))/(\aPtwo-(\bPtwo)*(\aPone)/(\bPone))}

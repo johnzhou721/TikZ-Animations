@@ -1,15 +1,16 @@
+\newif\ifscaleAxes
 \pgfqkeys{/pline}{
     .is family
     % normal equation of plane
-    ,nx/.store in = \pline@na
-    ,ny/.store in = \pline@nb
-    ,nz/.store in = \pline@nc
-    ,nd/.store in = \pline@nd
+    ,n1x/.store in = \pline@noa
+    ,n1y/.store in = \pline@nob
+    ,n1z/.store in = \pline@noc
+    ,n1d/.store in = \pline@nod
     % normal equation of "second" plane (only for taking intersections)
-    ,snx/.store in = \pline@snx
-    ,sny/.store in = \pline@sny
-    ,snz/.store in = \pline@snz
-    ,snd/.store in = \pline@snd
+    ,n2x/.store in = \pline@ntx
+    ,n2y/.store in = \pline@nty
+    ,n2z/.store in = \pline@ntz
+    ,n2d/.store in = \pline@ntd
     % 3D boundaries
     ,xmin/.store in = \pline@xmin
     ,xmax/.store in = \pline@xmax
@@ -19,17 +20,19 @@
     ,zmax/.store in = \pline@zmax
     % size of the "cube"
     ,size/.store in = \pline@size
+    ,scale axes/.is if = scaleAxes
+    % ZYZ Euler angle rotation matrix
     ,alpha/.store in = \pline@alpha % Z
     ,beta/.store in = \pline@beta % Y
     ,gamma/.store in = \pline@gamma % Z
-    ,nx = 1
-    ,ny = 1
-    ,nz = 1
-    ,nd = 0
-    ,snx = 1
-    ,sny = 1
-    ,snz = 1
-    ,snd = 0
+    ,n1x = 1
+    ,n1y = 1
+    ,n1z = 1
+    ,n1d = 0
+    ,n2x = 1
+    ,n2y = 1
+    ,n2z = 1
+    ,n2d = 0
     ,xmin = -5
     ,xmax = 5
     ,ymin = -5

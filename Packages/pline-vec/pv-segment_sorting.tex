@@ -38,18 +38,20 @@
 % #1: name of the list
 % #2: code to execute inside each elements group after whatever was stored was
 %     run
+% https://tex.stackexchange.com/q/742043/319072
 \NewDocumentCommand \LoopOverSegmentList { m m }
   {
     \seq_map_inline:cn { g__jasper_segment_list_#1_seq }
       {
-        \group_begin:
           \use_ii:nn ##1
           #2
-        \group_end:
       }
   }
 % For debugging purposes, show the contents of a named segment list.
 % #1: name of the list
 \NewDocumentCommand \ShowSegmentList { m }
   { \seq_show:c { g__jasper_segment_list_#1_seq } }
+% https://tex.stackexchange.com/a/741786/319072
+\NewDocumentCommand \ResetSegmentList { m }
+  { \seq_gclear:c { g__jasper_segment_list_#1_seq } }
 \ExplSyntaxOff

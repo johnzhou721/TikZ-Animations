@@ -3,75 +3,22 @@
 % and outputs the 
 \newcommand{\connectPoints}[7]{
     \begingroup
-    \pgfmathsetmacro{\pox}{#1}
-    \pgfmathsetmacro{\poy}{#2}
-    \pgfmathsetmacro{\poz}{#3}
-
-    \pgfmathsetmacro{\ptx}{#4}
-    \pgfmathsetmacro{\pty}{#5}
-    \pgfmathsetmacro{\ptz}{#6}
-
+    % set points one and two
+    \setPoint{#1}{#2}{#2}{po}
+    \setPoint{#4}{#5}{#6}{pt}
+    \setPoint{\ptx-\pox}{\pty-\poy}{\ptz-\poz}{d}
     % length between points 1 and 2
-    \pgfmathsetmacro{\length}{sqrt((\ptx-\pox)^2+(\pty-\poy)^2+(\ptz-\poz)^2)}
-
-    % tdplot rotated origin
-    \coordinate (Shift) at (\pox,\poy,\poz);
-    \tdplotsetrotatedcoordsorigin{(Shift)}
-
-    % obtaining "some" unit vectors for our desired plane
-    \pgfmathsetmacro\zAng{atan2(\plineny,\plinenx)}
-    \pgfmathsetmacro\yAng{atan2(sqrt((\plinenx)^2+(\plineny)^2),(\plinenz))}
-
-    \pgfmathsetmacro{\tdrotx}{\pox + cos(\zAng)*cos(\yAng)}
-    \pgfmathsetmacro{\tdroty}{\poy + sin(\zAng)*cos(\yAng)}
-    \pgfmathsetmacro{\tdrotz}{\poz - sin(\yAng)}
-
-    
-    \pgfmathsetmacro{\zAngTwoNumerator}{
-        (\tdrotx - \pox) * (\ptx - \pox) + 
-        (\tdroty - \poy) * (\pty - \poy) + 
-        (\tdrotz - \poz) * (\ptz - \poz)
-    }
-    \pgfmathsetmacro{\zAngTwoDenominator}{
-        sqrt(
-            (\tdrotx - \pox)^2 + 
-            (\tdroty - \poy)^2 + 
-            (\tdrotz - \poz)^2
-        ) * 
-        sqrt(
-            (\ptx - \pox)^2 + 
-            (\pty - \poy)^2 + 
-            (\ptz - \poz)^2
-        )
-    }
-    \pgfmathparse{\zAngTwoDenominator==0}
-    \ifnum\pgfmathresult=1
-    \pgfmathsetmacro{\zAngTwoDenominator}{0.005}
-    \fi
-    \pgfmathsetmacro{\zAngTwo}{acos(\zAngTwoNumerator/\zAngTwoDenominator)}
-
-    \pgfmathsetmacro{\aa}{\tdrotx - \pox}
-    \pgfmathsetmacro{\bb}{\tdroty - \poy}
-    \pgfmathsetmacro{\cc}{\tdrotz - \poz}
-    \pgfmathsetmacro{\dd}{\ptx - \pox}
-    \pgfmathsetmacro{\ee}{\pty - \poy}
-    \pgfmathsetmacro{\ff}{\ptz - \poz}
-    \tdplotcrossprod(\aa,\bb,\cc)(\dd,\ee,\ff)
-    \pgfmathparse{
-        \tdplotresx * \CameraX +
-        \tdplotresy * \CameraY +
-        \tdplotresz * \CameraZ <
-        0
-    }
-    \ifnum\pgfmathresult=1\pgfmathsetmacro{\zAngTwo}{-\zAngTwo}\fi
-    
-
-
-    \tdplotsetrotatedcoords{\zAng}{\yAng}{\zAngTwo}
-    \tikzset{recent_rotated_coords/.style = {
-        tdplot_rotated_coords,canvas is xy plane at z = 0
-    }}
-    \begin{scope}[tdplot_rotated_coords,canvas is xy plane at z = 0]
+    \pgfmathsetmacro{\length}{norm(\dx,\dy,\dz)}
+    \normalizeVector{\dx}{\dy}{\dz}{x}
+    \setPoint{\plinescalex*\pline@nx}{\plinescaley*\pline@ny}{\plinescalez*\pline@nz}{z}
+    \crossProduct{\dx}{\dy}{\dz}{\zx}{\zy}{\zz}{y}
+    \begin{scope}[
+        x = {(\xx,\xy,\xz)}
+        ,y = {(\yx,\yy,\yz)}
+        ,z = {(\zx,\zy,\zz)}
+        ,shift = {(\pox,\poy,\poz)}
+        ,canvas is xy plane at z = 0
+    ]
         \pgflowlevelsynccm
         \pvVector[#7]{0,0}{\length,0} 
     \end{scope}
@@ -80,58 +27,35 @@
 
 \newcommand{\rotatedDot}[4]{
     \begingroup
-    \pgfmathsetmacro{\pox}{\plinescalex*#1}
-    \pgfmathsetmacro{\poy}{\plinescaley*#2}
-    \pgfmathsetmacro{\poz}{\plinescalez*#3}
-    \pgfmathsetmacro{\nx}{\plinescalex*\plinenx}
-    \pgfmathsetmacro{\ny}{\plinescaley*\plineny}
-    \pgfmathsetmacro{\nz}{\plinescalez*\plinenz}
-    \pgfmathsetmacro{\nl}{sqrt((\nx)^2 + (\ny)^2 + (\nz)^2)}
-    \pgfmathsetmacro{\nx}{\nx/\nl}
-    \pgfmathsetmacro{\ny}{\ny/\nl}
-    \pgfmathsetmacro{\nz}{\nz/\nl}
-    \pgfmathsetmacro{\tempnx}{1}
-    \pgfmathsetmacro{\tempny}{0}
-    \pgfmathsetmacro{\tempnz}{-\nx/\nz}
-    \tdplotcrossprod(\nx,\ny,\nz)(\tempnx,\tempny,\tempnz)
-    \pgfmathsetmacro{\ox}{\tdplotresx}
-    \pgfmathsetmacro{\oy}{\tdplotresy}
-    \pgfmathsetmacro{\oz}{\tdplotresz}
-    \pgfmathsetmacro{\ol}{sqrt((\ox)^2 + (\oy)^2 + (\oz)^2)}
-    \pgfmathsetmacro{\ox}{\ox/\ol}
-    \pgfmathsetmacro{\oy}{\oy/\ol}
-    \pgfmathsetmacro{\oz}{\oz/\ol}
-    \tdplotcrossprod(\nx,\ny,\nz)(\ox,\oy,\oz)
-    \pgfmathsetmacro{\tx}{\tdplotresx}
-    \pgfmathsetmacro{\ty}{\tdplotresy}
-    \pgfmathsetmacro{\tz}{\tdplotresz}
-    \pgfmathsetmacro{\tl}{sqrt((\tx)^2 + (\ty)^2 + (\tz)^2)}
-    \pgfmathsetmacro{\tx}{\tx/\tl}
-    \pgfmathsetmacro{\ty}{\ty/\tl}
-    \pgfmathsetmacro{\tz}{\tz/\tl}
-    % Convert (nx, ny, nz) to spherical angles for tdplot
-    \pgfmathsetmacro{\theta}{atan2(\ny,\nx)} % azimuth
-    \pgfmathsetmacro{\phi}{acos(\nz)}        % inclination
-    % Set rotated coordinate system
-    \tdplotsetrotatedcoords{\theta}{\phi}{0}
-    \coordinate (Shift) at (\pox,\poy,\poz);
-    \tdplotsetrotatedcoordsorigin{(Shift)}
-    % Draw in 2D inside 3D plane
-    \begin{scope}[tdplot_rotated_coords, canvas is xy plane at z=0]
+    \setPoints
+        {\plinescalex*#1}
+        {\plinescaley*#2}
+        {\plinescalez*#2}
+        {po}
+    \setPoints
+        {\plinescalex*\plinenx}
+        {\plinescaley*\plineny}
+        {\plinescalez*\plinenz}
+        {n}
+    \normalizeVector{\nx}{\ny}{\nz}{n}
+    \orthogonalVector{\nx}{\ny}{\nz}{o}
+    \crossProduct{\nx}{\ny}{\nz}{\ox}{\oy}{\oz}{o}
+    \normalizeVector{\ox}{\oy}{\oz}{o}
+    \crossProduct{\nx}{\ny}{\nz}{\ox}{\oy}{\oz}{t}
+    \normalizeVector{\tx}{\ty}{\tz}{t}
+    \tikzset{
+        plane/.style = {
+            x = {(\ox,\oy,\oz)}
+            ,y = {(\tx,\ty,\tz)}
+            ,z = {(\nx,\ny,\nz)}
+            ,shift = {(\pox,\poy,\poz)}
+            ,canvas is xy plane at z = 0
+        }
+    }
+    \begin{scope}[plane]
         \pgflowlevelsynccm
-        \pvDot[#4]{0,0}
+        \pvDot[#4]{0,0}; 
     \end{scope}
-    % \begin{scope}[
-    %     ,shift = {(\pox,\poy,\poz)}
-    %     ,x = {(\ox,\oy,\oz)}
-    %     ,y = {(\tx,\ty,\tz)}
-    %     ,z = {(\nx,\ny,\nz)}
-    %     %,shift = {(\pox,\poy,\poz)}
-    %     ,canvas is xy plane at z = 0
-    % ]
-    %     \pgflowlevelsynccm
-    %     \pvDot[#4]{0,0}; 
-    % \end{scope}
     \endgroup
 }
 
@@ -146,54 +70,55 @@
 \pgfmathdeclarefunction{planeX}{2}{\pgfmathparse{100}}
 \pgfmathdeclarefunction{planeY}{2}{\pgfmathparse{100}}
 \pgfmathdeclarefunction{planeZ}{2}{\pgfmathparse{100}}
+\NewSegmentList{intersections}
+\NewSegmentList{sortedintersections}
 \newcommand{\addintersection}[3]{redefine me}
 \newcommand{\getplane}[2][]{
-    \begingroup
     \pgfqkeys{/pline}{#1}
 
     % First we set the scales based on \pline@size.
     % planes can occupy very disproportionate rectangular
     % prisms. So, we scale all of them inso a simple cube of
     % a provided size.
-    \pgfmathsetmacro{\plinescalex}{\pline@size/(\pline@xmax-\pline@xmin)}
-    \pgfmathsetmacro{\plinescaley}{\pline@size/(\pline@ymax-\pline@ymin)}
-    \pgfmathsetmacro{\plinescalez}{\pline@size/(\pline@zmax-\pline@zmin)}
-    \global\let\plinescalex\plinescalex
-    \global\let\plinescaley\plinescaley
-    \global\let\plinescalez\plinescalez
-    \global\let\plinesize\pline@size
+    \ifscaleAxes
+        \pgfmathsetmacro{\plinescalex}{\pline@size/(\pline@xmax-\pline@xmin)}
+        \pgfmathsetmacro{\plinescaley}{\pline@size/(\pline@ymax-\pline@ymin)}
+        \pgfmathsetmacro{\plinescalez}{\pline@size/(\pline@zmax-\pline@zmin)}
+    \else
+        \pgfmathsetmacro{\plinescalex}{1}
+        \pgfmathsetmacro{\plinescaley}{1}
+        \pgfmathsetmacro{\plinescalez}{1}
+    \fi
 
     % This redefined the plane equations, based on our normal equation.
-    \pgfmathredeclarefunction{planeX}{\pgfmathparse{(\pline@nd-\pline@nb*##1-\pline@nc*##2)/\pline@na}}
-    \pgfmathredeclarefunction{planeY}{\pgfmathparse{(\pline@nd-\pline@na*##1-\pline@nc*##2)/\pline@nb}}
-    \pgfmathredeclarefunction{planeZ}{\pgfmathparse{(\pline@nd-\pline@na*##1-\pline@nb*##2)/\pline@nc}}
+    \pgfmathredeclarefunction{planeX}{\pgfmathparse{(\pline@nod-\pline@nob*##1-\pline@noc*##2)/\pline@noa}}
+    \pgfmathredeclarefunction{planeY}{\pgfmathparse{(\pline@nod-\pline@noa*##1-\pline@noc*##2)/\pline@nob}}
+    \pgfmathredeclarefunction{planeZ}{\pgfmathparse{(\pline@nod-\pline@noa*##1-\pline@nob*##2)/\pline@noc}}
 
     % New segment list with a unique global name
-    \NewSegmentList{intersections#2}
+    \ResetSegmentList{intersections}
 
     % The add intersection command is dependent on
     \renewcommand{\addintersection}[3]{
 
         % These need to be made into pgfmathmacros before being appended to the list.
-        \pgfmathsetmacro{\intersectx}{##1}
-        \pgfmathsetmacro{\intersecty}{##2}
-        \pgfmathsetmacro{\intersectz}{##3}
+        \setPoint{##1}{##2}{##3}{intersect}
         \pgfmathparse{
             \intersectx>=\pline@xmin && \intersectx<=\pline@xmax &&
             \intersecty>=\pline@ymin && \intersecty<=\pline@ymax &&
             \intersectz>=\pline@zmin && \intersectz<=\pline@zmax
         }
         \ifnum\pgfmathresult=1
-            \ExpandArgs{nne}\AddSegment{intersections#2}
+            \ExpandArgs{nne}\AddSegment{intersections}
                 {0}
                 {%
-                \def\noexpand\pointx{\intersectx}%
-                \def\noexpand\pointy{\intersecty}%
-                \def\noexpand\pointz{\intersectz}%
+                \def\noexpand\intersectx{\intersectx}%
+                \def\noexpand\intersecty{\intersecty}%
+                \def\noexpand\intersectz{\intersectz}%
                 }%
         \fi
     }
-    
+    \begingroup
     % These for loops go through each face
     % and find the points on it's boundaries that the plane intersects.
     \foreach \y in {\pline@ymin,\pline@ymax} {
@@ -214,16 +139,9 @@
             \addintersection{\x}{\y}{\z}
         }
     }
+    \endgroup
     % normalize the normal
-    \pgfmathsetmacro{\magnitude}{sqrt((\pline@na)^2 + (\pline@nb)^2 + (\pline@nc)^2)}
-    \pgfmathsetmacro{\plinenx}{\pline@na/\magnitude}
-    \pgfmathsetmacro{\plineny}{\pline@nb/\magnitude}
-    \pgfmathsetmacro{\plinenz}{\pline@nc/\magnitude}
-    \global\let\plinenx\plinenx
-    \global\let\plineny\plineny
-    \global\let\plinenz\plinenz
-    \global\let\plinend\pline@nd
-    \global\let\plinemagnitude\magnitude
+    \normalizeVector{\pline@noa}{\pline@nob}{\pline@noc}{plinen}
 
     % obtain non-parallel vector to the normal
     % same as normal, except \nx is shifted by 1
@@ -238,100 +156,89 @@
     \pgfmathsetmacro{\plineux}{\plineux/\ul}
     \pgfmathsetmacro{\plineuy}{\plineuy/\ul}
     \pgfmathsetmacro{\plineuz}{\plineuz/\ul}
-    \global\let\plineux\plineux
-    \global\let\plineuy\plineuy
-    \global\let\plineuz\plineuz
-
     % the second planar vector is the cross product
     % of the normal and the first plane vector.
     \pgfmathsetmacro{\plinevx}{crossX(\plinenx,\plineny,\plinenz,\plineux,\plineuy,\plineuz)}
     \pgfmathsetmacro{\plinevy}{crossY(\plinenx,\plineny,\plinenz,\plineux,\plineuy,\plineuz)}
     \pgfmathsetmacro{\plinevz}{crossZ(\plinenx,\plineny,\plinenz,\plineux,\plineuy,\plineuz)}
-    \global\let\plinevx\plinevx
-    \global\let\plinevy\plinevy
-    \global\let\plinevz\plinevz
-    \NewSegmentList{sortedintersections#2}
+
+    \ResetSegmentList{sortedintersections}
     % obtain the centroid of the slipped plane.
-    \pgfmathsetmacro{\centroidx}{0}
-    \pgfmathsetmacro{\centroidy}{0}
-    \pgfmathsetmacro{\centroidz}{0}
+    \setPoint{0}{0}{0}{centroid}
     \pgfmathsetmacro{\numberofpoints}{0}
-    \LoopOverSegmentList{intersections#2}
+    \LoopOverSegmentList{intersections}
         {
-            \pgfmathsetmacro{\centroidx}{\centroidx+\pointx}
-            \pgfmathsetmacro{\centroidy}{\centroidy+\pointy}
-            \pgfmathsetmacro{\centroidz}{\centroidz+\pointz}
+            \setPoint
+                {\centroidx+\intersectx}
+                {\centroidy+\intersecty}
+                {\centroidz+\intersectz}
+                {centroid}
             \pgfmathsetmacro{\numberofpoints}{\numberofpoints+1}
-            \global\let\centroidx\centroidx
-            \global\let\centroidy\centroidy
-            \global\let\centroidz\centroidz
-            \global\let\numberofpoints\numberofpoints
         }
-    \pgfmathsetmacro{\centroidx}{\centroidx/\numberofpoints}
-    \pgfmathsetmacro{\centroidy}{\centroidy/\numberofpoints}
-    \pgfmathsetmacro{\centroidz}{\centroidz/\numberofpoints}
-    \LoopOverSegmentList{intersections#2}
+    \setPoint
+        {\centroidx/\numberofpoints}
+        {\centroidy/\numberofpoints}
+        {\centroidz/\numberofpoints}
+        {centroid}
+    \LoopOverSegmentList{intersections}
         {
             \pgfmathsetmacro{\plineax}{
                 dotproduct(
-                    \pointx-\centroidx
-                    ,\pointy-\centroidy
-                    ,\pointz-\centroidz
+                    \intersectx-\centroidx
+                    ,\intersecty-\centroidy
+                    ,\intersectz-\centroidz
                     ,\plineux,\plineuy,\plineuz
                 )
             }
             \pgfmathsetmacro{\plineay}{
                 dotproduct(
-                    \pointx-\centroidx
-                    ,\pointy-\centroidy
-                    ,\pointz-\centroidz
+                    \intersectx-\centroidx
+                    ,\intersecty-\centroidy
+                    ,\intersectz-\centroidz
                     ,\plinevx,\plinevy,\plinevz
                 )
             }
             \pgfmathsetmacro{\anglea}{atan2(\plineay,\plineax)}
-            \ExpandArgs{nne}\AddSegment{sortedintersections#2}
+            \ExpandArgs{nne}\AddSegment{sortedintersections}
                 {\anglea}
                 {%
-                \def\noexpand\pointx{\pointx}%
-                \def\noexpand\pointy{\pointy}%
-                \def\noexpand\pointz{\pointz}%
+                \def\noexpand\intersectx{\intersectx}%
+                \def\noexpand\intersecty{\intersecty}%
+                \def\noexpand\intersectz{\intersectz}%
                 }%
         }
-    \SortSegmentList{sortedintersections#2}
-    \xdef\plinepathone{}
-    \LoopOverSegmentList{sortedintersections#2}
+    \SortSegmentList{sortedintersections}
+    \edef\plinepathone{}
+    \LoopOverSegmentList{sortedintersections}
         {
-            \xdef\plinepathone{\plinepathone (\plinescalex*\pointx,\plinescaley*\pointy,\plinescalez*\pointz) --}
+            \edef\plinepathone{\plinepathone (\plinescalex*\intersectx,\plinescaley*\intersecty,\plinescalez*\intersectz) --}
         }
     \pgfmathparse{\numberofpoints>=3}
     \ifnum\pgfmathresult=1
-        \begin{scope}
-            \path[spath/save global = plane#2] \plinepathone cycle;
-            \path[spath/save global = lower#2] 
+            \path[spath/save = plane#2] \plinepathone cycle;
+            \path[spath/save = lower#2] 
                 (\plinescalex*\pline@xmin,\plinescaley*\pline@ymin,\plinescalez*\pline@zmin) -- 
                 (\plinescalex*\pline@xmax,\plinescaley*\pline@ymin,\plinescalez*\pline@zmin) -- 
                 (\plinescalex*\pline@xmax,\plinescaley*\pline@ymax,\plinescalez*\pline@zmin) --
                 (\plinescalex*\pline@xmin,\plinescaley*\pline@ymax,\plinescalez*\pline@zmin) -- cycle;
-            \path[spath/save global = upper#2] 
+            \path[spath/save = upper#2] 
                 (\plinescalex*\pline@xmin,\plinescaley*\pline@ymin,\plinescalez*\pline@zmax) -- 
                 (\plinescalex*\pline@xmax,\plinescaley*\pline@ymin,\plinescalez*\pline@zmax) -- 
                 (\plinescalex*\pline@xmax,\plinescaley*\pline@ymax,\plinescalez*\pline@zmax) --
                 (\plinescalex*\pline@xmin,\plinescaley*\pline@ymax,\plinescalez*\pline@zmax) -- cycle;
-            \path[spath/save global = xminymin#2] 
+            \path[spath/save = xminymin#2] 
                 (\plinescalex*\pline@xmin,\plinescaley*\pline@ymin,\plinescalez*\pline@zmin) -- 
                 (\plinescalex*\pline@xmin,\plinescaley*\pline@ymin,\plinescalez*\pline@zmax) --
                 ++(0,0,{0.25*(\plinescalez*\pline@zmax-\plinescalez*\pline@zmin)})
                 ;
-            \path[spath/save global = xmaxymin#2] 
+            \path[spath/save = xmaxymin#2] 
                 (\plinescalex*\pline@xmax,\plinescaley*\pline@ymin,\plinescalez*\pline@zmin) -- 
                 (\plinescalex*\pline@xmax,\plinescaley*\pline@ymin,\plinescalez*\pline@zmax);
-            \path[spath/save global = xmaxymax#2] 
+            \path[spath/save = xmaxymax#2] 
                 (\plinescalex*\pline@xmax,\plinescaley*\pline@ymax,\plinescalez*\pline@zmin) -- 
                 (\plinescalex*\pline@xmax,\plinescaley*\pline@ymax,\plinescalez*\pline@zmax);
-            \path[spath/save global = xminymax#2] 
+            \path[spath/save = xminymax#2] 
                 (\plinescalex*\pline@xmin,\plinescaley*\pline@ymax,\plinescalez*\pline@zmin) -- 
                 (\plinescalex*\pline@xmin,\plinescaley*\pline@ymax,\plinescalez*\pline@zmax);
-        \end{scope}
     \fi
-    \endgroup
 }
