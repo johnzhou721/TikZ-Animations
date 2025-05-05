@@ -49,21 +49,6 @@
     \pgfmathsetmacro{\bpy}{-(\vpx*\ypx + \vpy*\ypy + \vpz*\ypz)}
 }
 
-\pgfqkeys{/pline}{
-    .is family
-    ,xmin/.store in = \pline@xmin
-    ,xmax/.store in = \pline@xmax
-    ,ymin/.store in = \pline@ymin
-    ,ymax/.store in = \pline@ymax
-    ,zmin/.store in = \pline@zmin
-    ,zmax/.store in = \pline@zmax
-    ,xmin=-5
-    ,xmax=5
-    ,ymin=-5
-    ,ymax=5
-    ,zmin=-5
-    ,zmax=5
-}
 
 \newcommand{\Lyofx}[1]{}
 \newcommand{\Lxofy}[1]{}
@@ -323,3 +308,4 @@
     }% ends inner newcommand
     \getLineinner
 }
+

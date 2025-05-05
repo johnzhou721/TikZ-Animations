@@ -1,0 +1,42 @@
+% arara: pdflatex
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{pline-vec}
+\begin{document}
+\tdplotsetmaincoords{90-30}{130}
+\begin{tikzpicture}[tdplot_main_coords]
+    \getplane[
+        n1a = 1
+        ,n1b = -2
+        ,n1c = 3
+        ,n1d = 4
+    ]{a}
+    \getline[
+        n1a = 1
+        ,n1b = -2
+        ,n1c = 3
+        ,n1d = 4
+        ,n2a = 5
+        ,n2b = 6
+        ,n2c = -7
+        ,n2d = 8
+    ]{}
+    \getplane[
+        n1a = 5
+        ,n1b = 6
+        ,n1c = -7
+        ,n1d = 8
+    ]{b}
+    \draw[spath/use=lowera];
+    \draw[spath/use=xminymina];
+    \draw[spath/use=xminymaxa];
+    \draw[spath/use=xmaxymina];
+    \draw[spath/use=xmaxymaxa];
+    \draw[spath/use=uppera];;
+    \draw[spath/use=planea];
+    \draw[spath/use=planeb];
+    \draw[spath/use=line];
+\end{tikzpicture}
+\end{document}
