@@ -1,3 +1,26 @@
+\newcommand{\plinepointinplane}[4]{
+    \begingroup
+    \pgfqkeys{/pline}{#1}
+    \setPoint{#2}{#3}{#4}{ap}
+    \pgfmathsetmacro{\nd}{\pline@nod}
+    \normalizeVector{\pline@noa}{\pline@nob}{\pline@noc}{zp}
+    \setPoint{0}{0}{0}{ip}
+    \pgfmathsetmacro{\ipl}{(\nx*\ipx + \ny*\ipy + \nz*\ipz - \nd)/(\nl)^2}
+    \setPoint{\ipx-\ipl*\nx}{\ipy-\ipl*\ny}{\ipz-\ipl*\nz}{ip}
+    \orthogonalVector{\ipx}{\ipy}{\ipz}{pp}
+    \crossProduct{\ppx}{\ppy}{\ppz}{\nx}{\ny}{\nz}{pp}
+    \normalizeVector{\ppx-\ipx}{\ppy-\ipy}{\ppz-\ipz}{xp}
+    \crossProduct{\nx}{\ny}{\nz}{\xpx}{\xpy}{\xpz}{yp}
+    \normalizeVector{\ypx}{\ypy}{\ypz}{yp}
+    \setPoint{\apx-\ipx}{\apy-\ipy}{\apz-\ipz}{vp}
+    % output below
+    \pgfmathsetmacro{\bpx}{-(\vpx*\xpx + \vpy*\xpy + \vpz*\xpz)}
+    \pgfmathsetmacro{\bpy}{-(\vpx*\ypx + \vpy*\ypy + \vpz*\ypz)}
+    \aftergroup\let\aftergroup\plinebpx\aftergroup\bpx
+    \aftergroup\let\aftergroup\plinebpy\aftergroup\bpy
+    \endgroup
+}
+
 
 % Takes two (scaled) points in a SCALED coordinate system (x, y and z)
 % and outputs the 
@@ -141,7 +164,7 @@
     }
     \endgroup
     % normalize the normal
-    \normalizeVector{\pline@noa}{\pline@nob}{\pline@noc}{plinen}
+    \normalizeVector{\pline@noa}{\pline@nob}{\pline@noc}{n}
 
     % obtain non-parallel vector to the normal
     % same as normal, except \nx is shifted by 1
@@ -149,18 +172,11 @@
 
     % use cross product to find perpendicular vector
     % we will normalize it
-    \pgfmathsetmacro{\plineux}{crossX(\plinenx,\plineny,\plinenz,\plinenx+1,\plineny,\plinenz)}
-    \pgfmathsetmacro{\plineuy}{crossY(\plinenx,\plineny,\plinenz,\plinenx+1,\plineny,\plinenz)}
-    \pgfmathsetmacro{\plineuz}{crossZ(\plinenx,\plineny,\plinenz,\plinenx+1,\plineny,\plinenz)}
-    \pgfmathsetmacro{\ul}{sqrt((\plineux)^2 + (\plineuy)^2 + (\plineuz)^2)}
-    \pgfmathsetmacro{\plineux}{\plineux/\ul}
-    \pgfmathsetmacro{\plineuy}{\plineuy/\ul}
-    \pgfmathsetmacro{\plineuz}{\plineuz/\ul}
+    \orthogonalVector{\nx}{\ny}{\nz}{u}
+    \normalizeVector{\ux}{\uy}{\uz}{plineu}
     % the second planar vector is the cross product
     % of the normal and the first plane vector.
-    \pgfmathsetmacro{\plinevx}{crossX(\plinenx,\plineny,\plinenz,\plineux,\plineuy,\plineuz)}
-    \pgfmathsetmacro{\plinevy}{crossY(\plinenx,\plineny,\plinenz,\plineux,\plineuy,\plineuz)}
-    \pgfmathsetmacro{\plinevz}{crossZ(\plinenx,\plineny,\plinenz,\plineux,\plineuy,\plineuz)}
+    \crossProduct{\nx}{\ny}{\nx}{\plineux}{\plineuy}{\plineuz}{plinev}
 
     \ResetSegmentList{sortedintersections}
     % obtain the centroid of the slipped plane.
