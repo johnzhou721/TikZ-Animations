@@ -22,6 +22,19 @@
 % complementary to tikz-3dplot.
 % https://tex.stackexchange.com/a/736767/319072
 \pgfmathdeclarefunction{transformrotmainX}{6}{%
+    \pgfmathparse{
+        (
+            cos(#1) * cos(#2) * cos(#3) - 
+            sin(#1) * sin(#3)
+        ) * #4 +
+        (
+            -cos(#1) * cos(#2) * sin(#3) - 
+            sin(#1) * cos(#3)
+        ) * #5 +
+        cos(#1) * sin(#2) * #6
+    }%
+}
+\pgfmathdeclarefunction{transformrotmainY}{6}{%
     % #1  - Z rotation
     % #2  - Y rotation
     % #3  - Z rotation
@@ -39,20 +52,7 @@
                 cos(#1) * cos(#3)
             ) * #5 +
             sin(#1) * sin(#2) * #6
-        ) * -1
-    }%
-}
-\pgfmathdeclarefunction{transformrotmainY}{6}{%
-    \pgfmathparse{
-        (
-            cos(#1) * cos(#2) * cos(#3) - 
-            sin(#1) * sin(#3)
-        ) * #4 +
-        (
-            -cos(#1) * cos(#2) * sin(#3) - 
-            sin(#1) * cos(#3)
-        ) * #5 +
-        cos(#1) * sin(#2) * #6
+        )
     }%
 }
 \pgfmathdeclarefunction{transformrotmainZ}{6}{%

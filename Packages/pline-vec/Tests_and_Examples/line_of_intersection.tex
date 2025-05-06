@@ -5,8 +5,8 @@
 ]{standalone}
 \usepackage{pline-vec}
 \begin{document}
-\tdplotsetmaincoords{90-30}{130}
-\begin{tikzpicture}[tdplot_main_coords]
+\setMainOrientation[alpha=30,beta=30,gamma=30]
+\begin{tikzpicture}[main_orientation]
     \getplane[
         n1a = 1
         ,n1b = -2
