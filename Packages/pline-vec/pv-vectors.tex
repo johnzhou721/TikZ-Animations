@@ -110,6 +110,43 @@
   \endgroup
 }
 
+\newcommand{\pvSegment}[3][]{%
+  \begingroup
+    \pgfqkeys{/pvVector}{#1}%
+    \coordinate (pvVectorStart) at (#2);
+    \coordinate (pvVectorEnd) at (#3);
+    \pvIf\pvVector@dots{neither}{%
+      \draw[thick,\pvVector@color,/pvVector/options aux] 
+        (pvVectorStart) -- ++(pvVectorEnd);
+    }{}%
+    \pvIf\pvVector@dots{behind}{%
+      \pvDot{pvVectorStart}%
+      \draw[\pvVector@color,thick, shorten <=\PtR cm,/pvVector/options aux] 
+        (pvVectorStart) -- ++(pvVectorEnd);
+    }{}%
+    \pvIf\pvVector@dots{front}{%
+      \draw[thick, shorten >=\PtR cm,\pvVector@color,/pvVector/options aux] 
+        (pvVectorStart) -- ++(pvVectorEnd) coordinate(DeliberatelyLongName);
+      \pvDot{DeliberatelyLongName}%
+    }{}%
+    \pvIf\pvVector@dots{both}{%
+      \pvDot{pvVectorStart}%
+      \draw[thick, shorten <=\PtR cm, shorten >=\PtR cm,\pvVector@color,/pvVector/options aux] 
+        (pvVectorStart) -- ++(pvVectorEnd) coordinate(DeliberatelyLongName);
+      \pvDot{DeliberatelyLongName}%
+    }{}%
+    \pvIf\pvVector@mark{true}{%
+      \path[
+        decoration={markings,
+          mark=between positions \pvVector@markStart and \pvVector@markStop step \pvVector@markStep with {\pvMark},
+        },
+        postaction={decorate}
+      ]
+      (#2) -- ++(#3);
+    }{}%
+  \endgroup
+}
+
 % Define a helper command to label a path (unchanged).
 \newcommand{\LabelPath}[7][]{%
   \begingroup%

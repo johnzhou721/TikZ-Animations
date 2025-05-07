@@ -1,20 +1,32 @@
-# Pline-vec
+# Pline-Vec
 
-Pline-vec is a name which reflects the original scope of this project. 
-It was initially to draw planes and intersections, and also enable 
-people to draw "on" planes with \pgflowlevelsynccm.
-
-I might rename it to something more general later, since it now
-has a broader scope.
+Pline-Vec is a name reflecting this project’s original scope: drawing planes and intersections, and enabling “on‑plane” drawing via `\pgflowlevelsynccm`. The scope has since broadened, and the name may change later.
 
 ## Goals
 
-1. Create a parametric surface grapher where the user inputs the parametric equation of a surface, and the surface is automatically drawn as a triangulated mesh, which is z-buffered properly. A further goal is to be able to z-buffer multiple triangulated mesh surfaces at once.
+1. **Parametric surface grapher**  
+   - User inputs a parametric equation  
+   - Automatically triangulate into a mesh  
+   - Z-buffer each mesh (and eventually multiple meshes)    
 
-2. Enable euler angle rotations of the main viewing perspective.
+2. **Euler transformation matrix**  
+   - Provide a matrix macro for use inside any TikZ path. This also enables rotating the coordinate frame, as well as sub frames. 
 
-3. Have an Euler angle transformation matrix that can be used inside of a path in tikz.
+4. **Plane intersections & on-plane drawing**  
+   - Graph intersecting planes  
+   - Draw on planes with `\pgflowlevelsynccm` 
+   - Eventually this will be automated to sort the intersection segments automatically, but for now it is done manually, due to the complexity of the problem. 
 
-4. graph intersecting planes, and draw things on them using \pgflowlevelsynccm
+5. **pv-math utilities**  
+   - 3D algebra macros in `pv-math`  
 
-5. Conveniently, this project has also forced me to use some nice commands for doing 3D algebra, which are in pv-math.
+## Timeline & Process
+
+| Deliverable                    | Tasks                                                      | Timeline                |
+|--------------------------------|------------------------------------------------------------|-------------------------|
+| **1. Documentation**           | Write README, package docs, annotated examples, API guide  | 1–2 months (from start) |
+| **2. Parametric Surface Generator** | Implement Lua triangulation, mesh Z‑buffer, TikZ integration | 2–3 months              |
+| **3. Plane Segment Sorter**    | Develop depth & adjacency‑based sorting macros for planes  | 1–2 months              |
+| **4. Additional Macro Commands** | Create utility macros (vector ops, matrix transforms, keys) | 1–2 months              |
+
+_Total estimated time: 3–9 months_ (these timeframes overlap a bit, and might need to change if I run into roadblocks.)
