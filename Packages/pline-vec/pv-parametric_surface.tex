@@ -1,0 +1,145 @@
+% NOTE: need to implement adjacency check
+
+
+\pgfqkeys{/parametricSurface}{
+    .is family
+    ,u min/.store in = \PS@umin
+    ,u max/.store in = \PS@umax
+    ,u samples/.store in = \PS@usamples
+    ,v min/.store in = \PS@vmin
+    ,v max/.store in = \PS@vmax
+    ,v samples/.store in = \PS@vsamples
+}
+
+% function initializations
+\pgfmathdeclarefunction{surfx}{2}{\pgfmathparse{sphereX(#1,#2)}}
+\pgfmathdeclarefunction{surfy}{2}{\pgfmathparse{sphereY(#1,#2)}}
+\pgfmathdeclarefunction{surfz}{2}{\pgfmathparse{sphereZ(#1,#2)}}
+
+\NewSegmentList{parametricSurface}
+
+\newcommand{\renderSurface}[4][]{
+    \pgfqkeys{/parametricSurface}{#1}%
+
+    % u-parameter
+    \pgfmathsetmacro{\ustart}{\PS@umin}
+    \pgfmathsetmacro{\uend}{\PS@umax}
+    \pgfmathsetmacro{\usamples}{\PS@usamples}
+    \pgfmathsetmacro{\ustep}{(\uend-\ustart)/(\usamples)}
+
+    % v-parameter
+    \pgfmathsetmacro{\vstart}{\PS@vmin}
+    \pgfmathsetmacro{\vend}{\PS@vmax}
+    \pgfmathsetmacro{\vsamples}{\PS@vsamples}
+    \pgfmathsetmacro{\vstep}{(\vend-\vstart)/(\vsamples)}
+
+    % function declarations
+    \pgfmathredeclarefunction{surfx}{\pgfmathparse{#2}}
+    \pgfmathredeclarefunction{surfy}{\pgfmathparse{#3}}
+    \pgfmathredeclarefunction{surfz}{\pgfmathparse{#4}}
+
+    % clears reusable list
+    \ResetSegmentList{parametricSurface}
+
+    \foreach[count=\ca] \u[parse = true] in {%
+        \ustart%
+        ,\ustart+\ustep%
+        ,...%
+        ,\uend%
+    } {
+        \foreach[count=\cb] \v[parse = true] in {%
+            \vstart%
+            ,\vstart+\vstep%
+            ,...%
+            ,\vend%
+        } {
+            \pgfmathparse{(\ca!=\usamples+1 && \cb != \vsamples+1)}
+            \ifnum\pgfmathresult=1
+            \setPoint{surfx(\u,\v)}{surfy(\u,\v)}{surfz(\u,\v)}{a}
+            \setPoint{surfx(\u+\ustep,\v)}{surfy(\u+\ustep,\v)}{surfz(\u+\ustep,\v)}{b}
+            \setPoint{surfx(\u,\v+\vstep)}{surfy(\u,\v+\vstep)}{surfz(\u,\v+\vstep)}{c}
+            \setPoint
+                {surfx(\u+\ustep,\v+\vstep)}
+                {surfy(\u+\ustep,\v+\vstep)}
+                {surfz(\u+\ustep,\v+\vstep)}
+                {d}
+            \setPoint{(\ax+\cx+\dx)/3}{(\ay+\cy+\dy)/3}{(\az+\cz+\dz)/3}{avgB}
+            \setPoint{(\ax+\bx+\dx)/3}{(\ay+\by+\dy)/3}{(\az+\bz+\dz)/3}{avgA}
+            \pgfmathsetmacro{\DPA}{
+                dotproduct(
+                    \observerX
+                    ,\observerY
+                    ,\observerZ
+                    ,\avgAx,\avgAy,\avgAz
+                )
+            }
+            \pgfmathsetmacro{\DPB}{
+                dotproduct(
+                    \observerX
+                    ,\observerY
+                    ,\observerZ
+                    ,\avgBx,\avgBy,\avgBz
+                )
+            }
+            \setPoint{\bx-\ax}{\by-\ay}{\bz-\az}{ab}
+            \setPoint{\cx-\ax}{\cy-\ay}{\cz-\az}{ac}
+            \setPoint{\dx-\ax}{\dy-\ay}{\dz-\az}{ad}
+            \crossProduct{10*\abx}{10*\aby}{10*\abz}{10*\adx}{10*\ady}{10*\adz}{nab}
+            \pgfmathparse{norm(\nabx,\naby,\nabz)!=0}
+            \ifnum\pgfmathresult=1
+            \normalizeVector{\nabx}{\naby}{\nabz}{nab}
+            \fi
+            \crossProduct{10*\acx}{10*\acy}{10*\acz}{10*\adx}{10*\ady}{10*\adz}{nac}
+            \pgfmathparse{norm(\nacx,\nacy,\nacz)!=0}
+            \ifnum\pgfmathresult=1
+            \normalizeVector{\nacx}{\nacy}{\nacz}{nac}
+            \fi
+
+            % \pgfmathparse{\DPA<0}
+            % \ifnum\pgfmathresult=1
+            %     \pgfmathsetmacro{\DPA}{-\DPA}
+            % \fi
+            % \pgfmathparse{\DPB<0}
+            % \ifnum\pgfmathresult=1
+            %     \pgfmathsetmacro{\DPB}{-\DPB}
+            % \fi
+            \ExpandArgs{nne}\AddSegment{parametricSurface}
+                {\DPB}
+                {%
+                    \def\noexpand\dotproduct{\DPB}%
+                    \def\noexpand\aax{\ax}%
+                    \def\noexpand\aay{\ay}%
+                    \def\noexpand\aaz{\az}%
+                    \def\noexpand\bbx{\cx}%
+                    \def\noexpand\bby{\cy}%
+                    \def\noexpand\bbz{\cz}%
+                    \def\noexpand\ccx{\dx}%
+                    \def\noexpand\ccy{\dy}%
+                    \def\noexpand\ccz{\dz}%
+                }%
+                
+            \ExpandArgs{nne}\AddSegment{parametricSurface}
+                {\DPA}
+                {%
+                    \def\noexpand\dotproduct{\DPA}%
+                    \def\noexpand\aax{\ax}%
+                    \def\noexpand\aay{\ay}%
+                    \def\noexpand\aaz{\az}%
+                    \def\noexpand\bbx{\bx}%
+                    \def\noexpand\bby{\by}%
+                    \def\noexpand\bbz{\bz}%
+                    \def\noexpand\ccx{\dx}%
+                    \def\noexpand\ccy{\dy}%
+                    \def\noexpand\ccz{\dz}%
+                }%
+                \fi
+        } % ends inner foreach
+    } % ends outer foreach
+    \SortSegmentList{parametricSurface}
+    \LoopOverSegmentList{parametricSurface}
+        {
+            \draw
+                [line join = round,preaction = {fill = blue}] 
+                (\aax,\aay,\aaz) -- (\bbx,\bby,\bbz) -- (\ccx,\ccy,\ccz) --cycle;
+        }
+}

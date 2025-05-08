@@ -16,5 +16,9 @@
     z = {
       (\zx cm,\zy cm)
     }}
+    \pgfmathsetmacro{\observerX}{transformrotmainX(-#1,-#2,-#3,0,0,1)}
+    \pgfmathsetmacro{\observerY}{transformrotmainY(-#1,-#2,-#3,0,0,1)}
+    \pgfmathsetmacro{\observerZ}{transformrotmainZ(-#1,-#2,-#3,0,0,1)}
+
   }
 }
