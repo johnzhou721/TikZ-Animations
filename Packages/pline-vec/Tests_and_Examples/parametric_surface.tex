@@ -1,0 +1,51 @@
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{pline-vec}
+\begin{document}
+
+% x-component function
+\pgfmathdeclarefunction{surfx}{2}{%
+    \pgfmathparse{}%
+}
+
+% y-component function
+\pgfmathdeclarefunction{surfy}{2}{%
+    \pgfmathparse{}%
+}
+
+% z-component function
+\pgfmathdeclarefunction{surfz}{2}{%
+    \pgfmathparse{}%
+}
+
+% u-parameter
+\pgfmathsetmacro{\ustart}{0}
+\pgfmathsetmacro{\uend}{10}
+\pgfmathsetmacro{\usamples}{24}
+\pgfmathsetmacro{\ustep}{(\uend-\ustart)/\usamples}
+
+% v-parameter
+\pgfmathsetmacro{\vstart}{0}
+\pgfmathsetmacro{\vend}{10}
+\pgfmathsetmacro{\vsamples}{24}
+\pgfmathsetmacro{\vstep}{(\vend-\vstart)/\vsamples}
+
+
+\foreach \u[parse = true] in {%
+    \ustart%
+    ,\ustart+\ustep%
+    ,...%
+    ,\uend%
+} {
+    \foreach \v[parse = true] in {%
+        \vstart%
+        ,\vstart+\vstep%
+        ,...%
+        ,\vend%
+    } {
+
+    }
+}
+\end{document}
