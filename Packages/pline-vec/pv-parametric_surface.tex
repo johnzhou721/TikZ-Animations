@@ -18,7 +18,7 @@
 
 \NewSegmentList{parametricSurface}
 
-\newcommand{\renderSurface}[4][]{
+\newcommand{\addSurface}[4][]{
     \pgfqkeys{/parametricSurface}{#1}%
 
     % u-parameter
@@ -39,7 +39,7 @@
     \pgfmathredeclarefunction{surfz}{\pgfmathparse{#4}}
 
     % clears reusable list
-    \ResetSegmentList{parametricSurface}
+    %\ResetSegmentList{parametricSurface}
 
     \foreach[count=\ca] \u[parse = true] in {%
         \ustart%
@@ -135,6 +135,15 @@
                 \fi
         } % ends inner foreach
     } % ends outer foreach
+    % \SortSegmentList{parametricSurface}
+    % \LoopOverSegmentList{parametricSurface}
+    %     {
+    %         \draw
+    %             [line join = round,preaction = {fill = blue}] 
+    %             (\aax,\aay,\aaz) -- (\bbx,\bby,\bbz) -- (\ccx,\ccy,\ccz) --cycle;
+    %     }
+}
+\newcommand{\renderSurface}{
     \SortSegmentList{parametricSurface}
     \LoopOverSegmentList{parametricSurface}
         {
@@ -142,4 +151,5 @@
                 [line join = round,preaction = {fill = blue}] 
                 (\aax,\aay,\aaz) -- (\bbx,\bby,\bbz) -- (\ccx,\ccy,\ccz) --cycle;
         }
+    \ResetSegmentList{parametricSurface}
 }
