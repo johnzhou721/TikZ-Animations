@@ -17,8 +17,9 @@ Pline-Vec is a name reflecting this project’s original scope: drawing planes a
    - Draw on planes with `\pgflowlevelsynccm` 
    - Eventually this will be automated to sort the intersection segments automatically, but for now it is done manually with spath3, due to the complexity of the problem. 
 
-5. **pv-math utilities**  
-   - 3D algebra macros in `pv-math`  
+5. **Lua Integration**  
+   - I was advised to make this a luatex-only package, so I can use of the capabilities of Lua.
+   This will make it faster and more easy to build. Of course, this means I need to rewrite many macros in Lua instead of TeX.
 
 ## Timeline & Process
 
