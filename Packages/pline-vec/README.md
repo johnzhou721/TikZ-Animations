@@ -1,33 +1,40 @@
-# Pline-Vec
+# Pline‑Vec
 
-Pline-Vec is a name reflecting this project’s original scope: drawing planes and intersections, and enabling “on‑plane” drawing via `\pgflowlevelsynccm`. The scope has since broadened, and the name may change later. Now the scope also includes broader coordinate transformations, as well as surface generation.
+Pline‑Vec began as a toolkit for drawing planes, computing their intersections, and enabling “on‑plane” drawing via `\pgflowlevelsynccm`. Over time it has grown into a more general coordinate‑transformation and surface‑generation package. (The name may evolve to reflect its expanded scope.)
 
-## Goals
+## Current Features
 
-1. **Parametric surface grapher**  
-   - User inputs a parametric equation as well as other necessary information
-   - Automatically triangulate into a mesh  
-   - Z-buffer each mesh (and eventually multiple meshes)    
+1. **Parametric Surface Grapher**  
+   - Accepts arbitrary parametric equations and user‑supplied parameters  
+   - Automatically triangulates the surface into a mesh  
+   - **Performs a true Z‑buffer pass on one or more meshes** to render correct depth ordering  
+   - **Note:** triangles are currently sorted by centroid only; a more robust depth‑plus‑adjacency sorter is forthcoming  
 
-2. **Euler transformation matrix**  
-   - Provide a matrix macro for use inside any TikZ path. This also enables rotating the coordinate frame, as well as **paths** (not sub-frames). 
+2. **Euler‑Angle Rotation Matrix**  
+   - Provides a reusable matrix macro for any TikZ path  
+   - Applies rotations to the coordinate frame *and* to individual path segments  
 
-4. **Plane intersections & on-plane drawing**  
-   - Graph intersecting planes  
-   - Draw on planes with `\pgflowlevelsynccm` 
-   - Eventually this will be automated to sort the intersection segments automatically, but for now it is done manually with spath3, due to the complexity of the problem. 
+3. **Intersecting Planes & On‑Plane Drawing**  
+   - Supports manual graphing of plane intersections using `spath3`  
+   - Allows “on‑plane” rendering with `\pgflowlevelsynccm`  
+   - **⚠️ Automated sorting of intersection segments is still under development**—this remains a challenging problem and will be tackled in a future release.
 
-5. **Lua Integration**  
-   - I was advised to make this a luatex-only package, so I can use of the capabilities of Lua.
-   This will make it faster and more easy to build. Of course, this means I need to rewrite many macros in Lua instead of TeX.
+4. **LuaTeX Integration**  
+   - Core algorithms are being ported into Lua for improved performance and maintainability  
+   - Leverages Lua’s numerical capabilities to accelerate mesh generation and sorting  
 
-## Timeline & Process
+## Roadmap
 
-| Deliverable                    | Tasks                                                      | Timeline                |
-|--------------------------------|------------------------------------------------------------|-------------------------|
-| **1. Documentation**           | Write README, package docs, annotated examples  | 1–2 months (from when I start) |
-| **2. Parametric Surface Generator** | Mesh Z‑buffer | <1month months              |
-| **3. Plane Segment Sorter**    | Develop depth & adjacency‑based sorting macros for planes  | 1–3 months              |
-| **4. Additional Macro Commands** | Create utility macros (vector ops, matrix transforms, keys) | ~1 months              |
+| Deliverable                         | Status                        | ETA                |
+|-------------------------------------|-------------------------------|--------------------|
+| **Package Documentation**           | Not started                   | 1–2 months         |
+| **Parametric Surface Generator**    | ✓ Z‑buffer for single & multiple meshes implemented | < 1 month          |
+| **Rotation Matrix**                 | ✓ Complete and tested         | —                  |
+| **Plane‑Segment Sorter**            | Manual via `spath3`           | 1–3 months         |
+| **Lua Macro Rewrite**               | Planning stage                | 2–4 months         |
 
-_Total estimated time: 3–5 months_ (these timeframes overlap a bit, and might need to change if I run into roadblocks.)
+> **Total estimated development time:** 3–5 months (tasks overlap and timelines may adjust as needed).
+
+---
+
+*Stay tuned for automated plane‑intersection sorting, and let me know if you’d like to help test the new Z‑buffer routines!*
