@@ -34,7 +34,3 @@ Pline‑Vec began as a toolkit for drawing planes, computing their intersections
 | **Lua Macro Rewrite**               | Planning stage                | 2–4 months         |
 
 > **Total estimated development time:** 3–5 months (tasks overlap and timelines may adjust as needed).
-
----
-
-*Stay tuned for automated plane‑intersection sorting, and let me know if you’d like to help test the new Z‑buffer routines!*
