@@ -60,7 +60,7 @@ function normalize_vector(u,name)
 end
 
 function orthogonal_vector(u)
-    if (u[1]!=0 and u[2]==0 and u[3]==0) then
+    if (u[1]~=0 and u[2]==0 and u[3]==0) then
         local v = cross_product(u,{0,1,0})
     else
         local v = cross_product(u,{1,0,0})
