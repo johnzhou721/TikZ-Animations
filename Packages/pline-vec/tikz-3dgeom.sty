@@ -1,0 +1,37 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{tikz-3dgeom}[
+    2025/05/10 v0.01 LaTeX package for drawing planes and their 
+    intesections, as well as vectors. It also defines a bunch
+    of nice helper functions for 3D, and can z-buffer multiple
+    surfaces at once.
+]
+\RequirePackage{tikz}
+\usetikzlibrary{
+    calc
+    ,spath3
+    ,intersections
+    ,arrows.meta
+    ,decorations.markings
+}
+\input{pv-keys}
+\directlua{require("pv-math.lua")}
+\directlua{require("pv-get_plane.lua")}
+\input{pv-getplane2}
+
+
+
+
+
+% \input{pv-segment_sorting}
+% \input{pv-math}
+% 
+% \input{pv-get_plane}
+% \input{pv-get_line}
+% \input{pv-vectors}
+% \input{pv-pgflowlevelsynccm}
+% \input{pv-orientation}
+% \input{pv-rodrigues_rotation_matrix}
+% \input{pv-parametric_surface}
+% \directlua{require("pv-math.lua")}
+% \directlua{require("pv-get_plane.lua")}
+% 

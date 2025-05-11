@@ -1,4 +1,5 @@
 \newcommand{\getplaneTwo}[2][]{
+    \begingroup
     \pgfqkeys{/pline}{#1}
     \directlua{
         get_plane(
@@ -11,4 +12,5 @@
             ,"#2"
         )
     }
+    \endgroup
 }

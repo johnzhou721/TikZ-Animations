@@ -31,22 +31,28 @@ function get_plane(
             table.insert(intersections,{i[1],i[2],i[3]})
         end
     end
-    for y = ymin, ymax, ymax-ymin do
-        for z = zmin, zmax, zmax-zmin do
-            local x = plane(y,z)[1]
-            add_intersection({x,y,z})
-        end
-    end
-    for x = xmin, xmax, xmax-xmin do
-        for z = zmin, zmax, zmax-zmin do
-            local y = plane(x,z)[2]
-            add_intersection({x,y,z})
-        end
-    end
-    for x = xmin, xmax, xmax-xmin do
+    if normal[1]~=0 then
         for y = ymin, ymax, ymax-ymin do
-            local z = plane(x,y)[3]
-            add_intersection({x,y,z})
+            for z = zmin, zmax, zmax-zmin do
+                local x = plane(y,z)[1]
+                add_intersection({x,y,z})
+            end
+        end
+    end
+    if normal[2]~=0 then
+        for x = xmin, xmax, xmax-xmin do
+            for z = zmin, zmax, zmax-zmin do
+                local y = plane(x,z)[2]
+                add_intersection({x,y,z})
+            end
+        end
+    end
+    if normal[3]~=0 then
+        for x = xmin, xmax, xmax-xmin do
+            for y = ymin, ymax, ymax-ymin do
+                local z = plane(x,y)[3]
+                add_intersection({x,y,z})
+            end
         end
     end
     local n = normalize_vector(normal)
