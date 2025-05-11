@@ -1,13 +1,11 @@
 \NeedsTeXFormat{LaTeX2e}[1994/06/01]
-\ProvidesPackage{pline-vec}[
+\ProvidesPackage{tikz-3dgeom}[
     2025/04/27 v0.01 LaTeX package for drawing planes and their 
-    intesections, as well as vectors. The ability to z-buffer multiple 
-    parametric surfaces is also a goal.
+    intesections, as well as vectors. It also defines a bunch
+    of nice helper functions for 3D, and can z-buffer multiple
+    surfaces at once.
 ]
-\RequirePackage{
-    tikz
-    ,tikz-3dplot
-}
+\RequirePackage{tikz}
 \usetikzlibrary{
     calc
     ,spath3

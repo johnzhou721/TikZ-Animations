@@ -1,0 +1,36 @@
+% arara: lualatex
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{pline-vec}
+\begin{document}
+\begin{tikzpicture}[orientation = {90}{60}{60}]
+    \addSurface
+        [
+            u min = 0
+            ,u max = 360
+            ,u samples = 60
+            ,v min = 0
+            ,v max = 360
+            ,v samples = 18
+        ]
+        {3*cos(3*#1)+sphereX(3*#1,#2)}
+        {3*sin(3*#1)+sphereY(3*#1,#2)}
+        {#1/30+sphereZ(3*#1,#2)}
+    \addSurface
+        [
+            u min = 270
+            ,u max = 420
+            ,u samples = 60
+            ,v min = 0
+            ,v max = 360
+            ,v samples = 9
+        ]
+        {3*cos(3*#1)+0.3*sphereX(3*#1,#2)}
+        {3*sin(3*#1)+0.3*sphereY(3*#1,#2)}
+        {#1/30+0.3*sphereZ(3*#1,#2)}
+
+    \renderSurface
+\end{tikzpicture}
+\end{document}
