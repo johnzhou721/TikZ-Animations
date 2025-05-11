@@ -50,7 +50,7 @@ function sphere(longitude,latitude)
     return result
 end
 
-function normalize_vector(u,name)
+function normalize_vector(u)
     local norm = norm(u)
     local x = u[1]/norm
     local y = u[2]/norm
@@ -60,10 +60,11 @@ function normalize_vector(u,name)
 end
 
 function orthogonal_vector(u)
+    local v
     if (u[1]~=0 and u[2]==0 and u[3]==0) then
-        local v = cross_product(u,{0,1,0})
+        v = cross_product(u,{0,1,0})
     else
-        local v = cross_product(u,{1,0,0})
+        v = cross_product(u,{1,0,0})
     end
     result = v
     return result

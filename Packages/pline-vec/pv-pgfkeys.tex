@@ -21,6 +21,9 @@
     % size of the "cube"
     ,size/.store in = \pline@size
     ,scale axes/.is if = scaleAxes
+    ,scale x/.store in = \plinescalex
+    ,scale y/.store in = \plinescaley
+    ,scale z/.store in = \plinescalez
     % ZYZ Euler angle rotation matrix
     ,alpha/.store in = \pline@alpha % Z
     ,beta/.store in = \pline@beta % Y
@@ -43,4 +46,7 @@
     ,alpha = 0
     ,beta = 0
     ,gamma = 0
+    ,scale x = 1
+    ,scale y = 1
+    ,scale z = 1
 }
