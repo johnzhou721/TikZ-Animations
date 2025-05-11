@@ -1,8 +1,8 @@
 # tikz-3dgeom
 
-`tikz-3dgeom` is a toolkit for 3D visualization in TikZ.
+`pline-vec` is a toolkit for 3D visualization in TikZ.
 
-I was motivated to write this package because of things that I wanted to do, but could not do with the standard packages, `tikz-3dplot` and `pgfplots`. For example, `pgfplots` cannot z-buffer multiple surfaces at once, and `tikz-3dplot` does not allow euler angle rotations of the main coordinate frame. Also, neither package can draw intersecting planes properly. `tikz-3dgeom` can do all of that, and will also be able to do more.
+I was motivated to write this package because of things that I wanted to do, but could not do with the standard packages, `tikz-3dplot` and `pgfplots`. For example, `pgfplots` cannot z-buffer multiple surfaces at once, and `tikz-3dplot` does not allow euler angle rotations of the main coordinate frame. Also, neither package can draw intersecting planes properly. `pline-vec` can do all of that, and will also be able to do more.
 
 ## Current Features
 
