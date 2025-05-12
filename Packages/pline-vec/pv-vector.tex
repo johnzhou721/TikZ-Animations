@@ -1,6 +1,12 @@
-\newcommand{\pvDot}[2][]{
+% Draws a dot.
+% #1  - options for /tikz/pline-vec/vector/
+% #2  - coordinate of the dot 
+\newcommand{\pvdot}[2][]{
     \begingroup
-    \pgfkeys{/pline-vec/vector/.cd,#1}
+    \pgfkeys{
+        /pline-vec/vector/.cd
+        ,#1
+    }
     \coordinate (tmp) at (#2);
     \node 
         at (tmp) 
@@ -13,5 +19,85 @@
             ,/pline-vec/vector/.cd
             ,options
         ] {};
+    \endgroup
+}
+
+% #1  - options for /tikz/pline-vec/vector/
+\newcommand{\pvmark}[1][]{
+    \begingroup
+    \tikzset{
+        /pline-vec/vector/.cd
+        ,#1
+    }
+    \pgfmathsetmacro{\tmp}{\pv@vector@marklength/2}
+    \draw
+        [
+            /pline-vec/vector/.cd
+            ,options
+        ]
+        (0,-\tmp pt) -- (0,\tmp pt);
+    \endgroup
+}
+
+% #1  - options for /tikz/pline-vec/vector/
+% #2  - start point
+% #3  - displacement from start point
+\newcommand{\pvvector}[3][]{
+    \begingroup
+    \tikzset{
+        /pline-vec/vector/.cd
+        ,#1
+    }
+    \coordinate (@start) at (#2);
+    \ifnum\pv@vector@points=1
+        \pvdot{@start}
+        \draw
+            [
+                shorten < = \pv@vector@pointradius cm
+                ,/pline-vec/vector/.cd
+                ,options
+            ] (@start) -- ++(#3);
+    \fi
+    \ifnum\pv@vector@points=2
+        \pvdot{@start}
+        \draw
+            [
+                shorten < = \pv@vector@pointradius cm
+                ,shorten > = \pv@vector@pointradius cm
+                ,/pline-vec/vector/.cd
+                ,options
+            ] (@start) -- ++(#3) coordinate (@end);
+        \pvdot{@end}
+    \fi
+    \ifnum\pv@vector@points=3
+        \draw
+            [
+                /pline-vec/vector/.cd
+                ,options
+            ] (@start) -- ++(#3);
+    \fi
+    \ifnum\pv@vector@points=4
+        \draw
+            [
+                shorten > = \pv@vector@pointradius cm
+                ,/pline-vec/vector/.cd
+                ,options
+            ] (@start) -- ++(#3) coordinate (@end);
+        \pvdot{@end}
+    \fi
+    \ifnum\pv@vector@mark=1
+        \path
+            [
+                decoration = {
+                    markings
+                    ,mark =
+                        between positions \pv@vector@markstart
+                        and \pv@vector@markend
+                        step = \pv@vector@markstep
+                        with {\pvmark}
+                }
+                ,decorate
+            ] (#2) -- ++(#3);
+    \fi
     \endgroup
 }

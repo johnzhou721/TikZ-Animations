@@ -35,9 +35,13 @@
     %
     ,/pline-vec/vector/.cd
     ,point radius/.estore in = \pv@vector@pointradius
-    ,arrow/.is choice
-    ,arrow/true/.code = {\edef\pv@vector@arrow{1}}
-    ,arrow/false/.code = {\edef\pv@vector@arrow{0}}
+    ,mark length/.estore in = \pv@vector@marklength
+    ,mark/.is choice
+    ,mark/true/.code = {\edef\pv@vector@mark}{1}
+    ,mark/false/.code = {\edef\pv@vector@mark}{0}
+    ,mark start/.estore in = \pv@vector@markstart
+    ,mark end/.estore in = \pv@vector@markend
+    ,mark end/.estore in = \pv@vector@markstep
     ,points/.is choice
     ,points/behind/.code = {\edef\pv@vector@points{1}}
     ,points/both/.code = {\edef\pv@vector@points{2}}
@@ -45,6 +49,11 @@
     ,points/front/.code = {\edef\pv@vector@points{4}}
     ,options/.style = {#1}
     ,point radius = 0.06
+    ,mark length = 4
+    ,mark = false
+    ,mark start = 0
+    ,mark end = 1
+    ,mark step = 1
     ,arrow = false
     ,points = behind
 }
