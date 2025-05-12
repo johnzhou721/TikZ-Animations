@@ -18,7 +18,7 @@ I was motivated to write this package because of things that I wanted to do, but
 
 3. **Plane Intersections & On-Plane Drawing**  
    - Supports manual construction of plane intersections via `spath3`  
-   - Enables on-plane drawing with `\pgflowlevelsynccm`  
+   - Enables on-plane drawing with `transform shape`  
    - ⚠️ Automatic sorting of intersection segments is still in progress
 
 4. **LuaTeX Integration**  

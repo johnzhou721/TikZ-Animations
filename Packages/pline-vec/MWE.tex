@@ -2,8 +2,7 @@
 \documentclass{article}
 \usepackage{pline}
 \begin{document}
-\begin{tikzpicture}[/pline-vec/main orientation = {10}{20}{30},canvas is xy plane at z = 0]
-    \pgflowlevelsynccm
+\begin{tikzpicture}[/pline-vec/main orientation = {10}{20}{30},canvas is xy plane at z = 0,transform shape]
     \pgfmathsetmacro{\aa}{pvdotproduct(1,1,1,1,1,1)}
     \node {\aa};
 \end{tikzpicture}
