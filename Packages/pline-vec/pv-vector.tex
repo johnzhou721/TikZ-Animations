@@ -1,0 +1,17 @@
+\newcommand{\pvDot}[2][]{
+    \begingroup
+    \pgfkeys{/pline-vec/vector/.cd,#1}
+    \coordinate (tmp) at (#2);
+    \node 
+        at (tmp) 
+        [
+            circle
+            ,minimum size = 2 * \pv@vector@pointradius cm
+            ,inner sep = 0pt
+            ,outer sep = 0pt
+            ,fill
+            ,/pline-vec/vector/.cd
+            ,options
+        ] {};
+    \endgroup
+}

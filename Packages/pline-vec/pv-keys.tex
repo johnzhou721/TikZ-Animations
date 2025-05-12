@@ -1,61 +1,50 @@
-\newif\ifscaleAxes
-\pgfqkeys{/pline}{
-    .is family
-    % normal equation of plane
-    ,n1a/.store in = \pline@noa
-    ,n1b/.store in = \pline@nob
-    ,n1c/.store in = \pline@noc
-    ,n1d/.store in = \pline@nod
-    % normal equation of second plane (only for taking intersections)
-    ,n2a/.store in = \pline@nta
-    ,n2b/.store in = \pline@ntb
-    ,n2c/.store in = \pline@ntc
-    ,n2d/.store in = \pline@ntd
-    % normal equation of third plane (only for taking intersections)
-    ,n3a/.store in = \pline@nta
-    ,n3b/.store in = \pline@ntb
-    ,n3c/.store in = \pline@ntc
-    ,n3d/.store in = \pline@ntd
-    % 3D boundaries
-    ,xmin/.store in = \pline@xmin
-    ,xmax/.store in = \pline@xmax
-    ,ymin/.store in = \pline@ymin
-    ,ymax/.store in = \pline@ymax
-    ,zmin/.store in = \pline@zmin
-    ,zmax/.store in = \pline@zmax
-    % size of the "cube"
-    ,size/.store in = \pline@size
-    ,scale axes/.is if = scaleAxes
-    ,scale x/.store in = \plinescalex
-    ,scale y/.store in = \plinescaley
-    ,scale z/.store in = \plinescalez
-    % ZYZ Euler angle rotation matrix
-    ,alpha/.store in = \pline@alpha % Z
-    ,beta/.store in = \pline@beta % Y
-    ,gamma/.store in = \pline@gamma % Z
-    ,n1a = 1
-    ,n1b = 1
-    ,n1c = 1
-    ,n1d = 0
-    ,n2a = 1
-    ,n2b = 1
-    ,n2c = 1
-    ,n2d = 0
-    ,n3a = 1
-    ,n3b = 1
-    ,n3c = 1
-    ,n3d = 0
+\tikzset{
+    /pline-vec/.is family
+    %
+    ,/pline-vec/.cd
+    ,xmin/.estore in = \pv@xmin
+    ,xmax/.estore in = \pv@xmax
+    ,ymin/.estore in = \pv@ymin
+    ,ymax/.estore in = \pv@ymax
+    ,zmin/.estore in = \pv@zmin
+    ,zmax/.estore in = \pv@zmax
+    ,size/.estore in = \pv@size
+    % Euler angle rotations of main frame
+    ,alpha/.estore in = \pv@alpha
+    ,beta/.estore in = \pv@beta
+    ,gamma/.estore in = \pv@gamma
     ,xmin = -5
     ,xmax = 5
     ,ymin = -5
     ,ymax = 5
     ,zmin = -5
     ,zmax = 5
-    ,size = 5
     ,alpha = 0
     ,beta = 0
     ,gamma = 0
-    ,scale x = 1
-    ,scale y = 1
-    ,scale z = 1
+    %
+    ,/pline-vec/plane/.cd
+    ,na/.estore in = \pv@plane@na
+    ,nb/.estore in = \pv@plane@nb
+    ,nc/.estore in = \pv@plane@nc
+    ,nd/.estore in = \pv@plane@nd
+    ,na = 1
+    ,nd = 1
+    ,nc = 1
+    ,nd = 1
+    %
+    ,/pline-vec/vector/.cd
+    ,point radius/.estore in = \pv@vector@pointradius
+    ,arrow/.is choice
+    ,arrow/true/.code = {\edef\pv@vector@arrow{1}}
+    ,arrow/false/.code = {\edef\pv@vector@arrow{0}}
+    ,points/.is choice
+    ,points/behind/.code = {\edef\pv@vector@points{1}}
+    ,points/both/.code = {\edef\pv@vector@points{2}}
+    ,points/neither/.code = {\edef\pv@vector@points{3}}
+    ,points/front/.code = {\edef\pv@vector@points{4}}
+    ,options/.style = {#1}
+    ,point radius = 0.06
+    ,arrow = false
+    ,points = behind
 }
