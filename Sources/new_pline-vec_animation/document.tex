@@ -1,0 +1,32 @@
+\begin{frame}
+    \nointerlineskip
+    \begin{tikzpicture}[/pline-vec/main orientation = {90}{-60}{\t}]
+        \useasboundingbox
+            (-\textwidth/2,-\textheight/2)
+            rectangle
+            (\textwidth/2,\textheight/2);
+        \begin{scope}[shift = {(0,0,3)},scale=0.45]
+        \pvappendsurface[
+            u min = 10
+            ,u max = 51
+            ,u samples = 40
+            ,v min = 0
+            ,v max = 360
+            ,v samples = 10
+        ]{0.05*(1-u)*(3+math.cosd(v))*math.cosd(4*3.14*u)}
+        {0.05*(1-u)*(3+math.cosd(v))*math.sind(4*3.14*u)}
+        {-0.05*(3*u+(1-u)*math.sind(v))}
+        \pvappendsurface[
+            u min = 10
+            ,u max = 55
+            ,u samples = 40
+            ,v min = 0
+            ,v max = 360
+            ,v samples = 10
+        ]{0.05*(1-u)*(3+0.3*math.cosd(v))*math.cosd(4*3.14*u)}
+        {0.05*(1-u)*(3+0.3*math.cosd(v))*math.sind(4*3.14*u)}
+        {-0.05*(3*u+(1-u)*0.3*math.sind(v))}
+        \pvrendersegments
+        \end{scope}
+    \end{tikzpicture}
+\end{frame}
