@@ -1,10 +1,10 @@
 \directlua{require("pv-plane.lua")}
 
 \newcommand{\getplane}[2][]{
-    %\begingroup
-    %\tikzset{/pline-vec/plane/.cd,#1}
-    %\edef\temp{
-    %\noexpand%
+    \begingroup
+    \tikzset{/pline-vec/plane/.cd,#1}
+    \edef\temp{
+    \noexpand%
     \directlua{
         pv_get_plane(
             \pv@size
@@ -15,8 +15,8 @@
             ,\pv@ymin,\pv@ymax
             ,"#2"
         )
-    }%}
-    %\expandafter
-    %\endgroup%
-    %\temp
+    }}
+    \expandafter
+    \endgroup%
+    \temp
 }

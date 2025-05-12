@@ -2,8 +2,15 @@
 \documentclass{article}
 \usepackage{pline}
 \begin{document}
-\begin{tikzpicture}
-    \getplane{a}
-    \draw[spath/use = planea];
+\begin{tikzpicture}[/pline-vec/main orientation = {0}{0}{0}] % <--- necessary
+    \pvappendsurface[
+        u min = 0
+        ,u max = 100
+        ,u samples = 45
+        ,v min = 0
+        ,v max = 100
+        ,v samples = 45
+    ]{u+v}{u}{v}
+    \pvrendersegments
 \end{tikzpicture}
 \end{document}

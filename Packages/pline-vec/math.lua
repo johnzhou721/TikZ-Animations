@@ -218,3 +218,19 @@ function pv_orthogonal_vector(u)
     result = v
     return result
 end
+
+function pv_average(a,b,c)
+    local x = (a[1] + b[1] + c[1])/3
+    local y = (a[2] + b[2] + c[2])/3
+    local z = (a[3] + b[3] + c[3])/3
+    local result = {x,y,z}
+    return result
+end
+
+function pv_difference(u,v)
+    local x = u[1]-v[1]
+    local y = u[2]-v[2]
+    local z = u[3]-v[3]
+    local result = {x,y,z}
+    return result
+end

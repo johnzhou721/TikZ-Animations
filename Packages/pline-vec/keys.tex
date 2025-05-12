@@ -36,6 +36,9 @@
         \pgfmathsetmacro
             {\observerz}
             {pvtransformrotmainz(-#3,-#2,-#1,0,0,1)}
+        \directlua{
+            observer = pv_ZYZ_rotation_matrix({-#3,-#2,-#1},{0,0,1})
+        }
     }
     % boundaries of the coordinate frame
     ,xmin/.estore in = \pv@xmin
@@ -121,4 +124,18 @@
     ,mark end = 1
     ,mark step = 1
     ,points = behind
+    % /pline-vec/z-buffer/ keys
+    ,/pline-vec/z-buffer/.cd
+    ,u min/.estore in = \pv@zbuffer@umin
+    ,u max/.estore in = \pv@zbuffer@umax
+    ,u samples/.estore in = \pv@zbuffer@usamples
+    ,v min/.estore in = \pv@zbuffer@vmin
+    ,v max/.estore in = \pv@zbuffer@vmax
+    ,v samples/.estore in = \pv@zbuffer@vsamples
+    ,u min = 0
+    ,u max = 5
+    ,u samples = 5
+    ,v min = 0
+    ,v max = 5
+    ,v samples = 5
 }

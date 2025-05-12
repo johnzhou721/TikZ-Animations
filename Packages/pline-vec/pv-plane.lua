@@ -1,6 +1,3 @@
-
-
-
 function pv_get_plane(
     size,normal,d_value
     ,xmin,xmax,ymin,ymax,zmin,zmax
