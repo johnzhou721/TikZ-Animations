@@ -15,7 +15,7 @@ though I will also include some still diagrams as well.
   LaTeX (and Lua/Python) source code for selected animations. As my skills evolved, some early files were retired and are not included here.
 
 - **Packages/**  
-  Development code for custom Ti*k*Z packages (e.g. `pline-vec.sty`) that power my 3D and animation work.
+  Development code for `pline-vec.sty`
 
 ## Featured Animation
 
@@ -29,12 +29,6 @@ though I will also include some still diagrams as well.
   - Now supports true Z‑buffering of multiple surfaces (triangles are currently sorted by centroid; a more robust sorter is in progress).  
   - Completed Euler‑angle rotation matrix for both coordinate frames and individual path segments.  
   - Manual plane‑intersection drawing via `spath3`; automated intersection sorting remains a future challenge.
-
-- **AnimateTeX**  
-  A Python‑driven LaTeX animation pipeline. Frames are compiled incrementally so you can preview progress as the animation builds—no more opaque TeX loops!
-
-- **Community Contributions**  
-  Active on [TeX Stack Exchange](https://tex.stackexchange.com/users/319072/jasper) and [TikZ.net](https://tikz.net/author/jasper/). I’m grateful for all the help I’ve received and pay it forward whenever I can.
 
 ## Disclaimer
 

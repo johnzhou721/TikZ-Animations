@@ -36,9 +36,9 @@
         \pgfmathsetmacro
             {\observerz}
             {pvtransformrotmainz(-#3,-#2,-#1,0,0,1)}
-        \pgfmathsetmacro{\pv@internal@a}{-#3}
-        \pgfmathsetmacro{\pv@internal@b}{-#2}
-        \pgfmathsetmacro{\pv@internal@g}{-#1}
+        \pgfmathsetmacro{\pv@internal@a}{-(#3)}
+        \pgfmathsetmacro{\pv@internal@b}{-(#2)}
+        \pgfmathsetmacro{\pv@internal@g}{-(#1)}
         \directlua{
             observer = pv_ZYZ_rotation_matrix({\pv@internal@a,\pv@internal@b,\pv@internal@g},{0,0,1})
         }
@@ -51,10 +51,6 @@
     ,zmin/.estore in = \pv@zmin
     ,zmax/.estore in = \pv@zmax
     ,size/.estore in = \pv@size
-    % Euler angle rotations of main frame
-    ,alpha/.estore in = \pv@alpha
-    ,beta/.estore in = \pv@beta
-    ,gamma/.estore in = \pv@gamma
     % defaults
     ,xmin = -5
     ,xmax = 5
@@ -63,9 +59,6 @@
     ,zmin = -5
     ,zmax = 5
     ,size = 2
-    ,alpha = 0
-    ,beta = 0
-    ,gamma = 0
     % /pline-vec/plane/ keys
     ,/pline-vec/plane/.cd
     % normal equation of the plane

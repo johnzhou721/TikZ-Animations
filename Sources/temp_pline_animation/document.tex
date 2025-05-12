@@ -1,35 +1,34 @@
-% arara: lualatex
-\documentclass{article}
-\usepackage{pline}
 \begin{document}
-\begin{tikzpicture}[/pline-vec/main orientation = {90}{60}{-40}]
+\pgfmathsetmacro{\t}{-40+\t}
+\begin{tikzpicture}[/pline-vec/main orientation = {90}{60}{\t},scale=0.2]
+    \path[x={(1cm,0cm)},y={(0cm,1cm)}] (-10,-5) rectangle (10,50);
     \pvappendsurface[
         u min = 0
         ,u max = 360
-        ,u samples = 60
+        ,u samples = 40
         ,v min = 0
         ,v max = 360
-        ,v samples = 36
+        ,v samples = 9
     ]{4*math.cosd(3*u)+pv_sphere_x(3*u,v)}
     {4*math.sind(3*u)+pv_sphere_y(3*u,v)}
     {4*u/30+pv_sphere_z(3*u,v)}
     \pvappendsurface[
         u min = 0
         ,u max = 330
-        ,u samples = 60
+        ,u samples = 40
         ,v min = 0
         ,v max = 360
-        ,v samples = 36
+        ,v samples = 12
     ]{4*math.cosd(3*u)+2*pv_sphere_x(3*u,v)}
     {4*math.sind(3*u)+2*pv_sphere_y(3*u,v)}
     {4*u/30+2*pv_sphere_z(3*u,v)}
     \pvappendsurface[
         u min = 0
         ,u max = 300
-        ,u samples = 60
+        ,u samples = 40
         ,v min = 0
         ,v max = 360
-        ,v samples = 36
+        ,v samples = 18
     ]{4*math.cosd(3*u)+3*pv_sphere_x(3*u,v)}
     {4*math.sind(3*u)+3*pv_sphere_y(3*u,v)}
     {4*u/30+3*pv_sphere_z(3*u,v)}
