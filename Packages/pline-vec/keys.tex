@@ -2,6 +2,41 @@
     /pline-vec/.is family
     % /pline-vec/ keys
     ,/pline-vec/.cd
+    % main orientation key
+    ,main orientation/.code n args = {3}{
+        \begingroup 
+        \pgfmathsetmacro{\xx}{pvtransformrotmainx(#1,#2,#3,1,0,0)}
+        \pgfmathsetmacro{\xy}{pvtransformrotmainy(#1,#2,#3,1,0,0)}
+        \pgfmathsetmacro{\yx}{pvtransformrotmainx(#1,#2,#3,0,1,0)}
+        \pgfmathsetmacro{\yy}{pvtransformrotmainy(#1,#2,#3,0,1,0)}
+        \pgfmathsetmacro{\zx}{pvtransformrotmainx(#1,#2,#3,0,0,1)}
+        \pgfmathsetmacro{\zy}{pvtransformrotmainy(#1,#2,#3,0,0,1)}
+        \edef\temp{
+            \noexpand\pgfkeysalso{
+                x = {
+                    (\xx cm,\xy cm)
+                },
+                y = {
+                    (\yx cm,\yy cm)
+                },
+                z = {
+                    (\zx cm,\zy cm)
+                }
+            }
+        }
+        \expandafter
+        \endgroup%
+        \temp
+        \pgfmathsetmacro
+            {\observerx}
+            {pvtransformrotmainx(-#3,-#2,-#1,0,0,1)}
+        \pgfmathsetmacro
+            {\observery}
+            {pvtransformrotmainy(-#3,-#2,-#1,0,0,1)}
+        \pgfmathsetmacro
+            {\observerz}
+            {pvtransformrotmainz(-#3,-#2,-#1,0,0,1)}
+    }
     % boundaries of the coordinate frame
     ,xmin/.estore in = \pv@xmin
     ,xmax/.estore in = \pv@xmax

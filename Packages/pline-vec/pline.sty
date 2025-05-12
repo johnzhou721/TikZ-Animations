@@ -7,16 +7,17 @@
 ]
 \RequirePackage{tikz}
 \usetikzlibrary{
-    calc
+    3d
+    ,calc
     ,spath3
     ,intersections
     ,arrows.meta
     ,decorations.markings
 }
+% these two must be input first
 \input{keys}
 \input{math}
-\directlua{require("math.lua")}
-\input{pv}
+%
 \input{pv-vector}
 
 
