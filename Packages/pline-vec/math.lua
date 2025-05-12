@@ -6,6 +6,21 @@ function pv_cross_product(u,v)
     return result
 end
 
+function pv_cross_product_x(u,v)
+    local x = u[2]*v[3]-u[3]*v[2]
+    return x
+end
+
+function pv_cross_product_y(u,v)
+    local y = u[3]*v[1]-u[1]*v[3]
+    return y
+end
+
+function pv_cross_product_z(u,v)
+    local z = u[1]*v[2]-u[2]*v[1]
+    return z
+end
+
 function pv_cross_product_x_tex(u,v)
     local x = u[2]*v[3]-u[3]*v[2]
     tex.print(
@@ -158,6 +173,21 @@ function pv_sphere(longitude,latitude)
     local z = math.sind(latitude)
     local result = {x,y,z}
     return result
+end
+
+function pv_sphere_x(longitude,latitude)
+    local x = (math.cosd(latitude)*math.cosd(longitude))
+    return x
+end
+
+function pv_sphere_y(longitude,latitude)
+    local y = (math.cosd(latitude)*math.sind(longitude))
+    return y
+end
+
+function pv_sphere_z(longitude,latitude)
+    local z = math.sind(latitude)
+    return z
 end
 
 function pv_sphere_x_tex(longitude,latitude)

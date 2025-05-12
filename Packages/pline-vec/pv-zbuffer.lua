@@ -1,86 +1,62 @@
 segments = {}
 
-function append_surface(
-    u_start,u_end,u_samples
-    ,v_start,v_end,v_samples
-    ,fx,fy,fz
-)
-    x_col_step = 100/(u_end-u_start)
-    u_step = (u_end-u_start)/u_samples
-    v_step = (v_end-v_start)/v_samples
+function append_surface(u_start, u_end, u_samples,
+                        v_start, v_end, v_samples,
+                        fx, fy, fz)
 
-    function surface(u,v)
-        local x = fx(u, v)
-        local y = fy(u, v)
-        local z = fz(u, v)
-        result = {x,y,z}
-        return result
+    local u_step = (u_end - u_start) / (u_samples  - 1)
+    local v_step = (v_end - v_start) / (v_samples  - 1)
+
+    local gx = load("return function(u,v) return " .. fx .. " end")()
+    local gy = load("return function(u,v) return " .. fy .. " end")()
+    local gz = load("return function(u,v) return " .. fz .. " end")()
+
+    local function surface(u, v)
+        return { gx(u,v), gy(u,v), gz(u,v) }
     end
 
-    count_1 = 0
-    for u = u_start, u_end, u_step do
-        count_1 = count_1 + 1
-        count_2 = 0
-        for v = v_start, v_end, v_step do
-            count_2 = count_2 + 1
-            x_col = math.floor(u*x_col_step) -- this is the wrong calculation, fix later
-            if (count_1 ~= u_samples+1 and count_2 ~= v_samples) then
-                a = surface(u,v)
-                b = surface(u+u_step,v)
-                c = surface(u,v+v_step)
-                d = surface(u+u_step,v+v_step)
-            end
-            avg_1 = pv_average(a,b,d)
-            avg_2 = pv_average(a,c,d)
-            dp_1 = pv_dot_product(observer,avg_1)
-            dp_2 = pv_dot_product(observer,avg_2)
-            ab = pv_difference(a,b)
-            ac = pv_difference(a,c)
-            ad = pv_difference(a,d)
-            nab = pv_cross_product(ab,ad)
-            nab = pv_normalize_vector(nab)
-            nac = pv_cross_product(ac,ad)
-            nac = pv_normalize_vector(nac)
-            table.insert(segments,{dp_1,a,b,d,x_col})
-            table.insert(segments,{dp_2,a,c,d,x_col})
+    for i = 0, u_samples-2 do
+        local u = u_start + i * u_step
+        local color_frac = (u - u_start) / (u_end - u_start)
+
+        for j = 0, v_samples-2 do
+            local v = v_start + j * v_step
+
+            local A = surface(u,           v)
+            local B = surface(u + u_step,  v)
+            local C = surface(u,           v + v_step)
+            local D = surface(u + u_step,  v + v_step)
+
+            -- triangle A–B–D
+            local mid1 = pv_average(A, B, D)
+            local dp1  = pv_dot_product(observer, mid1)
+            table.insert(segments, { dp1, A, B, D, color_frac })
+
+            -- triangle A–C–D
+            local mid2 = pv_average(A, C, D)
+            local dp2  = pv_dot_product(observer, mid2)
+            table.insert(segments, { dp2, A, C, D, color_frac })
         end
     end
-
 end
 
-function append_curve(
-    u_start,u_end,u_step
-    ,fx,fy,fz
-)
-    x_col_step = 100/(u_end-u_start)
-    u_step = (u_end-u_start)/u_samples
-
-    function curve(u)
-        x,y,z = fx,fy,fz
-        result = {x,y,z}
-        return result
-    end
-
-    for u = u_start, u_end, u_samples do
-
-    end
-end
 
 function render_segments()
-    table.sort(
-        segments
-        ,function(a, b)
-            return a[1] < b[1]
-        end
-    )
-    for index, value in ipairs(segments) do
-        --tex.print(string.format("\\SetColor{%f}",x_col))
+    table.sort(segments, function(a, b) return a[1] < b[1] end)
+
+    for _, seg in ipairs(segments) do
+        local _, P, Q, R, col = table.unpack(seg)
+        local pct = math.floor(100 * col)
+        tex.print(string.format("\\SetColor{%d}", pct))
+        tex.print("\\draw[line join=round, preaction={fill=MyColor}]")
         tex.print(
-            "\\draw[line join = round,preaction = {fill = MyColor}]"
+          string.format("(%f,%f,%f) -- (%f,%f,%f) -- (%f,%f,%f) -- cycle;",
+            P[1],P[2],P[3],
+            Q[1],Q[2],Q[3],
+            R[1],R[2],R[3]
+          )
         )
-        tex.print(string.format("(%f,%f,%f) --",value[2][1],value[3][1],value[4][1]))
-        tex.print(string.format("(%f,%f,%f) --",value[2][2],value[3][2],value[4][2]))
-        tex.print(string.format("(%f,%f,%f) -- cycle;",value[2][3],value[3][3],value[4][3]))
     end
+
     segments = {}
 end

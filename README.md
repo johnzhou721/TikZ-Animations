@@ -36,10 +36,6 @@ though I will also include some still diagrams as well.
 - **Community Contributions**  
   Active on [TeX Stack Exchange](https://tex.stackexchange.com/users/319072/jasper) and [TikZ.net](https://tikz.net/author/jasper/). I’m grateful for all the help I’ve received and pay it forward whenever I can.
 
-## Contact
-
-Feel free to reach out via email: [animatetikz@gmail.com](mailto:animatetikz@gmail.com)
-
 ## Disclaimer
 
 This repository is licensed under the MIT No Attribution (MIT-0) 

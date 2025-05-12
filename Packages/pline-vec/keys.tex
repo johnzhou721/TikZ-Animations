@@ -36,8 +36,11 @@
         \pgfmathsetmacro
             {\observerz}
             {pvtransformrotmainz(-#3,-#2,-#1,0,0,1)}
+        \pgfmathsetmacro{\pv@internal@a}{-#3}
+        \pgfmathsetmacro{\pv@internal@b}{-#2}
+        \pgfmathsetmacro{\pv@internal@g}{-#1}
         \directlua{
-            observer = pv_ZYZ_rotation_matrix({-#3,-#2,-#1},{0,0,1})
+            observer = pv_ZYZ_rotation_matrix({\pv@internal@a,\pv@internal@b,\pv@internal@g},{0,0,1})
         }
     }
     % boundaries of the coordinate frame
