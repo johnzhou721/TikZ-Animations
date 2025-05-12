@@ -191,7 +191,7 @@ function pv_sphere_z_tex(longitude,latitude)
 end
 
 function pv_normalize_vector(u)
-    local norm = norm(u)
+    local norm = pv_norm(u)
     local x = u[1]/norm
     local y = u[2]/norm
     local z = u[3]/norm
@@ -200,7 +200,7 @@ function pv_normalize_vector(u)
 end
 
 function pv_normalize_vector(u)
-    local norm = norm(u)
+    local norm = pv_norm(u)
     local x = u[1]/norm
     local y = u[2]/norm
     local z = u[3]/norm
@@ -211,9 +211,9 @@ end
 function pv_orthogonal_vector(u)
     local v
     if (u[1]~=0 and u[2]==0 and u[3]==0) then
-        v = cross_product(u,{0,1,0})
+        v = pv_cross_product(u,{0,1,0})
     else
-        v = cross_product(u,{1,0,0})
+        v = pv_cross_product(u,{1,0,0})
     end
     result = v
     return result

@@ -1,0 +1,22 @@
+\directlua{require("pv-plane.lua")}
+
+\newcommand{\getplane}[2][]{
+    %\begingroup
+    %\tikzset{/pline-vec/plane/.cd,#1}
+    %\edef\temp{
+    %\noexpand%
+    \directlua{
+        pv_get_plane(
+            \pv@size
+            ,{\pv@plane@na,\pv@plane@nb,\pv@plane@nc}
+            ,\pv@plane@nd
+            ,\pv@xmin,\pv@xmax
+            ,\pv@ymin,\pv@ymax
+            ,\pv@ymin,\pv@ymax
+            ,"#2"
+        )
+    }%}
+    %\expandafter
+    %\endgroup%
+    %\temp
+}

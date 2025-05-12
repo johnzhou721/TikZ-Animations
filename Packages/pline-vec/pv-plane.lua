@@ -1,12 +1,13 @@
 
-local intersections = {}
-local sorted_intersections = {}
 
-function get_plane(
+
+function pv_get_plane(
     size,normal,d_value
-    ,xmax,xmin,ymax,ymin,zmax,zmin
+    ,xmin,xmax,ymin,ymax,zmin,zmax
     ,name
 )
+    local intersections = {}
+    local sorted_intersections = {}
     local function plane(u,v)
         local x = (d_value-normal[2]*u-normal[3]*v)/normal[1]
         local y = (d_value-normal[1]*u-normal[3]*v)/normal[2]
@@ -14,9 +15,6 @@ function get_plane(
         local result = {x,y,z}
         return result
     end
-    for index, value in ipairs(intersections) do
-        intersections[index] = nil
-    end   
     local function add_intersection(i)
         if (
             i[1]>=xmin and i[1]<=xmax and
@@ -50,19 +48,16 @@ function get_plane(
             end
         end
     end
-    local n = normalize_vector(normal)
-    local u = orthogonal_vector(n)
-    local u = normalize_vector(u)
-    local v = cross_product(n,u)
-    for index, value in ipairs(sorted_intersections) do
-        sorted_intersections[index] = nil
-    end   
+    local n = pv_normalize_vector(normal)
+    local u = pv_orthogonal_vector(n)
+    local u = pv_normalize_vector(u)
+    local v = pv_cross_product(n,u)
     local centroid = {0,0,0}
     local number_of_points = 0
     for index, value in ipairs(intersections) do
-        for index, value in ipairs(centroid) do
-            centroid[index] = centroid[index] + value
-        end
+        centroid[1] = centroid[1]+value[1]
+        centroid[2] = centroid[2]+value[2]
+        centroid[3] = centroid[3]+value[3]
         number_of_points = number_of_points + 1
     end
     local centroid = {
@@ -71,13 +66,13 @@ function get_plane(
         ,centroid[3]/number_of_points
     }
     for index, value in ipairs(intersections) do
-        local ax = dot_product(
+        local ax = pv_dot_product(
             {value[1]-centroid[1]
             ,value[2]-centroid[2]
             ,value[3]-centroid[3]}
             ,{u[1],u[2],u[3]}
         )
-        local ay = dot_product(
+        local ay = pv_dot_product(
             {value[1]-centroid[1]
             ,value[2]-centroid[2]
             ,value[3]-centroid[3]}
@@ -88,16 +83,16 @@ function get_plane(
             sorted_intersections
             ,{anglea,value[1],value[2],value[3]}
         )
-        table.sort(
-            sorted_intersections
-            ,function(a, b)
-                return a[1] < b[1]
-            end
-        )
-        local path_one = ""
-        for index, value in ipairs(sorted_intersections) do
-            path_one = string.format(path_one.." (%f,%f,%f) --",value[2],value[3],value[4])
-        end
-        tex.print("\\path[spath/save = plane"..name.."]"..path_one.."cycle;")
     end 
+    table.sort(
+        sorted_intersections
+        ,function(a, b)
+            return a[1] < b[1]
+        end
+    )
+    local path_one = ""
+    for index, value in ipairs(sorted_intersections) do
+        path_one = string.format(path_one.." (%f,%f,%f) --",value[2],value[3],value[4])
+    end
+    tex.print("\\path[spath/save = plane"..name.."]"..path_one.."cycle;")
 end
