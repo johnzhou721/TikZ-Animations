@@ -1,3 +1,5 @@
+\directlua{require("math.lua")}
+
 % x-component of the cross product of u and v
 % #1 - u1
 % #2 - u2
@@ -6,9 +8,11 @@
 % #5 - v2
 % #6 - v3
 \pgfmathdeclarefunction{pvcrossproductx}{6}{%
-    \pgfmathparse{
-        #2 * #6 -
-        #3 * #5
+    \directlua{
+        pv_cross_product_x_tex(
+            {#1,#2,#3}
+            ,{#4,#5,#6}
+        )
     }%
 }
 
@@ -20,9 +24,11 @@
 % #5 - v2
 % #6 - v3
 \pgfmathdeclarefunction{pvcrossproducty}{6}{%
-    \pgfmathparse{
-        #3 * #4 -
-        #1 * #6
+    \directlua{
+        pv_cross_product_y_tex(
+            {#1,#2,#3}
+            ,{#4,#5,#6}
+        )
     }%
 }
 
@@ -34,9 +40,11 @@
 % #5 - v2
 % #6 - v3
 \pgfmathdeclarefunction{pvcrossproductz}{6}{%
-    \pgfmathparse{
-        #1 * #5 -
-        #2 * #4
+    \directlua{
+        pv_cross_product_z_tex(
+            {#1,#2,#3}
+            ,{#4,#5,#6}
+        )
     }%
 }
 
@@ -48,10 +56,11 @@
 % #5 - v2
 % #6 - v3
 \pgfmathdeclarefunction{pvdotproduct}{6}{%
-    \pgfmathparse{
-        #1 * #4 +
-        #2 * #5 +
-        #3 * #6
+    \directlua{
+        pv_dot_product_tex(
+            {#1,#2,#3}
+            ,{#4,#5,#6}
+        )
     }%
 }
 
@@ -60,11 +69,10 @@
 % #2 - u2
 % #3 - u3
 \pgfmathdeclarefunction{pvnorm}{3}{%
-    \pgfmathparse{
-        sqrt(
-            (#1)^2 + 
-            (#2)^2 + 
-            (#3)^2
+    \directlua{
+        pv_norm_tex(
+            {#1,#2,#3}
+            ,{#4,#5,#6}
         )
     }%
 }
@@ -79,16 +87,11 @@
 % #5 - u2
 % #6 - u3
 \pgfmathdeclarefunction{pvtransformrotmainx}{6}{%
-    \pgfmathparse{
-        (
-            cos(#1) * cos(#2) * cos(#3) - 
-            sin(#1) * sin(#3)
-        ) * #4 +
-        (
-            -cos(#1) * cos(#2) * sin(#3) - 
-            sin(#1) * cos(#3)
-        ) * #5 +
-        cos(#1) * sin(#2) * #6
+    \directlua{
+        pv_ZYZ_rotation_matrix_x_tex(
+            {#1,#2,#3}
+            ,{#4,#5,#6}
+        )
     }%
 }
 
@@ -100,16 +103,11 @@
 % #5 - u2
 % #6 - u3
 \pgfmathdeclarefunction{pvtransformrotmainy}{6}{%
-    \pgfmathparse{
-        (
-            sin(#1) * cos(#2) * cos(#3) + 
-            cos(#1) * sin(#3)
-        ) * #4 +
-        (
-            -sin(#1) * cos(#2) * sin(#3) + 
-            cos(#1) * cos(#3)
-        ) * #5 +
-        sin(#1) * sin(#2) * #6
+    \directlua{
+        pv_ZYZ_rotation_matrix_y_tex(
+            {#1,#2,#3}
+            ,{#4,#5,#6}
+        )
     }%
 }
 
@@ -121,10 +119,11 @@
 % #5 - u2
 % #6 - u3
 \pgfmathdeclarefunction{pvtransformrotmainz}{6}{%
-    \pgfmathparse{
-        -sin(#2) * cos(#3) * #4 +
-        sin(#2) * sin(#3) * #5 + 
-        cos(#2) * #6
+    \directlua{
+        pv_ZYZ_rotation_matrix_z_tex(
+            {#1,#2,#3}
+            ,{#4,#5,#6}
+        )
     }%
 }
 
@@ -152,11 +151,4 @@
   \pgfmathparse{
         sin(#2)
   }%
-}
-
-\newcommand{\pvnormalizevector}[4]{
-    \pgfmathsetmacro{\tmpnorm}{norm(#1,#2,#3)}
-    \expandafter\pgfmathsetmacro\expandafter{\csname #4x\endcsname}{#1/\tmpnorm}%
-    \expandafter\pgfmathsetmacro\expandafter{\csname #4y\endcsname}{#2/\tmpnorm}%
-    \expandafter\pgfmathsetmacro\expandafter{\csname #4z\endcsname}{#3/\tmpnorm}%
 }
