@@ -141,15 +141,4 @@
             ,decorate
         ] (#2) -- ++(#3);
     \endgroup
-  \begingroup%
-    \pgfqkeys{/pvVector}{#1}%
-    \path[
-      decoration={
-        markings,
-        mark=at position #4 with {\node[/pvVector/options aux] at (#5,#6) {#7};},
-      },
-      postaction={decorate}
-    ]
-    (#2) -- ++(#3);
-  \endgroup
 }

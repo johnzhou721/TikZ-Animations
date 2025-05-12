@@ -1,7 +1,8 @@
 \tikzset{
     /pline-vec/.is family
-    %
+    % /pline-vec/ keys
     ,/pline-vec/.cd
+    % boundaries of the coordinate frame
     ,xmin/.estore in = \pv@xmin
     ,xmax/.estore in = \pv@xmax
     ,ymin/.estore in = \pv@ymin
@@ -13,6 +14,7 @@
     ,alpha/.estore in = \pv@alpha
     ,beta/.estore in = \pv@beta
     ,gamma/.estore in = \pv@gamma
+    % defaults
     ,xmin = -5
     ,xmax = 5
     ,ymin = -5
@@ -22,32 +24,60 @@
     ,alpha = 0
     ,beta = 0
     ,gamma = 0
-    %
+    % /pline-vec/plane/ keys
     ,/pline-vec/plane/.cd
+    % normal equation of the plane
     ,na/.estore in = \pv@plane@na
     ,nb/.estore in = \pv@plane@nb
     ,nc/.estore in = \pv@plane@nc
     ,nd/.estore in = \pv@plane@nd
+    % defaults
     ,na = 1
     ,nd = 1
     ,nc = 1
     ,nd = 1
-    %
+    % /pline-vec/line/ keys
+    ,/pline-vec/line/.cd
+    % point on the line
+    ,px/.estore in = \pv@line@px
+    ,py/.estore in = \pv@line@py
+    ,pz/.estore in = \pv@line@pz
+    % a direction vector
+    ,dx/.estore in = \pv@line@dx
+    ,dy/.estore in = \pv@line@dy
+    ,dz/.estore in = \pv@line@dz
+    % defaults
+    ,px = 1
+    ,py = 1
+    ,pz = 1
+    ,dx = 1
+    ,dy = 1
+    ,dz = 1
+    % /pline-vec/vector/ keys
     ,/pline-vec/vector/.cd
+    % radius of points
     ,point radius/.estore in = \pv@vector@pointradius
+    % length of mark
     ,mark length/.estore in = \pv@vector@marklength
+    % decision to mark or not
     ,mark/.is choice
     ,mark/true/.code = {\edef\pv@vector@mark}{1}
     ,mark/false/.code = {\edef\pv@vector@mark}{0}
+    % mark start pos
     ,mark start/.estore in = \pv@vector@markstart
+    % mark end pos
     ,mark end/.estore in = \pv@vector@markend
-    ,mark end/.estore in = \pv@vector@markstep
+    % mark step length (in cm)
+    ,mark step/.estore in = \pv@vector@markstep
+    % decision on point placement
     ,points/.is choice
     ,points/behind/.code = {\edef\pv@vector@points{1}}
     ,points/both/.code = {\edef\pv@vector@points{2}}
     ,points/neither/.code = {\edef\pv@vector@points{3}}
     ,points/front/.code = {\edef\pv@vector@points{4}}
+    % extra options
     ,options/.style = {#1}
+    % defaults
     ,point radius = 0.06
     ,mark length = 4
     ,mark = false
