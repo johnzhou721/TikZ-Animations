@@ -61,8 +61,8 @@
     ,mark length/.estore in = \pv@vector@marklength
     % decision to mark or not
     ,mark/.is choice
-    ,mark/true/.code = {\edef\pv@vector@mark}{1}
-    ,mark/false/.code = {\edef\pv@vector@mark}{0}
+    ,mark/true/.code = {\edef\pv@vector@mark{1}}
+    ,mark/false/.code = {\edef\pv@vector@mark{0}}
     % mark start pos
     ,mark start/.estore in = \pv@vector@markstart
     % mark end pos
@@ -84,6 +84,5 @@
     ,mark start = 0
     ,mark end = 1
     ,mark step = 1
-    ,arrow = false
     ,points = behind
 }
