@@ -1,6 +1,6 @@
 % Draws a dot.
-% #1  - options for /tikz/pline-vec/vector/
-% #2  - coordinate of the dot 
+% #1 - options for /tikz/pline-vec/vector/
+% #2 - coordinate of the dot 
 \newcommand{\pvdot}[2][]{
     \begingroup
     \pgfkeys{
@@ -22,7 +22,7 @@
     \endgroup
 }
 
-% #1  - options for /tikz/pline-vec/vector/
+% #1 - options for /tikz/pline-vec/vector/
 \newcommand{\pvmark}[1][]{
     \begingroup
     \tikzset{
@@ -39,9 +39,9 @@
     \endgroup
 }
 
-% #1  - options for /tikz/pline-vec/vector/
-% #2  - start point
-% #3  - displacement from start point
+% #1 - options for /tikz/pline-vec/vector/
+% #2 - start point
+% #3 - displacement from start point
 \newcommand{\pvvector}[3][]{
     \begingroup
     \tikzset{
@@ -94,10 +94,62 @@
                         between positions \pv@vector@markstart
                         and \pv@vector@markend
                         step = \pv@vector@markstep
-                        with {\pvmark}
+                        with 
+                            {
+                                \pvmark
+                                    [
+                                        /pline-vec/vector/.cd
+                                        ,options
+                                    ]
+                            }
                 }
                 ,decorate
             ] (#2) -- ++(#3);
     \fi
     \endgroup
+}
+
+% Labels a path:
+% #1 - Start Coordinate,
+% #2 - End Coordinate,
+% #3 - Vector (direction),
+% #4 - Relative Position along path,
+% #5 - Offset coordinate,
+% #6 - The label text.
+\newcommand{\pvlabel}[7][]{
+    \begingroup
+    \tikzset{
+        /pline-vec/vector/.cd
+        ,#1
+    }
+    \path
+        [
+            decoration = {
+                markings
+                ,mark =
+                    at position #4
+                    with 
+                        {
+                            \node
+                                [
+                                    /pline-vec/vector/.cd
+                                    ,options
+                                ]
+                                at (#5,#) {#7};
+                        }
+            }
+            ,decorate
+        ] (#2) -- ++(#3);
+    \endgroup
+  \begingroup%
+    \pgfqkeys{/pvVector}{#1}%
+    \path[
+      decoration={
+        markings,
+        mark=at position #4 with {\node[/pvVector/options aux] at (#5,#6) {#7};},
+      },
+      postaction={decorate}
+    ]
+    (#2) -- ++(#3);
+  \endgroup
 }
