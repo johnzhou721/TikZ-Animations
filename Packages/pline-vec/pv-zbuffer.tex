@@ -34,19 +34,16 @@
 }%
 \directlua{require("pv-zbuffer.lua")}
 
-\newcommand{\pvappendsurface}[4][]{
-    %\begingroup
-    \pgfkeys{/pline-vec/z-buffer/.cd,#1} 
-    \directlua{
-        append_surface(
-            \pv@zbuffer@umin,\pv@zbuffer@umax,\pv@zbuffer@usamples
-            ,\pv@zbuffer@vmin,\pv@zbuffer@vmax,\pv@zbuffer@vsamples
-            ,"\luaescapestring{#2}"
-            ,"\luaescapestring{#3}"
-            ,"\luaescapestring{#4}"
-        )
-    }
-    %\endgroup
+\newcommand{\pvappendsurface}[4][]{%
+  \pgfkeys{/pline-vec/z-buffer/.cd,#1}%
+  \directlua{
+    append_surface(
+      \pv@zbuffer@umin, \pv@zbuffer@umax, \pv@zbuffer@usamples,
+      \pv@zbuffer@vmin, \pv@zbuffer@vmax, \pv@zbuffer@vsamples,
+      function(u,v) return #2 end,
+      function(u,v) return #3 end,
+      function(u,v) return #4 end
+    )
+  }%
 }
-
 \newcommand{\pvrendersegments}{\directlua{render_segments()}}

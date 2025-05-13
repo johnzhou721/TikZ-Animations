@@ -1,0 +1,20 @@
+\begin{frame}
+    \nointerlineskip
+    \begin{tikzpicture}[/pline-vec/main orientation = {90}{-60}{\t}]
+        \useasboundingbox
+            (-\textwidth/2,-\textheight/2)
+            rectangle
+            (\textwidth/2,\textheight/2);
+        \pvappendsurface[
+            u min = 0
+            ,u max = 720
+            ,u samples = 100
+            ,v min = 0
+            ,v max = 360
+            ,v samples = 18
+        ]{(2+math.cosd(1.5*u))*math.cosd(u)+0.3*pv_sphere_x(u,1.5*v)}
+        {(2+math.cosd(1.5*u))*math.sind(u)+0.3*pv_sphere_y(u,1.5*v)}
+        {2*math.sind(1.5*u)+0.3*pv_sphere_z(u,1.5*v)}
+        \pvrendersegments
+    \end{tikzpicture}
+\end{frame}

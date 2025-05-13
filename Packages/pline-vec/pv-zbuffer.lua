@@ -166,9 +166,19 @@ function append_surface(u_start, u_end, u_samples,
     local u_step = (u_end - u_start) / (u_samples  - 1)
     local v_step = (v_end - v_start) / (v_samples  - 1)
 
-    local gx = load("return function(u,v) return " .. fx .. " end")()
-    local gy = load("return function(u,v) return " .. fy .. " end")()
-    local gz = load("return function(u,v) return " .. fz .. " end")()
+    -- pick gx either from a passed-in function or by loading from a string
+    local function makeEvaluator(expr)
+      if type(expr) == "function" then
+        return expr
+      else
+        -- expr is a string: compile it into function(u,v) return <expr> end
+        return assert(load("return function(u,v) return " .. expr .. " end"))()
+      end
+    end
+
+    local gx = makeEvaluator(fx)
+    local gy = makeEvaluator(fy)
+    local gz = makeEvaluator(fz)
 
     local function surface(u, v)
         return { gx(u,v), gy(u,v), gz(u,v) }
@@ -186,14 +196,11 @@ function append_surface(u_start, u_end, u_samples,
             local C = surface(u,           v + v_step)
             local D = surface(u + u_step,  v + v_step)
 
-            -- triangle A–B–D
+            -- two triangles per quad
             local mid1 = pv_average(A, B, D)
-            local dp1  = pv_dot_product(observer, mid1)
             table.insert(segments, { A, B, D, color_frac })
 
-            -- triangle A–C–D
             local mid2 = pv_average(A, C, D)
-            local dp2  = pv_dot_product(observer, mid2)
             table.insert(segments, { A, C, D, color_frac })
         end
     end
