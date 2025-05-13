@@ -1,0 +1,39 @@
+\begin{frame}
+    \nointerlineskip
+    \begin{tikzpicture}[/pline-vec/main orientation = {90}{-60}{\t}]
+        \useasboundingbox
+            (-\textwidth/2,-\textheight/2)
+            rectangle
+            (\textwidth/2,\textheight/2);
+        \pvappendsurface[
+            u min = 0
+            ,u max = 180
+            ,u samples = 41
+            ,v min = 0
+            ,v max = 360
+            ,v samples = 25
+        ]{
+            -2/15 * math.cosd(u) * (
+                3 * math.cosd(v) - 30 * math.sind(u) +
+                90 * math.cosd(u)^4 * math.sind(u) -
+                60 * math.cosd(u)^6 * math.sind(u) +
+                5 * math.cosd(u) * math.cosd(v) * math.sind(u)
+            )
+        }
+        {
+            -1/15 * math.sind(u) * (
+                3 * math.cosd(v) -
+                3 * math.cosd(u)^2 * math.cosd(v) -
+                48 * math.cosd(u)^4 * math.cosd(v) +
+                48 * math.cosd(u)^6 * math.cosd(v) -
+                60 * math.sind(u) +
+                5 * math.cosd(u) * math.cosd(v) * math.sind(u) -
+                5 * math.cosd(u)^3 * math.cosd(v) * math.sind(u) -
+                80 * math.cosd(u)^5 * math.cosd(v) * math.sind(u) +
+                80 * math.cosd(u)^7 * math.cosd(v) * math.sind(u)
+            )
+        }
+        {2/15 * (3 + 5 * math.cosd(u) * math.sind(u)) * math.sind(v)}
+        \pvrendersegments
+    \end{tikzpicture}
+\end{frame}
