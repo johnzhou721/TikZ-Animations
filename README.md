@@ -1,41 +1,61 @@
 # Ti*k*Z-Animations
 
-## Overview
+A curated showcase of my Ti*k*Z artwork along with the source code and supporting tools.
 
-Welcome to my public repository, Ti*k*Z-Animations. This is a curated 
-collection of my artwork in Ti*k*Z, focused mainly on animations,
-though I will also include some still diagrams as well.
+---
+
+## Selected Animations
+
+A quick look at two of my favorites:
+
+| ![Elliptic Spherical Möbius Transformation](Animations/elliptic_spherical_mobius_transformation.gif)<br>*Elliptic Spherical Möbius Transformation* | ![Tre Foil Knot](Animations/tre_foil_knot.gif)<br>*Tre Foil Knot* |
+|:---:|:---:|
+
+---
 
 ## Repository Structure
 
 - **Animations/**  
-  Prebuilt `.gif` animations. (I use ezgif.com/maker to convert my PDF flip‑books into GIFs.)
+  Prebuilt GIFs converted from PDF flip-books via [ezgif.com/maker](https://ezgif.com/maker).  
 
 - **Sources/**  
-  LaTeX (and Lua/Python) source code for selected animations. As my skills evolved, some early files were retired and are not included here.
+  LaTeX (plus Lua/Python) source code for chosen animations. (My earliest experiments have been retired.)
 
 - **Packages/**  
-  Development code for `pline-vec.sty`
+  Development files for the custom TikZ package `pline-vec.sty`.
 
-## Featured Animation
-
-![Elliptic Spherical Möbius Transformation](Animations/elliptic_spherical_mobius_transformation.gif)
-
-*Elliptic Spherical Möbius Transformation*
+---
 
 ## Technical Highlights
 
-- **Pline‑Vec**  
-  - Now supports true Z‑buffering of multiple surfaces (triangles are currently sorted by centroid; a more robust sorter is in progress).  
-  - Completed Euler‑angle rotation matrix for both coordinate frames and individual path segments.  
-  - Manual plane‑intersection drawing via `spath3`; automated intersection sorting remains a future challenge.
+### 1. **Pline-Vec Toolkit**
+- **True Z-Buffering**  
+  Sorts multiple surfaces with robust adjacency sorting.
+- **Euler-Angle Rotations**  
+  Rotation matrices for both global frames and individual path segments.
+- **Plane Intersections**  
+  Manual via `spath3`; on-plane drawing with `\pgflowlevelsynccm`.  
+  *(Automated intersection sorting still in progress.)*
 
-## Disclaimer
+### 2. **LuaTeX Integration**
+Core algorithms are being ported to Lua for speed.
 
-This repository is licensed under the MIT No Attribution (MIT-0) 
-License. You are free to use, modify, and distribute the content without 
-any attribution requirements. For more details, refer to the 
-[MIT-0 License](https://opensource.org/license/mit-0/).
+---
 
-That being said, I always do appreciate credit, but it is not 
-*required*.
+## Roadmap
+
+| Deliverable                      | Status                             | ETA               |
+|----------------------------------|------------------------------------|-------------------|
+| **Package Documentation**        | Not started                        | 1–2 months (from start)        |
+| **Parametric Surface Generator** | ✔ Multi-mesh Z-buffer pass done    | —                 |
+| **Rotation Matrix Utility**      | ✔ Complete and tested              | —                 |
+| **Plane-Segment Sorter**         | Manual via `spath3`                | 2–5 months        |
+| **Lua Macro Rewrite**            | Planning stage                     | 1–2 months        |
+
+> **Total estimated development time:** 3–5 months
+
+---
+
+## License
+
+This work is released under the **MIT No Attribution (MIT-0)** License—use, modify, and distribute freely, no attribution required (though always appreciated). See [MIT-0 License](https://opensource.org/license/mit-0/).
