@@ -50,9 +50,10 @@ Core algorithms are being ported to Lua for speed.
 | **Parametric Surface Generator** | ✔ Multi-mesh Z-buffer pass done    | —                 |
 | **Rotation Matrix Utility**      | ✔ Complete and tested              | —                 |
 | **Plane-Segment Sorter**         | Manual via `spath3`                | 2–5 months        |
-| **Lua Macro Rewrite**            | Planning stage                     | 1–2 months        |
+| **Lua Macro Rewrite**            | Midway through                   | 1–2 months        |
+| **Solid Geometry Implementation** | Planning stage                  |  1-2 months        |
 
-> **Total estimated development time:** 3–5 months
+> **Total estimated development time:** 4–6 months
 
 ---
 
