@@ -5,18 +5,11 @@
 \usepackage{
     pline-vec
     ,minted
+    ,amssymb
     ,caption
     ,bookmark
     ,hyperref
 }
-
-\DeclareCaptionFormat{custom}
-{%
-    #1#2\par\noindent#3
-}
-\captionsetup{format=custom}
-\captionsetup{justification=raggedright, singlelinecheck=false}
-
 \title{pline-vec}
 \author{Jasper}
 \date{\today}
@@ -25,111 +18,175 @@
 \tableofcontents
 % See https://tex.stackexchange.com/a/31787/319072
 \section{Introduction}
-I really enjoy making 3D artwork using Ti\textit{k}Z, especially 
-animations. I really wanted to z-buffer multiple surfaces at once and 
-graph intersecting planes, but these tasks proved to be very 
-difficult using the tools available, namely pgfplots and 
-tikz-3dplot.\par
-The goal of the package pline-vec is to overcome these obstacles.
-I have already implemented a rigorous z-buffering algorithm that
-can handle multiple surfaces, and intersecting planes has been made 
-possible, though it lacks automatic z-sorting at this point. 
-That will be fixed.\par
-An additional feature of pline-vec is that it defines many useful
-math functions and operations. For example, there are lua-based
-Ti\textit{k}Z functions for rotating objects in 3D, traversing spheres,
-taking dot products and cross product components, as well as for 
-easily setting multiple pgfmath macros at once.
+pline-vec is a 3D toolkit for Ti\textit{k}Z.
 \section{Examples}
-\subsection{changing the main orientation, and sub orientation within it}
-\subsection{parametric lines}
-We will z-buffer lines, surfaces, and solids all at once.
-\subsection{Parametric surfaces}
-The code to generate non-intersecting (and also non-tangent) surfaces
-is complete. The user specifies the domain, range, samples, and 
-\textbf{Lua} math function, and pline-vec draws the surface for them.
-In the future, I will implement the ability to add more keys for things 
-like opacity and color for individual surfaces.\par
-\begin{center}
-\begin{tikzpicture}[/pline-vec/main orientation = {90}{-60}{0}]
-    \pvappendsurface[
-        u min = 0
-        ,u max = 720
-        ,u samples = 100
-        ,v min = 0
-        ,v max = 360
-        ,v samples = 18
-    ]{(2+math.cosd(1.5*u))*math.cosd(u)+0.3*pv_sphere_x(u,1.5*v)}
-    {(2+math.cosd(1.5*u))*math.sind(u)+0.3*pv_sphere_y(u,1.5*v)}
-    {2*math.sind(1.5*u)+0.3*pv_sphere_z(u,1.5*v)}
-    \pvappendsurface[
-        u min = 150
-        ,u max = -110
-        ,u samples = 24
-        ,v min = -90
-        ,v max = 90
-        ,v samples = 36
-    ]{3.5*pv_sphere_x(u,v)}
-    {3.5*pv_sphere_y(u,v)}
-    {3.5*pv_sphere_z(u,v)}
-    \pvappendcurve[
-        u min = 0
-        ,u max = 360
-        ,u samples = 24
-    ]{4*pv_sphere_x(u,u/2-90)}
-    {4*pv_sphere_y(u,u/2-90)}
-    {4*pv_sphere_z(u,u/2-90)}
-    \pvrendersegments
-\end{tikzpicture}
-\captionof{figure}{A parametric surface}
-\end{center}
+\subsection{
+    Parametric mappings,
+    and the pline-vec math libraries
+}
+\subsubsection{Parametric mappings}
+A parametric mapping is a mathematical rule which can accept any 
+number of inputs, and produces any number of outputs, all according to
+some mathematical formula. For example, A curve in 
+\(\mathbb{R}^{3}\) is defined
+by a parametric function which accepts one input and delivers three 
+outputs. Similarly, a surface in \(\mathbb{R}^{3}\) is defined by 
+a parametric function which accepts two inputs, and delivers three
+outputs. The parametric equation for a solid accepts three inputs and 
+delivers three outputs. Parametric mappings are useful for 
+traversing many common mathematical objects. For example,
+they can be used to navigate the sphere --- which enables us to 
+produce direction vectors in any direction, based on longitude and 
+latitude.
+\subsubsection{The pline-vec math libraries}
+There are two math libraries for pline-vec. The main one is
+math.lua, which defines several useful 3D math functions.
+In the lua library, to avoid naming conflicts, they are prefixed 
+with ``pv\_''. Similarly, they are prefixed with ``pv'' in the pgfmath
+library. These are the commands from the lua library:
+\begin{itemize}
+    \item   
+        pv\_cross\_product\_x(u,v)\par
+        Delivers the x component of the cross product of 
+        two vectors.
+    \item   
+        pv\_cross\_product\_y(u,v)\par
+        Delivers the y component of the cross product of 
+        two vectors.
+    \item   
+        pv\_cross\_product\_z(u,v)\par
+        Delivers the z component of the cross product of 
+        two vectors.
+    \item   
+        pv\_dot\_product(u,v)\par
+        Delivers the dot product of 
+        two vectors.
+    \item   
+        pv\_norm(u)\par
+        Delivers the norm of a vector
+    \item 
+        pv\_ZYZ\_rotation\_matrix\_x(angles,vector)\par
+        Delivers the x component of the ZYZ totation matrix of 
+        two vectors.
+    \item 
+        pv\_ZYZ\_rotation\_matrix\_y(angles,vector)\par
+        Delivers the y component of the ZYZ totation matrix of 
+        two vectors.
+    \item 
+        pv\_ZYZ\_rotation\_matrix\_z(angles,vector)\par
+        Delivers the z component of the ZYZ totation matrix of 
+        two vectors.
+    \item 
+        pv\_sphere\_x(longitude,latitude)\par
+        Delivers the x component of the sphere, based on
+        longitude and latitude.
+    \item 
+        pv\_sphere\_y(longitude,latitude)\par
+        Delivers the y component of the sphere, based on
+        longitude and latitude.
+    \item 
+        pv\_sphere\_z(longitude,latitude)\par
+        Delivers the z component of the sphere, based on
+        longitude and latitude.
+\end{itemize}
+The pgfmath library is also lua-based, though it is done internally.
+\begin{itemize}
+    \item 
+        pvcrossproductx\par
+        x-component of the cross product of u and v,
+        \#1 - u1,
+        \#2 - u2,
+        \#3 - u3,
+        \#4 - v1,
+        \#5 - v2,
+        \#6 - v3
+    \item 
+        pvcrossproducty\par
+        y-component of the cross product of u and v,
+        \#1 - u1,
+        \#2 - u2,
+        \#3 - u3,
+        \#4 - v1,
+        \#5 - v2,
+        \#6 - v3
+    \item 
+        pvcrossproductz\par
+        z-component of the cross product of u and v,
+        \#1 - u1,
+        \#2 - u2,
+        \#3 - u3,
+        \#4 - v1,
+        \#5 - v2,
+        \#6 - v3
+    \item 
+        pvdotproduct\par
+        dot product of u and v,
+        \#1 - u1,
+        \#2 - u2,
+        \#3 - u3,
+        \#4 - v1,
+        \#5 - v2,
+        \#6 - v3
+     \item 
+        pvnorm\par
+        norm product of u
+        \#1 - u1,
+        \#2 - u2,
+        \#3 - u3
+    \item 
+        pvtransformrotmainx\par
+        x-component of ZYZ rotation matrix on a point
+        \#1 - alpha,
+        \#2 - beta,
+        \#3 - gamma,
+        \#4 - u1,
+        \#5 - u2,
+        \#6 - u3
+    \item 
+        pvtransformrotmainy\par
+        y-component of ZYZ rotation matrix on a point
+        \#1 - alpha,
+        \#2 - beta,
+        \#3 - gamma,
+        \#4 - u1,
+        \#5 - u2,
+        \#6 - u3
+    \item 
+        pvtransformrotmainz\par
+        z-component of ZYZ rotation matrix on a point
+        \#1 - alpha,
+        \#2 - beta,
+        \#3 - gamma,
+        \#4 - u1,
+        \#5 - u2,
+        \#6 - u3
+    \item 
+        pvspherex\par
+        x-component of the sphere, given longitude and latitude
+        \#1 - longitude,
+        \#2 - latitude
+    \item 
+        pvspherey\par
+        y-component of the sphere, given longitude and latitude
+        \#1 - longitude,
+        \#2 - latitude
+    \item 
+        pvspherez\par
+        z-component of the sphere, given longitude and latitude
+        \#1 - longitude,
+        \#2 - latitude
 
-\subsection{parametric solids}
-I intend to implement code for rendering parametric solids, since the
-z-buffering technique I use will work for them too.
-\subsection{drawing clipped planes}
-pline-vec lets you draw clipped planes. In the future, this will be 
-done similarly to how it is done for parametric surfaces. For example;\par
-\begin{center}
-\begin{tikzpicture}[/pline-vec/main orientation = {90}{60}{30}]
-    \pgfmathsetmacro{\xmin}{-3}
-    \pgfmathsetmacro{\xmax}{3}
-    \pgfmathsetmacro{\ymin}{-3}
-    \pgfmathsetmacro{\ymax}{3}
-    \pgfmathsetmacro{\zmin}{-3}
-    \pgfmathsetmacro{\zmax}{3}
-    % here you set the global options for the coordinate frame
-    \tikzset{
-        /pline-vec/.cd
-            ,xmin = \xmin
-            ,xmax = \xmax
-            ,ymin = \ymin
-            ,ymax = \ymax
-            ,zmin = \zmin
-            ,zmax = \zmax
-    }
-    \pvgetplane[na = 1,nb = 2,nc = 3,nd = 4]{a name}
-    % base
-    \draw[
-        line join = round
-        ,canvas is xy plane at z = \zmin
-    ] (\xmin,\ymin) rectangle (\xmax,\ymax);
-    \draw[
-        line join = round
-        ,canvas is xy plane at z = \zmax
-    ] (\xmin,\ymin) rectangle (\xmax,\ymax);
-    \foreach \x/\y 
-    in {\xmin/\ymin,\xmax/\ymin,\xmax/\ymax,\xmin/\ymax}
-    {
-        \draw (\x,\y,\zmin) -- (\x,\y,\zmax);
-    }
-    \draw[
-        spath/use = planea name
-        ,preaction = {fill,fill opacity = 0.3}
-    ];
-\end{tikzpicture}
-\end{center}
-\subsection{intersecting planes}
-\subsection{math function documentation}
-
+\end{itemize}
+\subsection{Setting the main orientation}
+\subsubsection{Working with sub-orientations}
+\subsection{Rendering parametric curves}
+\subsection{Rendering parametric surfaces}
+\subsection{Rendering parametric solids}
+\subsection{
+    Rendering parametric curves, 
+    surfaces and solids all at once
+}
+\subsubsection{The problem with tangency}
+\subsection{Clipping planes by a rectangular prism}
+\subsection{Intersecting planes --- in progress}
 \end{document}
