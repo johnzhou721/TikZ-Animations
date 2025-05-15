@@ -42,43 +42,47 @@ taking dot products and cross product components, as well as for
 easily setting multiple pgfmath macros at once.
 \section{Examples}
 \subsection{changing the main orientation, and sub orientation within it}
+\subsection{parametric lines}
+We will z-buffer lines, surfaces, and solids all at once.
 \subsection{Parametric surfaces}
 The code to generate non-intersecting (and also non-tangent) surfaces
 is complete. The user specifies the domain, range, samples, and 
 \textbf{Lua} math function, and pline-vec draws the surface for them.
 In the future, I will implement the ability to add more keys for things 
 like opacity and color for individual surfaces.\par
-\noindent\begin{minted}{latex}
-    \begin{tikzpicture}[/pline-vec/main orientation = {90}{60}{0}]
-        \pvappendsurface[
-            u min = 0
-            ,u max = 720
-            ,u samples = 100
-            ,v min = 0
-            ,v max = 360
-            ,v samples = 18
-        ]{(2+math.cosd(1.5*u))*math.cosd(u)+0.3*pv_sphere_x(u,1.5*v)}
-        {(2+math.cosd(1.5*u))*math.sind(u)+0.3*pv_sphere_y(u,1.5*v)}
-        {2*math.sind(1.5*u)+0.3*pv_sphere_z(u,1.5*v)}
-        \pvrendersegments
-    \end{tikzpicture}
-\end{minted}
-% \begin{center}
-% \begin{tikzpicture}[/pline-vec/main orientation = {90}{-60}{0}]
-%     \pvappendsurface[
-%         u min = 0
-%         ,u max = 720
-%         ,u samples = 100
-%         ,v min = 0
-%         ,v max = 360
-%         ,v samples = 18
-%     ]{(2+math.cosd(1.5*u))*math.cosd(u)+0.3*pv_sphere_x(u,1.5*v)}
-%     {(2+math.cosd(1.5*u))*math.sind(u)+0.3*pv_sphere_y(u,1.5*v)}
-%     {2*math.sind(1.5*u)+0.3*pv_sphere_z(u,1.5*v)}
-%     \pvrendersegments
-% \end{tikzpicture}
-% \captionof{figure}{A parametric surface}
-% \end{center}
+\begin{center}
+\begin{tikzpicture}[/pline-vec/main orientation = {90}{-60}{0}]
+    \pvappendsurface[
+        u min = 0
+        ,u max = 720
+        ,u samples = 100
+        ,v min = 0
+        ,v max = 360
+        ,v samples = 18
+    ]{(2+math.cosd(1.5*u))*math.cosd(u)+0.3*pv_sphere_x(u,1.5*v)}
+    {(2+math.cosd(1.5*u))*math.sind(u)+0.3*pv_sphere_y(u,1.5*v)}
+    {2*math.sind(1.5*u)+0.3*pv_sphere_z(u,1.5*v)}
+    \pvappendsurface[
+        u min = 150
+        ,u max = -110
+        ,u samples = 24
+        ,v min = -90
+        ,v max = 90
+        ,v samples = 36
+    ]{3.5*pv_sphere_x(u,v)}
+    {3.5*pv_sphere_y(u,v)}
+    {3.5*pv_sphere_z(u,v)}
+    \pvappendcurve[
+        u min = 0
+        ,u max = 360
+        ,u samples = 24
+    ]{4*pv_sphere_x(u,u/2-90)}
+    {4*pv_sphere_y(u,u/2-90)}
+    {4*pv_sphere_z(u,u/2-90)}
+    \pvrendersegments
+\end{tikzpicture}
+\captionof{figure}{A parametric surface}
+\end{center}
 
 \subsection{parametric solids}
 I intend to implement code for rendering parametric solids, since the
@@ -86,45 +90,6 @@ z-buffering technique I use will work for them too.
 \subsection{drawing clipped planes}
 pline-vec lets you draw clipped planes. In the future, this will be 
 done similarly to how it is done for parametric surfaces. For example;\par
-\noindent\begin{minted}{latex}
-    \begin{tikzpicture}[/pline-vec/main orientation = {90}{60}{30}]
-        \pgfmathsetmacro{\xmin}{-3}
-        \pgfmathsetmacro{\xmax}{3}
-        \pgfmathsetmacro{\ymin}{-3}
-        \pgfmathsetmacro{\ymax}{3}
-        \pgfmathsetmacro{\zmin}{-3}
-        \pgfmathsetmacro{\zmax}{3}
-        % here you set the global options for the coordinate frame
-        \tikzset{
-            /pline-vec/.cd
-                ,xmin = \xmin
-                ,xmax = \xmax
-                ,ymin = \ymin
-                ,ymax = \ymax
-                ,zmin = \zmin
-                ,zmax = \zmax
-        }
-        \pvgetplane[na = 1,nb = 2,nc = 3,nd = 4]{a name}
-        % base
-        \draw[
-            line join = round
-            ,canvas is xy plane at z = \zmin
-        ] (\xmin,\ymin) rectangle (\xmax,\ymax);
-        \draw[
-            line join = round
-            ,canvas is xy plane at z = \zmax
-        ] (\xmin,\ymin) rectangle (\xmax,\ymax);
-        \foreach \x/\y 
-        in {\xmin/\ymin,\xmax/\ymin,\xmax/\ymax,\xmin/\ymax}
-        {
-            \draw (\x,\y,\zmin) -- (\x,\y,\zmax);
-        }
-        \draw[
-            spath/use = planea name
-            ,preaction = {fill,fill opacity = 0.3}
-        ];
-    \end{tikzpicture}
-\end{minted}
 \begin{center}
 \begin{tikzpicture}[/pline-vec/main orientation = {90}{60}{30}]
     \pgfmathsetmacro{\xmin}{-3}

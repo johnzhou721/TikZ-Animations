@@ -257,6 +257,14 @@ function pv_average(a,b,c)
     return result
 end
 
+function pv_average2(a,b)
+    local x = (a[1] + b[1])/2
+    local y = (a[2] + b[2])/2
+    local z = (a[3] + b[3])/2
+    local result = {x,y,z}
+    return result
+end
+
 function pv_difference(u,v)
     local x = u[1]-v[1]
     local y = u[2]-v[2]
