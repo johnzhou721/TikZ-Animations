@@ -1,0 +1,170 @@
+% arara: lualatex
+% arara: lualatex
+\documentclass{article}
+\PassOptionsToPackage{colorlinks = true}{hyperref}
+\usepackage{
+    pline-vec
+    ,minted
+    ,caption
+    ,bookmark
+    ,hyperref
+}
+
+\DeclareCaptionFormat{custom}
+{%
+    #1#2\par\noindent#3
+}
+\captionsetup{format=custom}
+\captionsetup{justification=raggedright, singlelinecheck=false}
+
+\title{pline-vec}
+\author{Jasper}
+\date{\today}
+\begin{document}
+\maketitle
+\tableofcontents
+% See https://tex.stackexchange.com/a/31787/319072
+\section{Introduction}
+I really enjoy making 3D artwork using Ti\textit{k}Z, especially 
+animations. I really wanted to z-buffer multiple surfaces at once and 
+graph intersecting planes, but these tasks proved to be very 
+difficult using the tools available, namely pgfplots and 
+tikz-3dplot.\par
+The goal of the package pline-vec is to overcome these obstacles.
+I have already implemented a rigorous z-buffering algorithm that
+can handle multiple surfaces, and intersecting planes has been made 
+possible, though it lacks automatic z-sorting at this point. 
+That will be fixed.\par
+An additional feature of pline-vec is that it defines many useful
+math functions and operations. For example, there are lua-based
+Ti\textit{k}Z functions for rotating objects in 3D, traversing spheres,
+taking dot products and cross product components, as well as for 
+easily setting multiple pgfmath macros at once.
+\section{Examples}
+\subsection{changing the main orientation, and sub orientation within it}
+\subsection{Parametric surfaces}
+The code to generate non-intersecting (and also non-tangent) surfaces
+is complete. The user specifies the domain, range, samples, and 
+\textbf{Lua} math function, and pline-vec draws the surface for them.
+In the future, I will implement the ability to add more keys for things 
+like opacity and color for individual surfaces.\par
+\noindent\begin{minted}{latex}
+    \begin{tikzpicture}[/pline-vec/main orientation = {90}{60}{0}]
+        \pvappendsurface[
+            u min = 0
+            ,u max = 720
+            ,u samples = 100
+            ,v min = 0
+            ,v max = 360
+            ,v samples = 18
+        ]{(2+math.cosd(1.5*u))*math.cosd(u)+0.3*pv_sphere_x(u,1.5*v)}
+        {(2+math.cosd(1.5*u))*math.sind(u)+0.3*pv_sphere_y(u,1.5*v)}
+        {2*math.sind(1.5*u)+0.3*pv_sphere_z(u,1.5*v)}
+        \pvrendersegments
+    \end{tikzpicture}
+\end{minted}
+% \begin{center}
+% \begin{tikzpicture}[/pline-vec/main orientation = {90}{-60}{0}]
+%     \pvappendsurface[
+%         u min = 0
+%         ,u max = 720
+%         ,u samples = 100
+%         ,v min = 0
+%         ,v max = 360
+%         ,v samples = 18
+%     ]{(2+math.cosd(1.5*u))*math.cosd(u)+0.3*pv_sphere_x(u,1.5*v)}
+%     {(2+math.cosd(1.5*u))*math.sind(u)+0.3*pv_sphere_y(u,1.5*v)}
+%     {2*math.sind(1.5*u)+0.3*pv_sphere_z(u,1.5*v)}
+%     \pvrendersegments
+% \end{tikzpicture}
+% \captionof{figure}{A parametric surface}
+% \end{center}
+
+\subsection{parametric solids}
+I intend to implement code for rendering parametric solids, since the
+z-buffering technique I use will work for them too.
+\subsection{drawing clipped planes}
+pline-vec lets you draw clipped planes. In the future, this will be 
+done similarly to how it is done for parametric surfaces. For example;\par
+\noindent\begin{minted}{latex}
+    \begin{tikzpicture}[/pline-vec/main orientation = {90}{60}{30}]
+        \pgfmathsetmacro{\xmin}{-3}
+        \pgfmathsetmacro{\xmax}{3}
+        \pgfmathsetmacro{\ymin}{-3}
+        \pgfmathsetmacro{\ymax}{3}
+        \pgfmathsetmacro{\zmin}{-3}
+        \pgfmathsetmacro{\zmax}{3}
+        % here you set the global options for the coordinate frame
+        \tikzset{
+            /pline-vec/.cd
+                ,xmin = \xmin
+                ,xmax = \xmax
+                ,ymin = \ymin
+                ,ymax = \ymax
+                ,zmin = \zmin
+                ,zmax = \zmax
+        }
+        \pvgetplane[na = 1,nb = 2,nc = 3,nd = 4]{a name}
+        % base
+        \draw[
+            line join = round
+            ,canvas is xy plane at z = \zmin
+        ] (\xmin,\ymin) rectangle (\xmax,\ymax);
+        \draw[
+            line join = round
+            ,canvas is xy plane at z = \zmax
+        ] (\xmin,\ymin) rectangle (\xmax,\ymax);
+        \foreach \x/\y 
+        in {\xmin/\ymin,\xmax/\ymin,\xmax/\ymax,\xmin/\ymax}
+        {
+            \draw (\x,\y,\zmin) -- (\x,\y,\zmax);
+        }
+        \draw[
+            spath/use = planea name
+            ,preaction = {fill,fill opacity = 0.3}
+        ];
+    \end{tikzpicture}
+\end{minted}
+\begin{center}
+\begin{tikzpicture}[/pline-vec/main orientation = {90}{60}{30}]
+    \pgfmathsetmacro{\xmin}{-3}
+    \pgfmathsetmacro{\xmax}{3}
+    \pgfmathsetmacro{\ymin}{-3}
+    \pgfmathsetmacro{\ymax}{3}
+    \pgfmathsetmacro{\zmin}{-3}
+    \pgfmathsetmacro{\zmax}{3}
+    % here you set the global options for the coordinate frame
+    \tikzset{
+        /pline-vec/.cd
+            ,xmin = \xmin
+            ,xmax = \xmax
+            ,ymin = \ymin
+            ,ymax = \ymax
+            ,zmin = \zmin
+            ,zmax = \zmax
+    }
+    \pvgetplane[na = 1,nb = 2,nc = 3,nd = 4]{a name}
+    % base
+    \draw[
+        line join = round
+        ,canvas is xy plane at z = \zmin
+    ] (\xmin,\ymin) rectangle (\xmax,\ymax);
+    \draw[
+        line join = round
+        ,canvas is xy plane at z = \zmax
+    ] (\xmin,\ymin) rectangle (\xmax,\ymax);
+    \foreach \x/\y 
+    in {\xmin/\ymin,\xmax/\ymin,\xmax/\ymax,\xmin/\ymax}
+    {
+        \draw (\x,\y,\zmin) -- (\x,\y,\zmax);
+    }
+    \draw[
+        spath/use = planea name
+        ,preaction = {fill,fill opacity = 0.3}
+    ];
+\end{tikzpicture}
+\end{center}
+\subsection{intersecting planes}
+\subsection{math function documentation}
+
+\end{document}

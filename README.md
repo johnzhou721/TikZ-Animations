@@ -46,7 +46,7 @@ Core algorithms are being ported to Lua for speed.
 
 | Deliverable                      | Status                             | ETA               |
 |----------------------------------|------------------------------------|-------------------|
-| **Package Documentation**        | Not started                        | 1–2 months (from start)        |
+| **Package Documentation**        | Partially started                       | 1–2 months (from start)        |
 | **Parametric Surface Generator** | ✔ Multi-mesh Z-buffer pass done    | —                 |
 | **Rotation Matrix Utility**      | ✔ Complete and tested              | —                 |
 | **Plane-Segment Sorter**         | Manual via `spath3`                | 2–5 months        |

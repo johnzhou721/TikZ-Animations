@@ -1,6 +1,6 @@
 \directlua{require("pv-plane.lua")}
 
-\newcommand{\getplane}[2][]{
+\newcommand{\pvgetplane}[2][]{
     \begingroup
     \tikzset{/pline-vec/plane/.cd,#1}
     \edef\temp{
