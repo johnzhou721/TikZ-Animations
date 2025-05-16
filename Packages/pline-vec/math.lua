@@ -1,3 +1,11 @@
+pv_orthogonal_vector_projection(base_vector,projected_vector)
+    scale = (
+        pv_dot_product(base_vector,projected_vector) / 
+        pv_dot_product(base_vector,base_vector)
+    )
+    return {base_vector[1]*scale,base_vector[2]*scale,base_vector[3]*scale}
+end
+
 function pv_cross_product(u,v)
     local x = u[2]*v[3]-u[3]*v[2]
     local y = u[3]*v[1]-u[1]*v[3]
