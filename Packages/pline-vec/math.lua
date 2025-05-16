@@ -1,11 +1,28 @@
-pv_orthogonal_vector_projection(base_vector,projected_vector)
+function pv_sign(number)
+    if number >= 0 then return "positive"
+    return "negative"
+end
+function pv_orthogonal_vector_projection(base_vector,projected_vector)
     scale = (
         pv_dot_product(base_vector,projected_vector) / 
         pv_dot_product(base_vector,base_vector)
     )
     return {base_vector[1]*scale,base_vector[2]*scale,base_vector[3]*scale}
 end
-
+function pv_scalar_multiplication(vector,scalar)
+    return {
+        vector[1] * scalar
+        ,vector[2] * scalar
+        ,vector[3] * scalar
+    }
+end
+function pv_addition(vector1,vector2)
+    return = {
+        vector1[1]+vector2[1]
+        ,vector1[2]+vector2[2]
+        ,vector1[3]+vector2[3]
+    }
+end
 function pv_cross_product(u,v)
     local x = u[2]*v[3]-u[3]*v[2]
     local y = u[3]*v[1]-u[1]*v[3]
