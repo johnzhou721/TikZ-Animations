@@ -3,13 +3,16 @@
 function get_observer_plane_basis(observer)
     local origin = {0,0,0}
     local basis_i = pv_orthogonal_vector(observer)
+    basis_i = pv_normalize(basis_i)
     local basis_j = pv_cross_product(observer,basis_i)
+    basis_j = pv_normalize(basis_j)
     return {origin,basis_i,basis_j}
 
 end
 
 function project_point_onto_basis(point,basis)
     local normal = pv_cross_product(basis[2],basis[3])
+    normal = pv_normalize(normal)
     local vector_from_plane = pv_orthogonal_vector_projection(point,normal)
     local result = {
         point[1]-vector_from_plane[1]

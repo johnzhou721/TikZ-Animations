@@ -2,6 +2,14 @@ function pv_sign(number)
     if number >= 0 then return "positive" end
     return "negative"
 end
+function pv_normalize(vector)
+    local norm = pv_norm(vector)
+    return {
+        vector[1]/norm
+        ,vector[2]/norm
+        ,vector[3]/norm
+    }
+end
 function pv_orthogonal_vector_projection(base_vector,projected_vector)
     local scale = (
         pv_dot_product(base_vector,projected_vector) / 
