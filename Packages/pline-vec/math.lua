@@ -3,7 +3,7 @@ function pv_sign(number)
     return "negative"
 end
 function pv_orthogonal_vector_projection(base_vector,projected_vector)
-    scale = (
+    local scale = (
         pv_dot_product(base_vector,projected_vector) / 
         pv_dot_product(base_vector,base_vector)
     )
@@ -29,6 +29,18 @@ function pv_cross_product(u,v)
     local z = u[1]*v[2]-u[2]*v[1]
     local result = {x,y,z}
     return result
+end
+
+function pv_midpoint(triangle)
+    local P,Q,R = table.unpack(triangle)
+    local x = (P[1]+Q[1]+R[1])/3
+    local y = (P[2]+Q[2]+R[2])/3
+    local z = (P[3]+Q[3]+R[3])/3
+    return {x,y,z}
+end
+
+function pv_signed_distance_to_plane(point,basis)
+    O,v1,v2 = table.unpack(basis)
 end
 
 function pv_cross_product_x(u,v)
