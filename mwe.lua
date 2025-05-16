@@ -26,6 +26,32 @@ function normalize(vector)
     }
 end
 
+function get_bounding_box(triangle)
+    local P,Q,R = table.unpack(triangle)
+    local xmin = math.min(P[1],Q[1],R[1])
+    local xmax = math.max(P[1],Q[1],R[1])
+    local ymin = math.min(P[2],Q[2],R[2])
+    local ymax = math.max(P[2],Q[2],R[2])
+    local zmin = math.min(P[3],Q[3],R[3])
+    local zmax = math.max(P[3],Q[3],R[3])
+    return {
+        xmin,xmax
+        ,ymin,ymax
+        ,zmin,zmax
+    }
+end
+
+function check_bounding_box_overlap(bounding_box_1,bounding_box_2)
+    local xmin1, xmax1, ymin1, ymax1, zmin1, zmax1 = table.unpack(bounding_box_1)
+    local xmin2, xmax2, ymin2, ymax2, zmin2, zmax2 = table.unpack(bounding_box_2)
+
+    local x_overlap = xmax1 >= xmin2 and xmax2 >= xmin1
+    local y_overlap = ymax1 >= ymin2 and ymax2 >= ymin1
+    local z_overlap = zmax1 >= zmin2 and zmax2 >= zmin1
+
+    return x_overlap and y_overlap and z_overlap
+end
+
 function get_observer_plane_basis(observer)
     local origin = {0,0,0}
     local basis_i = orthogonal_vector(observer)
@@ -56,7 +82,7 @@ function project_point_onto_basis(point,basis)
 end
 
 function is_point_in_triangle(point,triangle)
-    local P,Q,R,temp1,temp2 = table.unpack(triangle)
+    local P,Q,R = table.unpack(triangle)
     local cross_PQ = cross_product(
         addition(Q,scalar_multiplication(P,-1))
         ,addition(point,scalar_multiplication(P,-1))
@@ -89,6 +115,287 @@ function is_point_in_triangle(point,triangle)
     end
 end
 
+function get_line(normal_equation1,normal_equation2,boundaries)
+    local a1,b1,c1,d1 = table.unpack(normal_equation1)
+    local a2,b2,c2,d2 = table.unpack(normal_equation2)
+    local xmin,xmax,ymin,ymax,zmin,zmax = table.unpack(boundaries)
+    function Lyofx(x)
+        return (
+            (
+                (
+                    d2 - 
+                    c2 * d1 / c1
+                ) - (
+                    a2 -
+                    c2 * a1 / c1
+                ) * x
+            ) / (
+                b2 -
+                c2 * b1 / c1
+            )
+        )
+    end
+    function Lzofx(x)
+        return (
+            (
+                (
+                    d2 - 
+                    b2 * d1 / b1
+                ) - (
+                    a2 -
+                    b2 * a1 / b1
+                ) * x
+            ) / (
+                c2 -
+                b2 * c1 / b1
+            )
+        )
+    end
+    function Lzofy(y)
+        return (
+            (
+                (
+                    d2 - 
+                    a2 * d1 / a1
+                ) - (
+                    b2 -
+                    a2 * b1 / a1
+                ) * y
+            ) / (
+                c2 -
+                a2 * c1 / a1
+            )
+        )
+    end
+    function Lxofy(y)
+        return (
+            (
+                (
+                    d2 - 
+                    c2 * d1 / c1
+                ) - (
+                    b2 -
+                    c2 * b1 / c1
+                ) * y
+            ) / (
+                a2 -
+                c2 * a1 / c1
+            )
+        )
+    end
+    function Lyofz(z)
+        return (
+            (
+                (
+                    d2 - 
+                    a2 * d1 / a1
+                ) - (
+                    c2 -
+                    a2 * c1 / a1
+                ) * z
+            ) / (
+                b2 -
+                a2 * b1 / a1
+            )
+        )
+    end
+    function Lxofz(z)
+        return (
+            (
+                (
+                    d2 - 
+                    b2 * d1 / b1
+                ) - (
+                    c2 -
+                    b2 * c1 / b1
+                ) * z
+            ) / (
+                a2 -
+                b2 * a1 / b1
+            )
+        )
+    end
+
+    if ~(
+        math.abs(b2-c2*b1/c1)<0.0001 or
+        math.abs(c2-b2*c1/b1)<0.0001
+    ) then
+        startx = xmin
+        starty = Lyofx(xmin)
+        startz = Lzofx(xmin)
+        endx = smax
+        endy = Lyofx(xmax)
+        endz = Lzofx(xmax)
+         -- y coord
+        if endy>ymax then
+            endx = Lxofy(ymax)
+            endy = Lyofx(Lxofy(ymax))
+            endz = Lzofx(Lxofy(ymax))
+        end
+
+        if endy<ymin then
+            endx = Lxofy(ymin)
+            endy = Lyofx(Lxofy(ymin))
+            endz = Lzofx(Lxofy(ymin))
+        end
+
+        if starty>ymax then
+            startx = Lxofy(ymax)
+            starty = Lyofx(Lxofy(ymax))
+            startz = Lzofx(Lxofy(ymax))
+        end
+        
+        if starty<ymin then
+            startx = Lxofy(ymin)
+            starty = Lyofx(Lxofy(ymin))
+            startz = Lzofx(Lxofy(ymin))
+        end
+
+         -- z coord
+        if endz>zmax then
+            endx = Lxofz(zmax)
+            endy = Lyofx(Lxofz(zmax))
+            endz = Lzofx(Lxofz(zmax))
+        end
+        if endz<zmin then
+            endx = Lxofz(zmin)
+            endy = Lyofx(Lxofz(zmin))
+            endz = Lzofx(Lxofz(zmin))
+        end
+        if startz>zmax then
+            startz = Lxofz(zmax)
+            startz = Lyofx(Lxofz(zmax))
+            startz = Lzofx(Lxofz(zmax))
+        end
+        if startz<zmin then
+            startz = Lxofz(zmin)
+            startz = Lyofx(Lxofz(zmin))
+            startz = Lzofx(Lxofz(zmin))
+        end
+    else
+        if ~(
+            math.abs(c2-a2*c1/a1)<0.001 or
+            math.abs(a2-c2*a1/c1)<0.001
+        ) then
+            startx = Lxofy(ymin)
+            starty = ymin
+            startz = Lzofy(ymin)
+            endx = Lxofy(ymax)
+            endy = ymax
+            endz = Lzofy(ymax)
+
+            if endx>xmax then
+                endx = Lxofy(Lyofx(xmax))
+                endy = Lyofx(xmax) 
+                endz = Lzofy(Lyofx(xmax))
+            end
+
+            if endx<xmin then
+                endx = Lxofy(Lyofx(xmin))
+                endy = Lyofx(xmin) 
+                endz = Lzofy(Lyofx(xmin))
+            end
+
+            if startx>xmax then
+                startx = Lxofy(Lyofx(xmax))
+                starty = Lyofx(xmax) 
+                startz = Lzofy(Lyofx(xmax))
+            end
+
+            if startx<xmin then
+                startx = Lxofy(Lyofx(xmin))
+                starty = Lyofx(xmin) 
+                startz = Lzofy(Lyofx(xmin))
+            end
+
+            if endz>zmax then
+                endx = Lxofy(Lyofz(zmax))
+                endy = Lyofz(zmax)
+                endz = Lzofy(Lyofz(zmax))
+            end
+
+            if endz<zmin then
+                endx = Lxofy(Lyofz(zmin))
+                endy = Lyofz(zmin)
+                endz = Lzofy(Lyofz(zmin))
+            end
+
+            if startz>zmax then
+                startx = Lxofy(Lyofz(zmax))
+                starty = Lyofz(zmax)
+                startz = Lzofy(Lyofz(zmax))
+            end
+
+            if startz<zmin then
+                startx = Lxofy(Lyofz(zmin))
+                starty = Lyofz(zmin)
+                startz = Lzofy(Lyofz(zmin))
+            end
+        else
+            if ~(
+            math.abs(b2-a2*b1/a1)<0.001 or
+            math.abs(a2-b2*a1/b1)<0.001 
+            ) then
+                startx = Lxofz(zmin)
+                starty = Lyofz(zmin)
+                startz = zmin
+                endx = Lxofz(zmax)
+                endy = Lyofz(zmax)
+                endz = zmax
+
+                if endx>xmax then
+                    endx = Lxofz(Lzofx(xmax))
+                    endy = Lyofz(Lzofx(xmax))
+                    endz = Lzofx(xmax)
+                end
+
+                if endx<xmin then
+                    endx = Lxofz(Lzofx(xmin))
+                    endy = Lyofz(Lzofx(xmin))
+                    endz = Lzofx(xmin)
+                end
+
+                if endy>ymax then
+                    endx = Lxofz(Lzofy(ymax))
+                    endy = Lyofz(Lzofy(ymax))
+                    endz = Lzofy(ymax)
+                end
+                if endy<ymin then
+                    endx = Lxofz(Lzofy(ymin))
+                    endy = Lyofz(Lzofy(ymin))
+                    endz = Lzofy(ymin)
+                end
+                
+                
+                if startx>xmax then
+                    startx = Lxofz(Lzofx(xmax))
+                    starty = Lyofz(Lzofx(xmax))
+                    startz = Lzofx(xmax)
+                end
+
+                if startx<xmin then
+                    startx = Lxofz(Lzofx(xmin))
+                    starty = Lyofz(Lzofx(xmin))
+                    startz = Lzofx(xmin)
+                end
+
+                if starty>ymax then
+                    startx = Lxofz(Lzofy(ymax))
+                    starty = Lyofz(Lzofy(ymax))
+                    startz = Lzofy(ymax)
+                end
+                if starty<ymin then
+                    startx = Lxofz(Lzofy(ymin))
+                    starty = Lyofz(Lzofy(ymin))
+                    startz = Lzofy(ymin)
+                end
+            end
+        end
+    end
+    point = {startx,starty,startz}
+    direction_vector = addition({endx,endy,endz})
+end
+
 function compare_triangles(triangle_1,triangle_2)
     local P_1,Q_1,R_1 = table.unpack(triangle_1)
     local P_2,Q_2,R_2 = table.unpack(triangle_2)
@@ -106,6 +413,34 @@ function compare_triangles(triangle_1,triangle_2)
     local P_2_test = is_point_in_triangle(P_2_projection,{P_1_projection,Q_1_projection,R_1_projection})
     local Q_2_test = is_point_in_triangle(Q_2_projection,{P_1_projection,Q_1_projection,R_1_projection})
     local R_2_test = is_point_in_triangle(R_2_projection,{P_1_projection,Q_1_projection,R_1_projection})
+
+    local bounding_box_1 = get_bounding_box(triangle_1)
+    local bounding_box_2 = get_bounding_box(triangle_2)
+    if check_bounding_box_overlap(bounding_box_1,bounding_box_2) then 
+        local normal1 = cross_product(
+            addition(
+                Q_1
+                ,scalar_multiplication(P_1,-1)
+            )
+            ,addition(
+                R_1
+                ,scalar_multiplication(P_1,-1)
+            )
+        )
+        local normal2 = cross_product(
+            addition(
+                Q_2
+                ,scalar_multiplication(P_2,-1)
+            )
+            ,addition(
+                R_2
+                ,scalar_multiplication(P_2,-1)
+            )
+        )
+        direction_vector_of_intersection_line = cross_product(normal1,normal2)
+        --point_on_intersection_line = 
+
+    end
     
     if (P_1_test or Q_1_test or R_1_test) then
         if P_1_test then
