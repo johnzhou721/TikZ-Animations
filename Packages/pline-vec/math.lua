@@ -1,5 +1,5 @@
 function pv_sign(number)
-    if number >= 0 then return "positive"
+    if number >= 0 then return "positive" end
     return "negative"
 end
 function pv_orthogonal_vector_projection(base_vector,projected_vector)
@@ -17,7 +17,7 @@ function pv_scalar_multiplication(vector,scalar)
     }
 end
 function pv_addition(vector1,vector2)
-    return = {
+    return {
         vector1[1]+vector2[1]
         ,vector1[2]+vector2[2]
         ,vector1[3]+vector2[3]

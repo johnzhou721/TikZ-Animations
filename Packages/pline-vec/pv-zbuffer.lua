@@ -20,7 +20,7 @@ function project_point_onto_basis(point,basis)
 end
 
 function is_point_in_triangle(point,triangle)
-    local P,Q,R = table.unpack(triangle)
+    local P,Q,R,temp1,temp2 = table.unpack(triangle)
     local cross_PQ = pv_cross_product(
         pv_addition(Q,pv_scalar_multiplication(P,-1))
         ,point
@@ -47,16 +47,16 @@ function compare_triangles(triangle_1,triangle_2)
     local P_1,Q_1,R_1,color_1,options_1 = table.unpack(triangle_1)
     local P_2,Q_2,R_2,color_2,options_2 = table.unpack(triangle_2)
     local observer_basis = get_observer_plane_basis(observer)
-    local P_1_projection = project_point_onto_basis(P_1)
-    local Q_1_projection = project_point_onto_basis(Q_1)
-    local R_1_projection = project_point_onto_basis(R_1)
-    local P_2_projection = project_point_onto_basis(P_2)
-    local Q_2_projection = project_point_onto_basis(Q_2)
-    local R_2_projection = project_point_onto_basis(R_2)
+    local P_1_projection = project_point_onto_basis(P_1,observer_basis)
+    local Q_1_projection = project_point_onto_basis(Q_1,observer_basis)
+    local R_1_projection = project_point_onto_basis(R_1,observer_basis)
+    local P_2_projection = project_point_onto_basis(P_2,observer_basis)
+    local Q_2_projection = project_point_onto_basis(Q_2,observer_basis)
+    local R_2_projection = project_point_onto_basis(R_2,observer_basis)
     -- compare to triangle 1
-    local P_test = is_point_in_triangle(P_2,{P_1,Q_1,R_1})
-    local Q_test = is_point_in_triangle(Q_2,{P_1,Q_1,R_1})
-    local R_test = is_point_in_triangle(R_2,{P_1,Q_1,R_1})
+    local P_test = is_point_in_triangle(P_2_projection,{P_1_projection,Q_1_projection,R_1_projection})
+    local Q_test = is_point_in_triangle(Q_2_projection,{P_1_projection,Q_1_projection,R_1_projection})
+    local R_test = is_point_in_triangle(R_2_projection,{P_1_projection,Q_1_projection,R_1_projection})
     if (P_test or Q_test or R_test) then
         local test
         if P_test then
@@ -81,7 +81,91 @@ function compare_triangles(triangle_1,triangle_2)
         if pv_dot_product(normal_1,observer) < 0 then
             normal_1 = pv_scalar_multiplication(normal_1,-1)
         end
-        signed_distance_to_plane
+        local signed_distance_to_plane
+        if test == "P" then
+            signed_distance_to_plane = pv_norm(
+                pv_addition(
+                    P_2_projection
+                    ,pv_scalar_multiplication(
+                        P_2,-1
+                    )
+                )
+            )
+            if (
+                pv_dot_product(
+                    pv_addition(
+                        P_2_projection
+                        ,pv_scalar_multiplication(
+                            P_2,-1
+                        )
+                    )
+                    ,normal_1
+                ) < 0
+            ) then 
+                signed_distance_to_plane = -signed_distance_to_plane
+            end
+            if pv_sign(signed_distance_to_plane) == "positive" then
+                return true
+            else
+                return false
+            end
+        end
+        if test == "Q" then
+            signed_distance_to_plane = pv_norm(
+                pv_addition(
+                    Q_2_projection
+                    ,pv_scalar_multiplication(
+                        Q_2,-1
+                    )
+                )
+            )
+            if (
+                pv_dot_product(
+                    pv_addition(
+                        Q_2_projection
+                        ,pv_scalar_multiplication(
+                            Q_2,-1
+                        )
+                    )
+                    ,normal_1
+                ) < 0
+            ) then 
+                signed_distance_to_plane = -signed_distance_to_plane
+            end
+            if pv_sign(signed_distance_to_plane) == "positive" then
+                return true
+            else
+                return false
+            end
+        end
+        if test == "R" then
+            signed_distance_to_plane = pv_norm(
+                pv_addition(
+                    R_2_projection
+                    ,pv_scalar_multiplication(
+                        R_2,-1
+                    )
+                )
+            )
+            if (
+                pv_dot_product(
+                    pv_addition(
+                        R_2_projection
+                        ,pv_scalar_multiplication(
+                            R_2,-1
+                        )
+                    )
+                    ,normal_1
+                ) < 0
+            ) then 
+                signed_distance_to_plane = -signed_distance_to_plane
+            end
+            if pv_sign(signed_distance_to_plane) == "positive" then
+                return true
+            else
+                return false
+            end
+        end
     else
         local midpoint_1 = pv_midpoint({P_1,Q_1,R_1})
         local midpoint_2 = pv_midpoint({P_2,Q_2,R_2})
@@ -89,6 +173,7 @@ function compare_triangles(triangle_1,triangle_2)
         local dot_product_2 = pv_dot_product(midpoint_2,observer)
         return dot_product_1 > dot_product_2
     end
+    return false -- test
 end
 
 
@@ -118,10 +203,10 @@ function pv_append_surface(
         local color = (u - u_start) / (u_end - u_start)
         for j = 0, v_samples - 2 do
             local v = v_start + j * v_step
-            local A = surface(u, v)
-            local B = surface(u + u_step, v)
-            local C = surface(u, v + v_step)
-            local D = surface(u + u_step, v + v_step)
+            local A = parametric_surface(u, v)
+            local B = parametric_surface(u + u_step, v)
+            local C = parametric_surface(u, v + v_step)
+            local D = parametric_surface(u + u_step, v + v_step)
             -- the tables for surfaces have 5 values
             table.insert(segments, {A, B, D, color, options})
             table.insert(segments, {A, C, D, color, options})
@@ -131,6 +216,15 @@ function pv_append_surface(
 end -- ends pv_append_surface
 
 function pv_render_segments()
-    table.sort(segments, segment_comparator)
+    table.sort(segments, compare_triangles)
+    for _, seg in ipairs(segments) do
+    local n = #seg; local P, Q, R, c, o = seg[1], seg[2], seg[3], seg[4], seg[5]
+
+    tex.print('\\draw[line join=round,preaction={fill=yellow}]')
+    tex.print(string.format('(%f,%f,%f)--(%f,%f,%f)--(%f,%f,%f)--cycle;',
+    P[1],P[2],P[3],Q[1],Q[2],Q[3],R[1],R[2],R[3]
+    ))
+  end
+  segments = {}
 end
 
