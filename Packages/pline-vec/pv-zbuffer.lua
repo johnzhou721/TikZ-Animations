@@ -39,7 +39,17 @@ function is_point_in_triangle(point,triangle)
     local sign_1 = pv_sign(cross_PQ[1])
     local sign_2 = pv_sign(cross_QR[1])
     local sign_3 = pv_sign(cross_RP[1])
-    if (sign_1 == sign_2 and sign_2 == sign_3) then
+    local sign_4 = pv_sign(cross_PQ[2])
+    local sign_5 = pv_sign(cross_QR[2])
+    local sign_6 = pv_sign(cross_RP[2])
+    local sign_7 = pv_sign(cross_PQ[2])
+    local sign_8 = pv_sign(cross_QR[2])
+    local sign_9 = pv_sign(cross_RP[2])
+    if (
+        (sign_1 == sign_2 and sign_2 == sign_3) and
+        (sign_4 == sign_5 and sign_5 == sign_6) and
+        (sign_7 == sign_8 and sign_8 == sign_9)
+    ) then
         return true
     else
         return false
@@ -88,18 +98,18 @@ function compare_triangles(triangle_1,triangle_2)
         if test == "P" then
             signed_distance_to_plane = pv_norm(
                 pv_addition(
-                    P_2_projection
+                    P_2
                     ,pv_scalar_multiplication(
-                        P_2,-1
+                        P_2_projection,-1
                     )
                 )
             )
             if (
                 pv_dot_product(
                     pv_addition(
-                        P_2_projection
+                        P_2
                         ,pv_scalar_multiplication(
-                            P_2,-1
+                            P_2_projection,-1
                         )
                     )
                     ,normal_1
@@ -116,18 +126,18 @@ function compare_triangles(triangle_1,triangle_2)
         if test == "Q" then
             signed_distance_to_plane = pv_norm(
                 pv_addition(
-                    Q_2_projection
+                    Q_2
                     ,pv_scalar_multiplication(
-                        Q_2,-1
+                        Q_2_projection,-1
                     )
                 )
             )
             if (
                 pv_dot_product(
                     pv_addition(
-                        Q_2_projection
+                        Q_2
                         ,pv_scalar_multiplication(
-                            Q_2,-1
+                            Q_2_projection,-1
                         )
                     )
                     ,normal_1
@@ -144,18 +154,18 @@ function compare_triangles(triangle_1,triangle_2)
         if test == "R" then
             signed_distance_to_plane = pv_norm(
                 pv_addition(
-                    R_2_projection
+                    R_2
                     ,pv_scalar_multiplication(
-                        R_2,-1
+                        R_2_projection,-1
                     )
                 )
             )
             if (
                 pv_dot_product(
                     pv_addition(
-                        R_2_projection
+                        R_2
                         ,pv_scalar_multiplication(
-                            R_2,-1
+                            R_2_projection,-1
                         )
                     )
                     ,normal_1

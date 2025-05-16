@@ -152,6 +152,30 @@ function pv_ZYZ_rotation_matrix(angles,vector)
     return result
 end
 
+function pv_ZYZ_rotation_matrix_inverse(angles, vector)
+    local c1 = math.cosd(angles[1])
+    local c2 = math.cosd(angles[2])
+    local c3 = math.cosd(angles[3])
+    local s1 = math.sind(angles[1])
+    local s2 = math.sind(angles[2])
+    local s3 = math.sind(angles[3])
+    
+    -- Using the fact that inverse = transpose for an orthonormal matrix:
+    local x = ( (c1*c2*c3 - s1*s3)       * vector[1] +
+                (s1*c2*c3 + c1*s3)       * vector[2] +
+                (-s2*c3)                * vector[3] )
+                
+    local y = ( (-c1*c2*s3 - s1*c3)      * vector[1] +
+                (-s1*c2*s3 + c1*c3)      * vector[2] +
+                (s2*s3)                 * vector[3] )
+                
+    local z = ( (c1*s2)                * vector[1] +
+                (s1*s2)                * vector[2] +
+                (c2)                   * vector[3] )
+    
+    return {x, y, z}
+end
+
 function pv_ZYZ_rotation_matrix_x(angles,vector)
     local c1 = math.cosd(angles[1])
     local c2 = math.cosd(angles[2])

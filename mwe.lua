@@ -1,5 +1,5 @@
 
-observer = {0,0,1}
+
 
 function cross_product(u,v)
     local x = u[2]*v[3]-u[3]*v[2]
@@ -75,7 +75,17 @@ function is_point_in_triangle(point,triangle)
     local sign_1 = sign(cross_PQ[1])
     local sign_2 = sign(cross_QR[1])
     local sign_3 = sign(cross_RP[1])
-    if (sign_1 == sign_2 and sign_2 == sign_3) then
+    local sign_4 = sign(cross_PQ[2])
+    local sign_5 = sign(cross_QR[2])
+    local sign_6 = sign(cross_RP[2])
+    local sign_7 = sign(cross_PQ[2])
+    local sign_8 = sign(cross_QR[2])
+    local sign_9 = sign(cross_RP[2])
+    if (
+        (sign_1 == sign_2 and sign_2 == sign_3) and
+        (sign_4 == sign_5 and sign_5 == sign_6) and
+        (sign_7 == sign_8 and sign_8 == sign_9)
+    ) then
         return true
     else
         return false
@@ -308,6 +318,15 @@ end
 
 function render_segments()
     table.sort(segments, compare_triangles)
+    for _, seg in ipairs(segments) do
+        local n = #seg; local P, Q, R = seg[1], seg[2], seg[3]
+
+        tex.print('\\draw[line join=round,preaction={fill=yellow}]')
+        tex.print(string.format('(%f,%f,%f)--(%f,%f,%f)--(%f,%f,%f)--cycle;',
+        P[1],P[2],P[3],Q[1],Q[2],Q[3],R[1],R[2],R[3]
+        ))
+    end
+    segments = {}
 end
 
 function cosd(degrees)
@@ -318,16 +337,16 @@ function sind(degrees)
     return math.sin(degrees * 3.14159265 / 180)
 end
 
-
-append_surface(
-    0,720,100,
-    0,360,18,
-    function(u,v) 
-        return (2+cosd(1.5*u))*cosd(u)+0.3*sphere_x(u,1.5*v) 
-    end,
-    function(u,v) 
-        return (2+cosd(1.5*u))*sind(u)+0.3*sphere_y(u,1.5*v)
-    end,
-    function(u,v) return 2*sind(1.5*u)+0.3*sphere_z(u,1.5*v) end
-)
-render_segments()
+-- test
+-- append_surface(
+--     0,720,100,
+--     0,360,18,
+--     function(u,v) 
+--         return (2+cosd(1.5*u))*cosd(u)+0.3*sphere_x(u,1.5*v) 
+--     end,
+--     function(u,v) 
+--         return (2+cosd(1.5*u))*sind(u)+0.3*sphere_y(u,1.5*v)
+--     end,
+--     function(u,v) return 2*sind(1.5*u)+0.3*sphere_z(u,1.5*v) end
+-- )
+-- render_segments()
