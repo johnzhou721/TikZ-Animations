@@ -14,15 +14,15 @@
 \begin{tikzpicture}[tdplot_main_coords]
     \directlua{
         append_surface(
-            0,720,100,
-            0,360,18,
+            0,720,50,
+            0,360,9,
             function(u,v) 
-                return (2+cosd(1.5*u))*cosd(u)+0.3*sphere_x(u,1.5*v) 
+                return (2+cosd(1.5*u))*cosd(u)+0.3*sphere_x(u,v) 
             end,
             function(u,v) 
-                return (2+cosd(1.5*u))*sind(u)+0.3*sphere_y(u,1.5*v)
+                return (2+cosd(1.5*u))*sind(u)+0.3*sphere_y(u,v)
             end,
-            function(u,v) return 2*sind(1.5*u)+0.3*sphere_z(u,1.5*v) end
+            function(u,v) return 2*sind(1.5*u)+0.3*sphere_z(u,v) end
         )
         render_segments()
     }

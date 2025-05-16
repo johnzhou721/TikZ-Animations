@@ -1,6 +1,3 @@
-
-
-
 function cross_product(u,v)
     local x = u[2]*v[3]-u[3]*v[2]
     local y = u[3]*v[1]-u[1]*v[3]
@@ -16,16 +13,16 @@ function orthogonal_vector(u)
     else
         v = cross_product(u,{1,0,0})
     end
-    result = v
+    local result = v
     return result
 end
 
 function normalize(vector)
-    local norm = norm(vector)
+    local the_norm = norm(vector)
     return {
-        vector[1]/norm
-        ,vector[2]/norm
-        ,vector[3]/norm
+        vector[1]/the_norm
+        ,vector[2]/the_norm
+        ,vector[3]/the_norm
     }
 end
 
@@ -49,7 +46,7 @@ end
 function project_point_onto_basis(point,basis)
     local normal = cross_product(basis[2],basis[3])
     normal = normalize(normal)
-    local vector_from_plane = orthogonal_vector_projection(point,normal)
+    local vector_from_plane = orthogonal_vector_projection(normal,point)
     local result = {
         point[1]-vector_from_plane[1]
         ,point[2]-vector_from_plane[2]
@@ -62,15 +59,15 @@ function is_point_in_triangle(point,triangle)
     local P,Q,R,temp1,temp2 = table.unpack(triangle)
     local cross_PQ = cross_product(
         addition(Q,scalar_multiplication(P,-1))
-        ,point
+        ,addition(point,scalar_multiplication(P,-1))
     )
     local cross_QR = cross_product(
         addition(R,scalar_multiplication(Q,-1))
-        ,point
+        ,addition(point,scalar_multiplication(Q,-1))
     )
     local cross_RP = cross_product(
         addition(P,scalar_multiplication(R,-1))
-        ,point
+        ,addition(point,scalar_multiplication(R,-1))
     )
     local sign_1 = sign(cross_PQ[1])
     local sign_2 = sign(cross_QR[1])
@@ -78,9 +75,9 @@ function is_point_in_triangle(point,triangle)
     local sign_4 = sign(cross_PQ[2])
     local sign_5 = sign(cross_QR[2])
     local sign_6 = sign(cross_RP[2])
-    local sign_7 = sign(cross_PQ[2])
-    local sign_8 = sign(cross_QR[2])
-    local sign_9 = sign(cross_RP[2])
+    local sign_7 = sign(cross_PQ[3])
+    local sign_8 = sign(cross_QR[3])
+    local sign_9 = sign(cross_RP[3])
     if (
         (sign_1 == sign_2 and sign_2 == sign_3) and
         (sign_4 == sign_5 and sign_5 == sign_6) and
@@ -103,18 +100,21 @@ function compare_triangles(triangle_1,triangle_2)
     local Q_2_projection = project_point_onto_basis(Q_2,observer_basis)
     local R_2_projection = project_point_onto_basis(R_2,observer_basis)
     -- compare to triangle 1
-    local P_test = is_point_in_triangle(P_2_projection,{P_1_projection,Q_1_projection,R_1_projection})
-    local Q_test = is_point_in_triangle(Q_2_projection,{P_1_projection,Q_1_projection,R_1_projection})
-    local R_test = is_point_in_triangle(R_2_projection,{P_1_projection,Q_1_projection,R_1_projection})
-    if (P_test or Q_test or R_test) then
-        local test
-        if P_test then
-            test = "P"
+    local P_1_test = is_point_in_triangle(P_1_projection,{P_2_projection,Q_2_projection,R_2_projection})
+    local Q_1_test = is_point_in_triangle(Q_1_projection,{P_2_projection,Q_2_projection,R_2_projection})
+    local R_1_test = is_point_in_triangle(R_1_projection,{P_2_projection,Q_2_projection,R_2_projection})
+    local P_2_test = is_point_in_triangle(P_2_projection,{P_1_projection,Q_1_projection,R_1_projection})
+    local Q_2_test = is_point_in_triangle(Q_2_projection,{P_1_projection,Q_1_projection,R_1_projection})
+    local R_2_test = is_point_in_triangle(R_2_projection,{P_1_projection,Q_1_projection,R_1_projection})
+    
+    if (P_1_test or Q_1_test or R_1_test) then
+        if P_1_test then
+            test = "P_1"
         else
-            if Q_test then
-                test = "Q"
+            if Q_1_test then
+                test = "Q_1"
             else
-                test = "R"
+                test = "R_1"
             end
         end
         local normal_1 = cross_product(
@@ -131,7 +131,7 @@ function compare_triangles(triangle_1,triangle_2)
             normal_1 = scalar_multiplication(normal_1,-1)
         end
         local signed_distance_to_plane
-        if test == "P" then
+        if test == "P_1" then
             signed_distance_to_plane = norm(
                 addition(
                     P_2_projection
@@ -159,7 +159,7 @@ function compare_triangles(triangle_1,triangle_2)
                 return false
             end
         end
-        if test == "Q" then
+        if test == "Q_1" then
             signed_distance_to_plane = norm(
                 addition(
                     Q_2_projection
@@ -187,8 +187,8 @@ function compare_triangles(triangle_1,triangle_2)
                 return false
             end
         end
-        if test == "R" then
-            signed_distance_to_plane = pv_norm(
+        if test == "R_1" then
+            signed_distance_to_plane = norm(
                 addition(
                     R_2_projection
                     ,scalar_multiplication(
@@ -216,11 +216,122 @@ function compare_triangles(triangle_1,triangle_2)
             end
         end
     else
-        local midpoint_1 = midpoint({P_1,Q_1,R_1})
-        local midpoint_2 = midpoint({P_2,Q_2,R_2})
-        local dot_product_1 = dot_product(midpoint_1,observer)
-        local dot_product_2 = dot_product(midpoint_2,observer)
-        return dot_product_1 > dot_product_2
+        ---
+        if (P_2_test or Q_2_test or R_2_test) then
+            if P_2_test then
+                test = "P_2"
+            else
+                if Q_2_test then
+                    test = "Q_2"
+                else
+                    test = "R_2"
+                end
+            end
+            local normal_1 = cross_product(
+                addition(
+                    Q_1
+                    ,scalar_multiplication(P_1,-1)
+                )
+                ,addition(
+                    R_1
+                    ,scalar_multiplication(P_1,-1)
+                )
+            )
+            if dot_product(normal_1,observer) < 0 then
+                normal_1 = scalar_multiplication(normal_1,-1)
+            end
+            local signed_distance_to_plane
+            if test == "P_2" then
+                signed_distance_to_plane = norm(
+                    addition(
+                        P_1_projection
+                        ,scalar_multiplication(
+                            P_1,-1
+                        )
+                    )
+                )
+                if (
+                    dot_product(
+                        addition(
+                            P_1_projection
+                            ,scalar_multiplication(
+                                P_1,-1
+                            )
+                        )
+                        ,normal_1
+                    ) < 0
+                ) then 
+                    signed_distance_to_plane = -signed_distance_to_plane
+                end
+                if sign(signed_distance_to_plane) == "positive" then
+                    return true
+                else
+                    return false
+                end
+            end
+            if test == "Q_2" then
+                signed_distance_to_plane = norm(
+                    addition(
+                        Q_1_projection
+                        ,scalar_multiplication(
+                            Q_1,-1
+                        )
+                    )
+                )
+                if (
+                    dot_product(
+                        addition(
+                            Q_1_projection
+                            ,scalar_multiplication(
+                                Q_1,-1
+                            )
+                        )
+                        ,normal_1
+                    ) < 0
+                ) then 
+                    signed_distance_to_plane = -signed_distance_to_plane
+                end
+                if sign(signed_distance_to_plane) == "positive" then
+                    return true
+                else
+                    return false
+                end
+            end
+            if test == "R_2" then
+                signed_distance_to_plane = norm(
+                    addition(
+                        R_1_projection
+                        ,scalar_multiplication(
+                            R_1,-1
+                        )
+                    )
+                )
+                if (
+                    dot_product(
+                        addition(
+                            R_1_projection
+                            ,scalar_multiplication(
+                                R_1,-1
+                            )
+                        )
+                        ,normal_1
+                    ) < 0
+                ) then 
+                    signed_distance_to_plane = -signed_distance_to_plane
+                end
+                if sign(signed_distance_to_plane) == "positive" then
+                    return true
+                else
+                    return false
+                end
+            end
+        else
+            local midpoint_1 = midpoint({P_1,Q_1,R_1})
+            local midpoint_2 = midpoint({P_2,Q_2,R_2})
+            local dot_product_1 = dot_product(midpoint_1,observer)
+            local dot_product_2 = dot_product(midpoint_2,observer)
+            return dot_product_1 > dot_product_2
+        end
     end
 end
 
