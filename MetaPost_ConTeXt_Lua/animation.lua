@@ -1,26 +1,27 @@
-list_of_line_segments = {}
-for t = 0, 2*3.14159, 2*3.14159/100 do
-    table.insert(
-        list_of_line_segments
-        ,{
-            math.cos(t)
-            ,math.sin(t)
-        }
-    )
-end
+require("MetaPost_ConTeXt_Lua.linalg")
+
+
+local segs = {
+    {0,0}
+    ,{0,1}
+}
 
 function make_picture()
-context.startMPcode()
-    for seg = 1, #list_of_line_segments - 1, 1 do
-        context(string.format(
-            [[
-                draw (%f cm,%f cm) -- (%f cm,%f cm);
-            ]]
-            ,list_of_line_segments[seg][1]
-            ,list_of_line_segments[seg][2]
-            ,list_of_line_segments[seg+1][1]
-            ,list_of_line_segments[seg+1][2]
-        ))
+    for angle = 0, 2*la.pi, la.pi/18 do
+        local transformed_segs = la.mult(segs,la.rotate2D(angle))
+        context.startMPpage()
+        context("draw (-5 cm,-5 cm) -- (5 cm,-5 cm) -- (5 cm,5 cm) -- (-5 cm,5 cm);")
+        context(
+            string.format(
+                [[
+                    draw (%f cm,%f cm) -- (%f cm,%f cm);
+                ]]
+                ,transformed_segs[1][1]
+                ,transformed_segs[1][2]
+                ,transformed_segs[2][1]
+                ,transformed_segs[2][2]
+            )
+        )
+        context.stopMPpage()
     end
-context.stopMPcode()
 end

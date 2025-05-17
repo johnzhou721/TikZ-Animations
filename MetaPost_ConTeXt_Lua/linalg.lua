@@ -1,6 +1,6 @@
 -- File saved as linalg.lua
-local la = {}
-
+la = {}
+la.pi = 3.14159265
 --[[
     Matrix addition
 ]]
@@ -21,22 +21,6 @@ function la.add(A, B)
 end
 
 --[[
-    Matrix scalar multiplication
-]]
-function la.scale(a,A)
-    local rows_A = #A
-    local columns_A = #A[1]
-    local product = {}
-    for row = 1, rows_A, 1 do
-        product[row] = {}
-        for column = 1, columns_A, 1 do
-            product[row][column] = a * A[row][column]
-        end
-    end
-    return product
-end
-
---[[
     Matrix subtraction
 ]]
 function la.sub(A,B)
@@ -49,7 +33,7 @@ function la.sub(A,B)
     for row = 1, rows_A, 1 do
         sum[row] = {}
         for column = 1, columns_A, 1 do
-            sum[row][column] = A[row][column] + la.scale(-1,B[row][column])
+            sum[row][column] = A[row][column] - B[row][column]
         end
     end
     return sum
@@ -75,6 +59,17 @@ function la.mult(A,B)
         end
     end
     return product
+end
+
+function  la.transpose(A)
+
+end
+
+function la.rotate2D(angle)
+    return {
+        {math.cos(angle),math.sin(angle)}
+        ,{math.cos(angle+la.pi/2),math.sin(angle+la.pi/2)}
+    }
 end
 
 
