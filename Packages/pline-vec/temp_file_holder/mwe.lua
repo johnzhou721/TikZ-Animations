@@ -1,4 +1,4 @@
-function cross_product(u,v)
+function cross(u,v)
     local x = u[2]*v[3]-u[3]*v[2]
     local y = u[3]*v[1]-u[1]*v[3]
     local z = u[1]*v[2]-u[2]*v[1]
@@ -9,9 +9,9 @@ end
 function orthogonal_vector(u)
     local v
     if (u[1]~=0 and u[2]==0 and u[3]==0) then
-        v = cross_product(u,{0,1,0})
+        v = cross(u,{0,1,0})
     else
-        v = cross_product(u,{1,0,0})
+        v = cross(u,{1,0,0})
     end
     local result = v
     return result
@@ -56,23 +56,23 @@ function get_observer_plane_basis(observer)
     local origin = {0,0,0}
     local basis_i = orthogonal_vector(observer)
     basis_i = normalize(basis_i)
-    local basis_j = cross_product(observer,basis_i)
+    local basis_j = cross(observer,basis_i)
     basis_j = normalize(basis_j)
     return {origin,basis_i,basis_j}
 end
 
-function orthogonal_vector_projection(base_vector,projected_vector)
+function proj(base_vector,projected_vector)
     local scale = (
-        dot_product(base_vector,projected_vector) / 
-        dot_product(base_vector,base_vector)
+        dot(base_vector,projected_vector) / 
+        dot(base_vector,base_vector)
     )
     return {base_vector[1]*scale,base_vector[2]*scale,base_vector[3]*scale}
 end
 
 function project_point_onto_basis(point,basis)
-    local normal = cross_product(basis[2],basis[3])
+    local normal = cross(basis[2],basis[3])
     normal = normalize(normal)
-    local vector_from_plane = orthogonal_vector_projection(normal,point)
+    local vector_from_plane = proj(normal,point)
     local result = {
         point[1]-vector_from_plane[1]
         ,point[2]-vector_from_plane[2]
@@ -83,15 +83,15 @@ end
 
 function is_point_in_triangle(point,triangle)
     local P,Q,R = table.unpack(triangle)
-    local cross_PQ = cross_product(
+    local cross_PQ = cross(
         addition(Q,scalar_multiplication(P,-1))
         ,addition(point,scalar_multiplication(P,-1))
     )
-    local cross_QR = cross_product(
+    local cross_QR = cross(
         addition(R,scalar_multiplication(Q,-1))
         ,addition(point,scalar_multiplication(Q,-1))
     )
-    local cross_RP = cross_product(
+    local cross_RP = cross(
         addition(P,scalar_multiplication(R,-1))
         ,addition(point,scalar_multiplication(R,-1))
     )
@@ -417,7 +417,7 @@ function compare_triangles(triangle_1,triangle_2)
     local bounding_box_1 = get_bounding_box(triangle_1)
     local bounding_box_2 = get_bounding_box(triangle_2)
     if check_bounding_box_overlap(bounding_box_1,bounding_box_2) then 
-        local normal1 = cross_product(
+        local normal1 = cross(
             addition(
                 Q_1
                 ,scalar_multiplication(P_1,-1)
@@ -427,7 +427,7 @@ function compare_triangles(triangle_1,triangle_2)
                 ,scalar_multiplication(P_1,-1)
             )
         )
-        local normal2 = cross_product(
+        local normal2 = cross(
             addition(
                 Q_2
                 ,scalar_multiplication(P_2,-1)
@@ -437,7 +437,7 @@ function compare_triangles(triangle_1,triangle_2)
                 ,scalar_multiplication(P_2,-1)
             )
         )
-        direction_vector_of_intersection_line = cross_product(normal1,normal2)
+        direction_vector_of_intersection_line = cross(normal1,normal2)
         --point_on_intersection_line = 
 
     end
@@ -452,7 +452,7 @@ function compare_triangles(triangle_1,triangle_2)
                 test = "R_1"
             end
         end
-        local normal_1 = cross_product(
+        local normal_1 = cross(
             addition(
                 Q_1
                 ,scalar_multiplication(P_1,-1)
@@ -462,7 +462,7 @@ function compare_triangles(triangle_1,triangle_2)
                 ,scalar_multiplication(P_1,-1)
             )
         )
-        if dot_product(normal_1,observer) < 0 then
+        if dot(normal_1,observer) < 0 then
             normal_1 = scalar_multiplication(normal_1,-1)
         end
         local signed_distance_to_plane
@@ -476,7 +476,7 @@ function compare_triangles(triangle_1,triangle_2)
                 )
             )
             if (
-                dot_product(
+                dot(
                     addition(
                         P_2_projection
                         ,scalar_multiplication(
@@ -504,7 +504,7 @@ function compare_triangles(triangle_1,triangle_2)
                 )
             )
             if (
-                dot_product(
+                dot(
                     addition(
                         Q_2_projection
                         ,scalar_multiplication(
@@ -532,7 +532,7 @@ function compare_triangles(triangle_1,triangle_2)
                 )
             )
             if (
-                dot_product(
+                dot(
                     addition(
                         R_2_projection
                         ,scalar_multiplication(
@@ -562,7 +562,7 @@ function compare_triangles(triangle_1,triangle_2)
                     test = "R_2"
                 end
             end
-            local normal_1 = cross_product(
+            local normal_1 = cross(
                 addition(
                     Q_1
                     ,scalar_multiplication(P_1,-1)
@@ -572,7 +572,7 @@ function compare_triangles(triangle_1,triangle_2)
                     ,scalar_multiplication(P_1,-1)
                 )
             )
-            if dot_product(normal_1,observer) < 0 then
+            if dot(normal_1,observer) < 0 then
                 normal_1 = scalar_multiplication(normal_1,-1)
             end
             local signed_distance_to_plane
@@ -586,7 +586,7 @@ function compare_triangles(triangle_1,triangle_2)
                     )
                 )
                 if (
-                    dot_product(
+                    dot(
                         addition(
                             P_1_projection
                             ,scalar_multiplication(
@@ -614,7 +614,7 @@ function compare_triangles(triangle_1,triangle_2)
                     )
                 )
                 if (
-                    dot_product(
+                    dot(
                         addition(
                             Q_1_projection
                             ,scalar_multiplication(
@@ -642,7 +642,7 @@ function compare_triangles(triangle_1,triangle_2)
                     )
                 )
                 if (
-                    dot_product(
+                    dot(
                         addition(
                             R_1_projection
                             ,scalar_multiplication(
@@ -663,9 +663,9 @@ function compare_triangles(triangle_1,triangle_2)
         else
             local midpoint_1 = midpoint({P_1,Q_1,R_1})
             local midpoint_2 = midpoint({P_2,Q_2,R_2})
-            local dot_product_1 = dot_product(midpoint_1,observer)
-            local dot_product_2 = dot_product(midpoint_2,observer)
-            return dot_product_1 > dot_product_2
+            local dot_1 = dot(midpoint_1,observer)
+            local dot_2 = dot(midpoint_2,observer)
+            return dot_1 > dot_2
         end
     end
 end
@@ -705,7 +705,7 @@ function midpoint(triangle)
     return {x,y,z}
 end
 
-function dot_product(u,v)
+function dot(u,v)
     local result = u[1]*v[1] + u[2]*v[2] + u[3]*v[3]
     return result
 end
