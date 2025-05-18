@@ -136,13 +136,49 @@ end
 
 function la.scale3D(scale)
     return {
-        {1,0,0,0}
-        ,{0,1,0,0}
-        ,{0,0,1,0}
-        ,{0,0,0,1/scale}
+        {scale,0,0,0}
+        ,{0,scale,0,0}
+        ,{0,0,scale,0}
+        ,{0,0,0,1}
     }
 end
 
+function la.xrotation3D(angle)
+    return {
+        {1,0,0,0}
+        ,{0,math.cos(angle),math.sin(angle),0}
+        ,{0,-math.sin(angle),math.cos(angle),0}
+        ,{0,0,0,1}
+    }
+end
+
+function la.yrotation3D(angle)
+    return {
+        {math.cos(angle),0,-math.sin(angle),0}
+        ,{0,1,0,0}
+        ,{math.sin(angle),0,math.cos(angle),0}
+        ,{0,0,0,1}
+    }
+end
+
+function la.zrotation3D(angle)
+    return {
+        {math.cos(angle),math.sin(angle),0,0}
+        ,{-math.sin(angle),math.cos(angle),0,0}
+        ,{0,0,1,0}
+        ,{0,0,0,1}
+    }
+end
+
+function ZYZrotation3D(alpha,beta,gamma)
+    return la.mult(
+        la.mult(
+            la.zrotation3D(alpha)
+            ,la.yrotation3D(beta)
+        )
+        ,la.zrotation3D(gamma)
+    )
+end
 
 
 return la -- ends file
