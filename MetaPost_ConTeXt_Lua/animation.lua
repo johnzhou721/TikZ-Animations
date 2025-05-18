@@ -2,13 +2,19 @@ require("MetaPost_ConTeXt_Lua.linalg")
 
 
 local segs = {
-    {0,0}
-    ,{0,1}
+    {0,0,1}
+    ,{0,1,1}
 }
 
 function make_picture()
     for angle = 0, 2*la.pi, la.pi/18 do
-        local transformed_segs = la.mult(segs,la.rotate2D(angle))
+        local transformed_segs = la.mult(
+            segs
+            ,la.mult(
+                la.rotate2D(angle)
+                ,la.translate2D(2,4)
+            )
+        )
         context.startMPpage()
         context("draw (-5 cm,-5 cm) -- (5 cm,-5 cm) -- (5 cm,5 cm) -- (-5 cm,5 cm);")
         context(

@@ -78,12 +78,22 @@ function  la.transpose(A)
 end
 
 --[[
-    2D counterclockwise rotation about origin
+    2D counterclockwise rotation about origin.
+    It is a 3x3 matrix because it uses homogeneous coordinates.
 ]]
 function la.rotate2D(angle)
     return {
-        {math.cos(angle),math.sin(angle)}
-        ,{math.cos(angle+la.pi/2),math.sin(angle+la.pi/2)}
+        {math.cos(angle),math.sin(angle),0}
+        ,{math.cos(angle+la.pi/2),math.sin(angle+la.pi/2),0}
+        ,{0,0,1}
+    }
+end
+
+function la.translate2D(x,y)
+    return {
+        {1,0,0}
+        ,{0,1,0}
+        ,{x,y,1}
     }
 end
 
