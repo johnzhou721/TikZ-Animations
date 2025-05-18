@@ -170,7 +170,10 @@ function la.zrotation3D(angle)
     }
 end
 
-function ZYZrotation3D(alpha,beta,gamma)
+--[[
+    ZYZ Euler angle rotation matrix
+]]
+function la.ZYZrotation3D(alpha,beta,gamma)
     return la.mult(
         la.mult(
             la.zrotation3D(alpha)
@@ -180,5 +183,13 @@ function ZYZrotation3D(alpha,beta,gamma)
     )
 end
 
+function la.sphere(longitude,latitude)
+    return {
+        math.cos(latitude) * math.cos(longitude)
+        ,math.cos(latitude) * math.sin(longitude)
+        ,math.sin(latitude)
+        ,1
+    }
+end
 
 return la -- ends file

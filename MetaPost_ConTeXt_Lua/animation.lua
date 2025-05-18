@@ -1,34 +1,35 @@
 require("MetaPost_ConTeXt_Lua.linalg")
 
+local segments = {}
 
-
-local segs = {
-    {0,0,1}
-    ,{0,1,1}
-}
+for longitude = 0, 2*la.pi, la.pi/18 do
+    for latitude = 0, 2*la.pi, la.pi/18 do
+        table.insert(segments,la.sphere(longitude,latitude))
+    end
+end
 
 function make_picture()
-    for angle = 0, 2*la.pi, la.pi/18 do
-        local transformed_segs = la.mult(
-            segs
-            ,la.mult(
-                la.rotate2D(angle)
-                ,la.translate2D(3,4)
-            )
-        )
+    local alpha = 30
+    local beta = 30
+    local gamma
+    local transformed_segs
+    for gamma = 0, 2*la.pi, la.pi/18 do
+        transformed_segs = la.mult(segments,la.ZYZrotation3D(alpha,beta,gamma))
         context.startMPpage()
         context("draw (-5 cm,-5 cm) -- (5 cm,-5 cm) -- (5 cm,5 cm) -- (-5 cm,5 cm);")
-        context(
-            string.format(
-                [[
-                    draw (%f cm,%f cm) -- (%f cm,%f cm);
-                ]]
-                ,transformed_segs[1][1]
-                ,transformed_segs[1][2]
-                ,transformed_segs[2][1]
-                ,transformed_segs[2][2]
+        for segment = 1, #transformed_segs - 1, 1 do
+            context(
+                string.format(
+                    [[
+                        draw (%f cm,%f cm) -- (%f cm,%f cm);
+                    ]]
+                    ,transformed_segs[segment][1]
+                    ,transformed_segs[segment][2]
+                    ,transformed_segs[segment+1][1]
+                    ,transformed_segs[segment+1][2]
+                )
             )
-        )
+        end
         context.stopMPpage()
     end
 end
