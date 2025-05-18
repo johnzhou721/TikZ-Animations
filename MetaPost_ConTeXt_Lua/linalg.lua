@@ -1,6 +1,6 @@
 -- File saved as linalg.lua
 la = {}
-la.pi = 3.14159265
+la.pi = 3.14159265358979
 --[[
     Matrix addition
 ]]
@@ -89,6 +89,10 @@ function la.rotate2D(angle)
     }
 end
 
+
+--[[
+    Homogeneous matrix for 2D translation
+]]
 function la.translate2D(x,y)
     return {
         {1,0,0}
