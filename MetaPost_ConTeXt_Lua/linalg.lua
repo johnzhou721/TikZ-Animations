@@ -1,6 +1,18 @@
 -- File saved as linalg.lua
 la = {}
 la.pi = 3.14159265358979
+
+
+
+--[[]]
+function la.point_unique(point)
+    local result = {}
+    for component = 1, #point, 1 do
+        result[component] = point[component]/point[#point]
+    end
+    return result
+end
+
 --[[
     Matrix addition
 ]]
@@ -102,6 +114,18 @@ function la.translate2D(x,y)
 end
 
 
+--[[
+    Three dimensional translation
+]]
+function la.translate3D(x,y,z)
+    return {
+        {1,0,0,0}
+        ,{0,1,0,0}
+        ,{0,0,1,0}
+        ,{x,y,z,1}
+    }
+end
+
 
 --[[
     Three dimensional scaling.
@@ -139,6 +163,15 @@ function la.scale3D(scale)
         {scale,0,0,0}
         ,{0,scale,0,0}
         ,{0,0,scale,0}
+        ,{0,0,0,1}
+    }
+end
+
+function la.XYZscale3D(xscale,yscale,zscale)
+    return {
+        {xscale,0,0,0}
+        ,{0,yscale,0,0}
+        ,{0,0,zscale,0}
         ,{0,0,0,1}
     }
 end

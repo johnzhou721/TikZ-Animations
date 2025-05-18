@@ -14,6 +14,8 @@ for longitude = 0, 2*la.pi, la.pi/4 do
 end
 
 
+
+
 function make_picture()
     local alpha = la.pi/6
     local beta = la.pi/6
