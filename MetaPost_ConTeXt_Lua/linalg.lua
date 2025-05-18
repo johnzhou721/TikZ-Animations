@@ -175,11 +175,11 @@ end
 ]]
 function la.ZYZrotation3D(alpha,beta,gamma)
     return la.mult(
-        la.mult(
-            la.zrotation3D(alpha)
-            ,la.yrotation3D(beta)
+        la.zrotation3D(gamma)
+        ,la.mult(
+            la.yrotation3D(alpha)
+            ,la.zrotation3D(beta)
         )
-        ,la.zrotation3D(gamma)
     )
 end
 

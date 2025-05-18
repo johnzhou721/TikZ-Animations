@@ -9,8 +9,8 @@ for longitude = 0, 2*la.pi, la.pi/18 do
 end
 
 function make_picture()
-    local alpha = 30
-    local beta = 30
+    local alpha = la.pi/6
+    local beta = la.pi/6
     local gamma
     local transformed_segs
     for gamma = 0, 2*la.pi, la.pi/18 do
