@@ -103,4 +103,46 @@ end
 
 
 
+--[[
+    Three dimensional scaling.
+]]
+
+function la.xscale3D(scale)
+    return {
+        {scale,0,0,0}
+        ,{0,1,0,0}
+        ,{0,0,1,0}
+        ,{0,0,0,1}
+    }
+end
+
+function la.yscale3D(scale)
+    return {
+        {1,0,0,0}
+        ,{0,scale,0,0}
+        ,{0,0,1,0}
+        ,{0,0,0,1}
+    }
+end
+
+function la.zscale3D(scale)
+    return {
+        {1,0,0,0}
+        ,{0,1,0,0}
+        ,{0,0,scale,0}
+        ,{0,0,0,1}
+    }
+end
+
+function la.scale3D(scale)
+    return {
+        {1,0,0,0}
+        ,{0,1,0,0}
+        ,{0,0,1,0}
+        ,{0,0,0,1/scale}
+    }
+end
+
+
+
 return la -- ends file

@@ -13,7 +13,7 @@ function make_picture()
             segs
             ,la.mult(
                 la.rotate2D(angle)
-                ,la.translate2D(2,4)
+                ,la.translate2D(3,4)
             )
         )
         context.startMPpage()
