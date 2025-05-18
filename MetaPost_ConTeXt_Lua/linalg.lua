@@ -61,10 +61,25 @@ function la.mult(A,B)
     return product
 end
 
+--[[
+    Matrix transpose
+]]
 function  la.transpose(A)
-
+    local rows_A = #A
+    local columns_A = #A[1]
+    local result = {}
+    for row = 1, columns_A, 1 do
+        result[row] = {}
+        for column = 1, rows_A, 1 do
+            result[row][column] = A[column][row]
+        end
+    end
+    return result
 end
 
+--[[
+    2D counterclockwise rotation about origin
+]]
 function la.rotate2D(angle)
     return {
         {math.cos(angle),math.sin(angle)}

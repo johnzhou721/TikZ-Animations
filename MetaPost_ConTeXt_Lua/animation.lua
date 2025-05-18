@@ -25,3 +25,10 @@ function make_picture()
         context.stopMPpage()
     end
 end
+
+interfaces.implement {
+        name = "mymacro",
+        public = true,
+        arguments = { },
+        actions = make_picture,
+}
