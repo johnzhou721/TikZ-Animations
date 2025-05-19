@@ -89,6 +89,54 @@ function  la.transpose(A)
     return result
 end
 
+--[[ 
+    Inverse matrix
+]]
+function la.inverse(matrix)
+    rows = #matrix
+    columns = #matrix[1]
+    assert(rows == columns, "You can only take the inverse of a square matrix.")
+
+end
+
+
+--[[ 
+    Determinant
+]]
+function la.det(matrix)
+    local rows = #matrix
+    local columns = #matrix[1]
+    assert(rows > 0, "Matrix must have at least one row to take determinant.")
+    assert(columns > 0, "Matrix must have at least one column to take determinant.")
+    assert(rows == columns, "You can only take the determinant of a square matrix.")
+    if rows == 1 then
+        return matrix[1][1]
+    elseif rows == 2 then
+        -- return a*d - b*c
+        return matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]
+    end
+    -- We will do a cofactor expansion on the first row.
+    local det = 0
+    local minor
+    local new_row
+    for element = 1, columns, 1 do
+        minor = {}
+        for row = 2, rows, 1 do
+            if row ~= 1 then
+                new_row = {}
+            end
+            for column = 1, columns, 1 do
+                if column ~= element then
+                    table.insert(new_row, matrix[row][column])
+                end
+            end
+            table.insert(minor,new_row)
+        end
+        det = det + matrix[1][element] * (-1)^(element+1) * la.det(minor)
+    end
+    return det
+end
+
 --[[
     2D counterclockwise rotation about origin.
     It is a 3x3 matrix because it uses homogeneous coordinates.
