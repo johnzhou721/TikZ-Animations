@@ -96,6 +96,7 @@ function la.inverse(matrix)
     rows = #matrix
     columns = #matrix[1]
     assert(rows == columns, "You can only take the inverse of a square matrix.")
+    assert(la.det(matrix)>0.00001, "You cannot take the inverse of a singular matrix")
 
 end
 
@@ -122,9 +123,7 @@ function la.det(matrix)
     for element = 1, columns, 1 do
         minor = {}
         for row = 2, rows, 1 do
-            if row ~= 1 then
-                new_row = {}
-            end
+            new_row = {}
             for column = 1, columns, 1 do
                 if column ~= element then
                     table.insert(new_row, matrix[row][column])
