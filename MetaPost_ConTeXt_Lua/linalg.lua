@@ -3,6 +3,46 @@ la = {}
 la.pi = 3.14159265358979
 
 
+--[[
+    Inner product
+]]
+function la.inner(v1,v2)
+    assert(#v1 == #v2, "Inner product works only on same size vectors.")
+    local a = {}
+    for component = 1, #v1 - 1, 1 do
+        table.insert(a,v1[component])
+    end
+    local b = {}
+    for component = 1, #v2 - 1, 1 do
+        table.insert(b,v2[component])
+    end
+    local result = 0
+    for component_pos = 1, #a, 1 do
+        result = result + a[component_pos]*b[component_pos]
+    end
+    return result
+end
+
+--[[
+    Cross product in \(\mathbb{R}^{3}\)
+    Will make n-dimensional at some point, I think.
+]]
+function la.cross(vectors)
+    assert(#vectors == 2, "Cross product in R3 takes two vectors.")
+    local v1 = {}
+    for component = 1, #vectors[1] - 1, 1 do
+        table.insert(v1,vectors[1][component])
+    end
+    local v2 = {}
+    for component = 1, #vectors[2] - 1, 1 do
+        table.insert(v2,vectors[2][component])
+    end
+    return {
+        v1[2]*v2[3] - v1[3]*v2[2]
+        ,v1[3]*v2[1] - v1[1]*v2[3]
+        ,v1[1]*v2[2] - v1[2]*v2[1]
+    }
+end
 
 --[[]]
 function la.point_unique(point)
