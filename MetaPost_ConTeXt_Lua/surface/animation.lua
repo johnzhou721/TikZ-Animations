@@ -2,6 +2,11 @@ require("MetaPost_ConTeXt_Lua.linalg")
 require("MetaPost_ConTeXt_Lua.BSPtree")
 
 
+function split_triangle_by_plane(tri,normal,d)
+    
+end
+
+
 -- generate triangles
 triangles = {}
 for longitude = 0, 2*la.pi, la.pi/4 do
@@ -16,14 +21,30 @@ for longitude = 0, 2*la.pi, la.pi/4 do
     end
 end
 
-for triangle_set_pos = 1, #triangles, 1 do
-    v1 = la.sub(triangles[triangle_set_pos][2],triangles[triangle_set_pos][1])
-    v2 = la.sub(triangles[triangle_set_pos][3],triangles[triangle_set_pos][1])
-    normal = la.cross(v1,v2)
-    d = la.inner(normal,triangles[triangle_set_pos][1])
+for triangle_pos = 1, #triangles, 1 do
+    A,B,C = table.unpack(triangles[triangle_pos])
+    A = table.remove(A,4)
+    B = table.remove(B,4)
+    C = table.remove(C,4)
+    AB = la.sub(B,A)
+    AC = la.sub(C,A)
+    normal = la.cross(AB,AC)
+    d = la.inner(normal,A)
+    for second_triangle_pos = 1, #triangles, 1 do
+        if second_triangle_pos ~= triangle_pos then
+            D,E,F = table.unpack(triangles[second_triangle_pos])
+            D = table.remove(D,4)
+            E = table.remove(E,4)
+            F = table.remove(F,4)
+            D_test = la.inner(la.sub(D,A),normal)
+            E_test = la.inner(la.sub(E,A),normal)
+            F_test = la.inner(la.sub(F,A),normal)
+            if ((not (D_test>0 and E_test>0 and F_test>0)) and (not (D_test<0 and E_test<0 and F_test<0))) then
+
+            end
+        end
+    end
 end
-
-
 
 
 
