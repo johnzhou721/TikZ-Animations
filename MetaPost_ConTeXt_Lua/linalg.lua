@@ -9,8 +9,8 @@ la.pi = 3.14159265358979
 function la.inner(v1,v2)
     assert(#v1 == #v2, "Inner product works only on same size vectors.")
     local result = 0
-    for component_pos = 1, #a, 1 do
-        result = result + a[component_pos]*b[component_pos]
+    for component_pos = 1, #v1[1], 1 do
+        result = result + v1[1][component_pos]*v2[1][component_pos]
     end
     return result
 end
@@ -20,11 +20,12 @@ end
     Will make n-dimensional at some point, I think.
 ]]
 function la.cross(v1,v2)
-    return {
-        v1[2]*v2[3] - v1[3]*v2[2]
-        ,v1[3]*v2[1] - v1[1]*v2[3]
-        ,v1[1]*v2[2] - v1[2]*v2[1]
-    }
+    return {{
+        v1[1][2]*v2[1][3] - v1[1][3]*v2[1][2]
+        ,v1[1][3]*v2[1][1] - v1[1][1]*v2[1][3]
+        ,v1[1][1]*v2[1][2] - v1[1][2]*v2[1][1]
+        ,1
+    }}
 end
 
 --[[]]
@@ -113,15 +114,74 @@ function  la.transpose(A)
 end
 
 --[[ 
-    Inverse matrix
+    Inverse matrix (using Gauss-Jordan elimination, row‐vector convention)
 ]]
 function la.inverse(matrix)
-    rows = #matrix
-    columns = #matrix[1]
+    local rows = #matrix
+    local columns = #matrix[1]
     assert(rows == columns, "You can only take the inverse of a square matrix.")
-    assert(la.det(matrix)>0.00001, "You cannot take the inverse of a singular matrix")
+    local det = la.det(matrix)
+    assert(math.abs(det) > 0.00001, "You cannot take the inverse of a singular matrix.")
 
+    local n = rows
+    -- Build an augmented matrix [A | I]
+    local augment = {}
+    for i = 1, n do
+        augment[i] = {}
+        -- copy row i of A
+        for j = 1, n do
+            augment[i][j] = matrix[i][j]
+        end
+        -- append row i of I
+        for j = 1, n do
+            augment[i][n + j] = (i == j) and 1 or 0
+        end
+    end
+
+    -- Gauss-Jordan elimination
+    for i = 1, n do
+        -- If pivot is zero (or very close), swap with a lower row that has a nonzero pivot
+        if math.abs(augment[i][i]) < 1e-12 then
+            local swapRow = nil
+            for r = i + 1, n do
+                if math.abs(augment[r][i]) > 1e-12 then
+                    swapRow = r
+                    break
+                end
+            end
+            assert(swapRow, "Matrix is singular (zero pivot encountered).")
+            augment[i], augment[swapRow] = augment[swapRow], augment[i]
+        end
+
+        -- Normalize row i so that augment[i][i] == 1
+        local pivot = augment[i][i]
+        for col = 1, 2 * n do
+            augment[i][col] = augment[i][col] / pivot
+        end
+
+        -- Eliminate column i in all other rows
+        for r = 1, n do
+            if r ~= i then
+                local factor = augment[r][i]
+                for col = 1, 2 * n do
+                    augment[r][col] = augment[r][col] - factor * augment[i][col]
+                end
+            end
+        end
+    end
+
+    -- Extract the inverse matrix from the augmented result
+    local inv = {}
+    for i = 1, n do
+        inv[i] = {}
+        for j = 1, n do
+            inv[i][j] = augment[i][n + j]
+        end
+    end
+
+    return inv
 end
+
 
 
 --[[ 
@@ -287,12 +347,12 @@ function la.ZYZrotation3D(alpha,beta,gamma)
 end
 
 function la.sphere(longitude,latitude)
-    return {
+    return {{
         math.cos(latitude) * math.cos(longitude)
         ,math.cos(latitude) * math.sin(longitude)
         ,math.sin(latitude)
         ,1
-    }
+    }}
 end
 
 return la -- ends file
