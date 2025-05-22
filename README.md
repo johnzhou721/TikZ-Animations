@@ -1,14 +1,9 @@
 Welcome to Ti*k*Z-Animations
 
-Here I post some of my animated math diagrams from tikz.
+This is a hobby project of mine where I post LaTeX-based animations.
 
-I have also been working on a custom package, though it needs to wait 
-until I implement a BSB tree in Lua, which will simplify everything.
+My goal is to make a 3D rendering package for tikz.
 
-I also plan to add MetaPost animations, along with relevant Lua 
-software for matrix transformations.
-
-Initially this was MIT-0, because I don't really care if people use it 
-to better themselves. In fact, I would encourage that. However,
-I also would like to have credit for my work where it is used.
-So I decided to switch to MIT.
+To achieve this goal, I will need to finish my BSP algorithm,
+which is subtantially underway. Once that is done,
+then any surface can be graphed with ease - even if they intersect.
