@@ -389,3 +389,4 @@ function pv_difference(u,v)
     local result = {x,y,z}
     return result
 end
+cos,sin = math.cos,math.sin

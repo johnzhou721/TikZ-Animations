@@ -232,8 +232,8 @@ function pv_render_segments()
     table.sort(segments, compare_triangles)
     for _, seg in ipairs(segments) do
     local n = #seg; local P, Q, R, c, o = seg[1], seg[2], seg[3], seg[4], seg[5]
-
-    tex.print('\\draw[line join=round,preaction={fill=yellow}]')
+    tex.print(string.format('\\SetColor{%d}', math.floor(100*c)))
+    tex.print('\\draw[line join=round,preaction={fill=MyColor}]')
     tex.print(string.format('(%f,%f,%f)--(%f,%f,%f)--(%f,%f,%f)--cycle;',
     P[1],P[2],P[3],Q[1],Q[2],Q[3],R[1],R[2],R[3]
     ))
