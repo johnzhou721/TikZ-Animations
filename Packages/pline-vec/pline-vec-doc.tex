@@ -87,7 +87,7 @@ serves as a test of my functions.
     {3*math.sin(u) + 1.5*pv_sphere_y(u,3*u)}
     {1.5*pv_sphere_z(u,3*u)}
     \pvappendsurface[
-        u min = 0
+        u min = pi/2
         ,u max = 2*pi
         ,u samples = 36
         ,v min = 0
@@ -96,6 +96,16 @@ serves as a test of my functions.
     ]{3*math.cos(u) + pv_sphere_x(u,v)}
     {3*math.sin(u) + pv_sphere_y(u,v)}
     {pv_sphere_z(u,v)}
+    \pvappendsurface[
+        u min = 0
+        ,u max = 2*pi
+        ,u samples = 36
+        ,v min = 0
+        ,v max = 2*pi
+        ,v samples = 9
+    ]{3*math.cos(u) + 0.3*pv_sphere_x(u,v)}
+    {3*math.sin(u) + 0.3*pv_sphere_y(u,v)}
+    {0.3*pv_sphere_z(u,v)}
     \pvrendersegments
     \draw[->] (0,0) -- (1,0,0) node[pos = 1.2]{\(x\)};
     \draw[->] (0,0) -- (0,1,0) node[pos = 1.2]{\(y\)};
