@@ -127,12 +127,12 @@ function pv_norm_tex(u)
 end
 
 function pv_ZYZ_rotation_matrix(angles,vector)
-    local c1 = math.cosd(angles[1])
-    local c2 = math.cosd(angles[2])
-    local c3 = math.cosd(angles[3])
-    local s1 = math.sind(angles[1])
-    local s2 = math.sind(angles[2])
-    local s3 = math.sind(angles[3])
+    local c1 = math.cos(angles[1])
+    local c2 = math.cos(angles[2])
+    local c3 = math.cos(angles[3])
+    local s1 = math.sin(angles[1])
+    local s2 = math.sin(angles[2])
+    local s3 = math.sin(angles[3])
     local x = (
         (c1*c2*c3-s1*s3)*vector[1] +
         (-c1*c2*s3-s1*c3)*vector[2] +
@@ -153,12 +153,12 @@ function pv_ZYZ_rotation_matrix(angles,vector)
 end
 
 function pv_ZYZ_rotation_matrix_inverse(angles, vector)
-    local c1 = math.cosd(angles[1])
-    local c2 = math.cosd(angles[2])
-    local c3 = math.cosd(angles[3])
-    local s1 = math.sind(angles[1])
-    local s2 = math.sind(angles[2])
-    local s3 = math.sind(angles[3])
+    local c1 = math.cos(angles[1])
+    local c2 = math.cos(angles[2])
+    local c3 = math.cos(angles[3])
+    local s1 = math.sin(angles[1])
+    local s2 = math.sin(angles[2])
+    local s3 = math.sin(angles[3])
     
     -- Using the fact that inverse = transpose for an orthonormal matrix:
     local x = ( (c1*c2*c3 - s1*s3)       * vector[1] +
@@ -177,12 +177,12 @@ function pv_ZYZ_rotation_matrix_inverse(angles, vector)
 end
 
 function pv_ZYZ_rotation_matrix_x(angles,vector)
-    local c1 = math.cosd(angles[1])
-    local c2 = math.cosd(angles[2])
-    local c3 = math.cosd(angles[3])
-    local s1 = math.sind(angles[1])
-    local s2 = math.sind(angles[2])
-    local s3 = math.sind(angles[3])
+    local c1 = math.cos(angles[1])
+    local c2 = math.cos(angles[2])
+    local c3 = math.cos(angles[3])
+    local s1 = math.sin(angles[1])
+    local s2 = math.sin(angles[2])
+    local s3 = math.sin(angles[3])
     local x = (
         (c1*c2*c3-s1*s3)*vector[1] +
         (-c1*c2*s3-s1*c3)*vector[2] +
@@ -193,12 +193,12 @@ function pv_ZYZ_rotation_matrix_x(angles,vector)
 end
 
 function pv_ZYZ_rotation_matrix_y(angles,vector)
-    local c1 = math.cosd(angles[1])
-    local c2 = math.cosd(angles[2])
-    local c3 = math.cosd(angles[3])
-    local s1 = math.sind(angles[1])
-    local s2 = math.sind(angles[2])
-    local s3 = math.sind(angles[3])
+    local c1 = math.cos(angles[1])
+    local c2 = math.cos(angles[2])
+    local c3 = math.cos(angles[3])
+    local s1 = math.sin(angles[1])
+    local s2 = math.sin(angles[2])
+    local s3 = math.sin(angles[3])
     local y = (
         (s1*c2*c3+c1*s3)*vector[1] +
         (-s1*c2*s3+c1*c3)*vector[2] +
@@ -209,12 +209,12 @@ function pv_ZYZ_rotation_matrix_y(angles,vector)
 end
 
 function pv_ZYZ_rotation_matrix_z(angles,vector)
-    local c1 = math.cosd(angles[1])
-    local c2 = math.cosd(angles[2])
-    local c3 = math.cosd(angles[3])
-    local s1 = math.sind(angles[1])
-    local s2 = math.sind(angles[2])
-    local s3 = math.sind(angles[3])
+    local c1 = math.cos(angles[1])
+    local c2 = math.cos(angles[2])
+    local c3 = math.cos(angles[3])
+    local s1 = math.sin(angles[1])
+    local s2 = math.sin(angles[2])
+    local s3 = math.sin(angles[3])
     local z = (
         -s2*c3*vector[1] +
         s2*s3*vector[2] +
@@ -225,12 +225,12 @@ function pv_ZYZ_rotation_matrix_z(angles,vector)
 end
 
 function pv_ZYZ_rotation_matrix_x_tex(angles,vector)
-    local c1 = math.cosd(angles[1])
-    local c2 = math.cosd(angles[2])
-    local c3 = math.cosd(angles[3])
-    local s1 = math.sind(angles[1])
-    local s2 = math.sind(angles[2])
-    local s3 = math.sind(angles[3])
+    local c1 = math.cos(angles[1])
+    local c2 = math.cos(angles[2])
+    local c3 = math.cos(angles[3])
+    local s1 = math.sin(angles[1])
+    local s2 = math.sin(angles[2])
+    local s3 = math.sin(angles[3])
     local x = (
         (c1*c2*c3-s1*s3)*vector[1] +
         (-c1*c2*s3-s1*c3)*vector[2] +
@@ -245,12 +245,12 @@ function pv_ZYZ_rotation_matrix_x_tex(angles,vector)
 end
 
 function pv_ZYZ_rotation_matrix_y_tex(angles,vector)
-    local c1 = math.cosd(angles[1])
-    local c2 = math.cosd(angles[2])
-    local c3 = math.cosd(angles[3])
-    local s1 = math.sind(angles[1])
-    local s2 = math.sind(angles[2])
-    local s3 = math.sind(angles[3])
+    local c1 = math.cos(angles[1])
+    local c2 = math.cos(angles[2])
+    local c3 = math.cos(angles[3])
+    local s1 = math.sin(angles[1])
+    local s2 = math.sin(angles[2])
+    local s3 = math.sin(angles[3])
     local y = (
         (s1*c2*c3+c1*s3)*vector[1] +
         (-s1*c2*s3+c1*c3)*vector[2] +
@@ -265,12 +265,12 @@ function pv_ZYZ_rotation_matrix_y_tex(angles,vector)
 end
 
 function pv_ZYZ_rotation_matrix_z_tex(angles,vector)
-    local c1 = math.cosd(angles[1])
-    local c2 = math.cosd(angles[2])
-    local c3 = math.cosd(angles[3])
-    local s1 = math.sind(angles[1])
-    local s2 = math.sind(angles[2])
-    local s3 = math.sind(angles[3])
+    local c1 = math.cos(angles[1])
+    local c2 = math.cos(angles[2])
+    local c3 = math.cos(angles[3])
+    local s1 = math.sin(angles[1])
+    local s2 = math.sin(angles[2])
+    local s3 = math.sin(angles[3])
     local z = (
         -s2*c3*vector[1] +
         s2*s3*vector[2] +
@@ -285,30 +285,30 @@ function pv_ZYZ_rotation_matrix_z_tex(angles,vector)
 end
 
 function pv_sphere(longitude,latitude)
-    local x = (math.cosd(latitude)*math.cosd(longitude))
-    local y = (math.cosd(latitude)*math.sind(longitude))
-    local z = math.sind(latitude)
+    local x = (math.cos(latitude)*math.cos(longitude))
+    local y = (math.cos(latitude)*math.sin(longitude))
+    local z = math.sin(latitude)
     local result = {x,y,z}
     return result
 end
 
 function pv_sphere_x(longitude,latitude)
-    local x = (math.cosd(latitude)*math.cosd(longitude))
+    local x = (math.cos(latitude)*math.cos(longitude))
     return x
 end
 
 function pv_sphere_y(longitude,latitude)
-    local y = (math.cosd(latitude)*math.sind(longitude))
+    local y = (math.cos(latitude)*math.sin(longitude))
     return y
 end
 
 function pv_sphere_z(longitude,latitude)
-    local z = math.sind(latitude)
+    local z = math.sin(latitude)
     return z
 end
 
 function pv_sphere_x_tex(longitude,latitude)
-    local x = (math.cosd(latitude)*math.cosd(longitude))
+    local x = (math.cos(latitude)*math.cos(longitude))
     tex.print(
         string.format(
             "\\pgfmathparse{%f}"
@@ -318,7 +318,7 @@ function pv_sphere_x_tex(longitude,latitude)
 end
 
 function pv_sphere_y_tex(longitude,latitude)
-    local y = (math.cosd(latitude)*math.sind(longitude))
+    local y = (math.cos(latitude)*math.sin(longitude))
     tex.print(
         string.format(
             "\\pgfmathparse{%f}"
@@ -328,7 +328,7 @@ function pv_sphere_y_tex(longitude,latitude)
 end
 
 function pv_sphere_z_tex(longitude,latitude)
-    local z = (math.sind(latitude))
+    local z = (math.sin(latitude))
     tex.print(
         string.format(
             "\\pgfmathparse{%f}"

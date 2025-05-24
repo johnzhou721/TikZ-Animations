@@ -85,7 +85,7 @@
 % #4 - u1
 % #5 - u2
 % #6 - u3
-\pgfmathdeclarefunction{pvtransformrotmainx}{6}{%
+\pgfmathdeclarefunction{ZYZx}{6}{%
     \directlua{
         pv_ZYZ_rotation_matrix_x_tex(
             {#1,#2,#3}
@@ -101,7 +101,7 @@
 % #4 - u1
 % #5 - u2
 % #6 - u3
-\pgfmathdeclarefunction{pvtransformrotmainy}{6}{%
+\pgfmathdeclarefunction{ZYZy}{6}{%
     \directlua{
         pv_ZYZ_rotation_matrix_y_tex(
             {#1,#2,#3}
@@ -117,7 +117,7 @@
 % #4 - u1
 % #5 - u2
 % #6 - u3
-\pgfmathdeclarefunction{pvtransformrotmainz}{6}{%
+\pgfmathdeclarefunction{ZYZz}{6}{%
     \directlua{
         pv_ZYZ_rotation_matrix_z_tex(
             {#1,#2,#3}

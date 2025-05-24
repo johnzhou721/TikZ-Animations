@@ -1,6 +1,7 @@
 % arara: lualatex
 % arara: lualatex
 \documentclass{article}
+% \animategraphics[width=5cm,loop,autoplay]{10}{path-to-file}{0}{118}
 \PassOptionsToPackage{colorlinks = true}{hyperref}
 \usepackage{
     pline-vec
@@ -18,168 +19,83 @@
 \tableofcontents
 % See https://tex.stackexchange.com/a/31787/319072
 \section{Introduction}
-pline-vec is a 3D toolkit for Ti\textit{k}Z.
+pline-vec is a 3D toolkit for Ti\textit{k}Z. This document will
+one day be the documentation for pline-vec, though it currently
+serves as a test of my functions.
 \section{Examples}
-\subsection{
-    Parametric mappings,
-    and the pline-vec math libraries
-}
+\subsection{The pline-vec math libraries}
 \subsubsection{Parametric mappings}
-A parametric mapping is a mathematical rule which can accept any 
-number of inputs, and produces any number of outputs, all according to
-some mathematical formula. For example, A curve in 
-\(\mathbb{R}^{3}\) is defined
-by a parametric function which accepts one input and delivers three 
-outputs. Similarly, a surface in \(\mathbb{R}^{3}\) is defined by 
-a parametric function which accepts two inputs, and delivers three
-outputs. The parametric equation for a solid accepts three inputs and 
-delivers three outputs. Parametric mappings are useful for 
-traversing many common mathematical objects. For example,
-they can be used to navigate the sphere --- which enables us to 
-produce direction vectors in any direction, based on longitude and 
-latitude.
-\subsubsection{The pline-vec math libraries}
-There are two math libraries for pline-vec. The main one is
-math.lua, which defines several useful 3D math functions.
-In the lua library, to avoid naming conflicts, they are prefixed 
-with ``pv\_''. Similarly, they are prefixed with ``pv'' in the pgfmath
-library. These are the commands from the lua library:
-\begin{itemize}
-    \item   
-        pv\_cross\_product\_x(u,v)\par
-        Delivers the x component of the cross product of 
-        two vectors.
-    \item   
-        pv\_cross\_product\_y(u,v)\par
-        Delivers the y component of the cross product of 
-        two vectors.
-    \item   
-        pv\_cross\_product\_z(u,v)\par
-        Delivers the z component of the cross product of 
-        two vectors.
-    \item   
-        pv\_dot\_product(u,v)\par
-        Delivers the dot product of 
-        two vectors.
-    \item   
-        pv\_norm(u)\par
-        Delivers the norm of a vector
-    \item 
-        pv\_ZYZ\_rotation\_matrix\_x(angles,vector)\par
-        Delivers the x component of the ZYZ totation matrix of 
-        two vectors.
-    \item 
-        pv\_ZYZ\_rotation\_matrix\_y(angles,vector)\par
-        Delivers the y component of the ZYZ totation matrix of 
-        two vectors.
-    \item 
-        pv\_ZYZ\_rotation\_matrix\_z(angles,vector)\par
-        Delivers the z component of the ZYZ totation matrix of 
-        two vectors.
-    \item 
-        pv\_sphere\_x(longitude,latitude)\par
-        Delivers the x component of the sphere, based on
-        longitude and latitude.
-    \item 
-        pv\_sphere\_y(longitude,latitude)\par
-        Delivers the y component of the sphere, based on
-        longitude and latitude.
-    \item 
-        pv\_sphere\_z(longitude,latitude)\par
-        Delivers the z component of the sphere, based on
-        longitude and latitude.
-\end{itemize}
-The pgfmath library is also lua-based, though it is done internally.
-\begin{itemize}
-    \item 
-        pvcrossproductx\par
-        x-component of the cross product of u and v,
-        \#1 - u1,
-        \#2 - u2,
-        \#3 - u3,
-        \#4 - v1,
-        \#5 - v2,
-        \#6 - v3
-    \item 
-        pvcrossproducty\par
-        y-component of the cross product of u and v,
-        \#1 - u1,
-        \#2 - u2,
-        \#3 - u3,
-        \#4 - v1,
-        \#5 - v2,
-        \#6 - v3
-    \item 
-        pvcrossproductz\par
-        z-component of the cross product of u and v,
-        \#1 - u1,
-        \#2 - u2,
-        \#3 - u3,
-        \#4 - v1,
-        \#5 - v2,
-        \#6 - v3
-    \item 
-        pvdotproduct\par
-        dot product of u and v,
-        \#1 - u1,
-        \#2 - u2,
-        \#3 - u3,
-        \#4 - v1,
-        \#5 - v2,
-        \#6 - v3
-     \item 
-        pvnorm\par
-        norm product of u
-        \#1 - u1,
-        \#2 - u2,
-        \#3 - u3
-    \item 
-        pvtransformrotmainx\par
-        x-component of ZYZ rotation matrix on a point
-        \#1 - alpha,
-        \#2 - beta,
-        \#3 - gamma,
-        \#4 - u1,
-        \#5 - u2,
-        \#6 - u3
-    \item 
-        pvtransformrotmainy\par
-        y-component of ZYZ rotation matrix on a point
-        \#1 - alpha,
-        \#2 - beta,
-        \#3 - gamma,
-        \#4 - u1,
-        \#5 - u2,
-        \#6 - u3
-    \item 
-        pvtransformrotmainz\par
-        z-component of ZYZ rotation matrix on a point
-        \#1 - alpha,
-        \#2 - beta,
-        \#3 - gamma,
-        \#4 - u1,
-        \#5 - u2,
-        \#6 - u3
-    \item 
-        pvspherex\par
-        x-component of the sphere, given longitude and latitude
-        \#1 - longitude,
-        \#2 - latitude
-    \item 
-        pvspherey\par
-        y-component of the sphere, given longitude and latitude
-        \#1 - longitude,
-        \#2 - latitude
-    \item 
-        pvspherez\par
-        z-component of the sphere, given longitude and latitude
-        \#1 - longitude,
-        \#2 - latitude
-
-\end{itemize}
 \subsection{Setting the main orientation}
-\subsubsection{Working with sub-orientations}
+\begin{tikzpicture}[/pline-vec/main orientation = {90}{60}{150}]
+    \draw[->] (0,0) -- (1,0,0) node[pos = 1.2]{\(x\)};
+    \draw[->] (0,0) -- (0,1,0) node[pos = 1.2]{\(y\)};
+    \draw[->] (0,0) -- (0,0,1) node[pos = 1.2]{\(z\)};
+\end{tikzpicture}
+\subsubsection{Setting sub-orientations}
+\begin{tikzpicture}[/pline-vec/main orientation = {90}{60}{150}]
+    \draw[->] (0,0) -- (1,0,0) node[pos = 1.2]{\(x\)};
+    \draw[->] (0,0) -- (0,1,0) node[pos = 1.2]{\(y\)};
+    \draw[->] (0,0) -- (0,0,1) node[pos = 1.2]{\(z\)};
+
+    \draw
+        [->,red] 
+        (0,0) 
+        -- 
+        (
+            {ZYZx(-30,30,30,1,0,0)}
+            ,{ZYZy(-30,30,30,1,0,0)}
+            ,{ZYZz(-30,30,30,1,0,0)}
+        ) 
+        node
+        [pos = 1.2]
+        {\(x\)}
+        ;
+    \draw
+        [->,red] 
+        (0,0) 
+        -- 
+        (
+            {ZYZx(-30,30,30,0,1,0)}
+            ,{ZYZy(-30,30,30,0,1,0)}
+            ,{ZYZz(-30,30,30,0,1,0)}
+        ) 
+        node
+        [pos = 1.2]
+        {\(y\)}
+        ;
+    \draw
+        [->,red] 
+        (0,0) 
+        -- 
+        (
+            {ZYZx(-30,30,30,0,0,1)}
+            ,{ZYZy(-30,30,30,0,0,1)}
+            ,{ZYZz(-30,30,30,0,0,1)}
+        ) 
+        node
+        [pos = 1.2]
+        {\(z\)}
+        ;
+\end{tikzpicture}
 \subsection{Rendering parametric curves}
+\begin{tikzpicture}[/pline-vec/main orientation = {pi}{pi/3}{5*pi/3}]
+    \pvappendcurve[
+        u min = -3
+        ,u max = 3
+        ,u samples = 45
+    ]{u}{u}{u}
+    \pvappendsurface[
+        u min = 0
+        ,u max = 2*pi
+        ,u samples = 36
+        ,v min = 0
+        ,v max = 2*pi
+        ,v samples = 36
+    ]{3*math.cos(u) + pv_sphere_x(u,v)}
+    {3*math.sin(u) + pv_sphere_y(u,v)}
+    {pv_sphere_z(u,v)}
+    \pvrendersegments
+\end{tikzpicture}
 \subsection{Rendering parametric surfaces}
 \subsection{Rendering parametric solids}
 \subsection{

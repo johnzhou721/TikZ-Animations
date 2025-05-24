@@ -5,12 +5,12 @@
     % main orientation key
     ,main orientation/.code n args = {3}{
         \begingroup 
-        \pgfmathsetmacro{\xx}{pvtransformrotmainx(#1,#2,#3,1,0,0)}
-        \pgfmathsetmacro{\xy}{pvtransformrotmainy(#1,#2,#3,1,0,0)}
-        \pgfmathsetmacro{\yx}{pvtransformrotmainx(#1,#2,#3,0,1,0)}
-        \pgfmathsetmacro{\yy}{pvtransformrotmainy(#1,#2,#3,0,1,0)}
-        \pgfmathsetmacro{\zx}{pvtransformrotmainx(#1,#2,#3,0,0,1)}
-        \pgfmathsetmacro{\zy}{pvtransformrotmainy(#1,#2,#3,0,0,1)}
+        \pgfmathsetmacro{\xx}{ZYZx(#1,#2,#3,1,0,0)}
+        \pgfmathsetmacro{\xy}{ZYZy(#1,#2,#3,1,0,0)}
+        \pgfmathsetmacro{\yx}{ZYZx(#1,#2,#3,0,1,0)}
+        \pgfmathsetmacro{\yy}{ZYZy(#1,#2,#3,0,1,0)}
+        \pgfmathsetmacro{\zx}{ZYZx(#1,#2,#3,0,0,1)}
+        \pgfmathsetmacro{\zy}{ZYZy(#1,#2,#3,0,0,1)}
         \edef\temp{
             \noexpand\pgfkeysalso{
                 x = {

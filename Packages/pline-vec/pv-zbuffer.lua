@@ -1,5 +1,5 @@
 
-
+pi = math.pi
 function get_observer_plane_basis(observer)
     local origin = {0,0,0}
     local basis_i = pv_orthogonal_vector(observer)
@@ -57,6 +57,32 @@ function is_point_in_triangle(point,triangle)
 end
 
 function compare_triangles(triangle_1,triangle_2)
+    -- 1) if *either* is a 2‐point line/curve (#==3), depth‐sort by midpoint along observer
+    if #triangle_1 == 2 or #triangle_2 == 2 then
+        local function depth_mid(seg)
+            if #seg == 2 then
+                -- line/curve segment: midpoint of S, E
+                local S, E = seg[1], seg[2]
+                local mid = {
+                    (S[1] + E[1]) / 2,
+                    (S[2] + E[2]) / 2,
+                    (S[3] + E[3]) / 2
+                }
+                return pv_dot_product(mid, observer)
+            else
+                -- triangle: centroid of P, Q, R
+                local P, Q, R = seg[1], seg[2], seg[3]
+                local cent = {
+                    (P[1] + Q[1] + R[1]) / 3,
+                    (P[2] + Q[2] + R[2]) / 3,
+                    (P[3] + Q[3] + R[3]) / 3
+                }
+                return pv_dot_product(cent, observer)
+            end
+        end
+
+        return depth_mid(triangle_1) > depth_mid(triangle_2)
+    end
     local P_1,Q_1,R_1,color_1,options_1 = table.unpack(triangle_1)
     local P_2,Q_2,R_2,color_2,options_2 = table.unpack(triangle_2)
     local observer_basis = get_observer_plane_basis(observer)
@@ -196,6 +222,29 @@ end
 
 
 segments = {}
+
+function append_curve(
+    u_start
+    ,u_end
+    ,u_samples
+    ,fx,fy,fz
+)
+    local u_step = (u_end - u_start) / (u_samples - 1)
+    local function parametric_curve(u)
+        return {fx(u),fy(u),fz(u)}
+    end
+    for i = 0, u_samples - 2 do
+        local u = u_start + i * u_step
+        local color = (u - u_start) / (u_end - u_start)
+            local A = parametric_curve(u)
+            local B = parametric_curve(u + u_step)
+            -- the tables for surfaces have 5 values
+            table.insert(segments, {A, B})
+    end
+end
+
+
+
 function pv_append_surface(
     u_start
     ,u_end
@@ -231,12 +280,23 @@ end -- ends pv_append_surface
 function pv_render_segments()
     table.sort(segments, compare_triangles)
     for _, seg in ipairs(segments) do
-    local n = #seg; local P, Q, R, c, o = seg[1], seg[2], seg[3], seg[4], seg[5]
-    tex.print(string.format('\\SetColor{%d}', math.floor(100*c)))
-    tex.print('\\draw[line join=round,preaction={fill=MyColor}]')
-    tex.print(string.format('(%f,%f,%f)--(%f,%f,%f)--(%f,%f,%f)--cycle;',
-    P[1],P[2],P[3],Q[1],Q[2],Q[3],R[1],R[2],R[3]
-    ))
+        if #seg >= 4 then
+            local P, Q, R, c, o = seg[1], seg[2], seg[3], seg[4], seg[5]
+            tex.print(string.format('\\SetColor{%d}', math.floor(100*c)))
+            tex.print('\\draw[line join=round,preaction={fill=MyColor}]')
+            tex.print(string.format('(%f,%f,%f)--(%f,%f,%f)--(%f,%f,%f)--cycle;',
+            P[1],P[2],P[3],Q[1],Q[2],Q[3],R[1],R[2],R[3]
+            ))
+        end
+        if #seg == 2 then
+            S, E = seg[1], seg[2]
+            tex.print(
+                string.format(
+                    '\\draw[] (%f,%f,%f) -- (%f,%f,%f);'
+                    ,S[1],S[2],S[3],E[1],E[2],E[3]
+                )
+            )
+        end
   end
   segments = {}
 end
