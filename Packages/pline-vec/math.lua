@@ -161,15 +161,15 @@ function pv_ZYZ_rotation_matrix_inverse(angles, vector)
     local s3 = math.sin(angles[3])
     
     -- Using the fact that inverse = transpose for an orthonormal matrix:
-    local x = ( (c1*c2*c3 - s1*s3)       * vector[1] +
+    local x = -( (c1*c2*c3 - s1*s3)       * vector[1] +
                 (s1*c2*c3 + c1*s3)       * vector[2] +
                 (-s2*c3)                * vector[3] )
                 
-    local y = ( (-c1*c2*s3 - s1*c3)      * vector[1] +
+    local y = -( (-c1*c2*s3 - s1*c3)      * vector[1] +
                 (-s1*c2*s3 + c1*c3)      * vector[2] +
                 (s2*s3)                 * vector[3] )
                 
-    local z = ( (c1*s2)                * vector[1] +
+    local z = -( (c1*s2)                * vector[1] +
                 (s1*s2)                * vector[2] +
                 (c2)                   * vector[3] )
     
