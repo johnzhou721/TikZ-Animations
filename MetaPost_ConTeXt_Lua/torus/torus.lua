@@ -71,7 +71,7 @@ function main()
             )
         )
     end
-    context.endMPpage()
+    context.stopMPpage()
 end
 
 interfaces.implement {
