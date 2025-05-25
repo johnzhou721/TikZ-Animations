@@ -253,7 +253,6 @@ function pv_append_surface(
     ,v_end
     ,v_samples
     ,fx,fy,fz
-    ,options
 )
     local u_step = (u_end - u_start) / (u_samples - 1)
     local v_step = (v_end - v_start) / (v_samples - 1)
@@ -277,13 +276,88 @@ function pv_append_surface(
 
 end -- ends pv_append_surface
 
+function append_solid(
+    u_start, u_end, u_samples,
+    v_start, v_end, v_samples,
+    w_start, w_end, w_samples,
+    fx, fy, fz)
+    local u_step = (u_end - u_start) / (u_samples - 1)
+    local v_step = (v_end - v_start) / (v_samples - 1)
+    local w_step = (w_end - w_start) / (w_samples - 1)
+
+    local function solid_point(u, v, w)
+        return {fx(u, v, w), fy(u, v, w), fz(u, v, w)}
+    end
+
+    -- Generate surface triangles on all 6 faces of the cube
+
+    -- Faces of constant u
+    for u = u_start, u_end, u_end - u_start do
+        for j = 0, v_samples - 2, 1 do
+            local v = v_start + j * v_step
+            local color = (v - v_start) / (v_end - v_start)
+            for k = 0, w_samples - 2,1  do
+                local w = w_start + k * w_step
+                local A = solid_point(u, v, w)
+                local B = solid_point(u, v + v_step, w)
+                local C = solid_point(u, v, w + w_step)
+                local D = solid_point(u, v + v_step, w + w_step)
+                table.insert(segments, {A, B, D, color})
+                table.insert(segments, {A, D, C, color})
+            end
+        end
+    end
+
+    -- Faces of constant v
+for v = v_start, v_end, v_end - v_start do
+    for i = 0, u_samples - 2, 1 do
+        local u = u_start + i * u_step
+        local color = (u - u_start) / (u_end - u_start)
+        for k = 0, w_samples - 2, 1 do
+            local w = w_start + k * w_step
+            local A = solid_point(u, v, w)
+            local B = solid_point(u + u_step, v, w)
+            local C = solid_point(u, v, w + w_step)
+            local D = solid_point(u + u_step, v, w + w_step)
+            table.insert(segments, {A, B, D, color})
+            table.insert(segments, {A, D, C, color})
+        end
+    end
+end
+-- Faces of constant w
+for w = w_start, w_end, w_end - w_start do
+    for i = 0, u_samples - 2, 1 do
+        local u = u_start + i * u_step
+        local color = (u - u_start) / (u_end - u_start)
+        for j = 0, v_samples - 2, 1 do
+            local v = v_start + j * v_step
+            local A = solid_point(u, v, w)
+            local B = solid_point(u + u_step, v, w)
+            local C = solid_point(u, v + v_step, w)
+            local D = solid_point(u + u_step, v + v_step, w)
+            table.insert(segments, {A, B, D, color})
+            table.insert(segments, {A, D, C, color})
+        end
+    end
+end
+
+
+
+end
 function pv_render_segments()
     table.sort(segments, compare_triangles)
     for _, seg in ipairs(segments) do
-        if #seg >= 4 then
-            local P, Q, R, c, o = seg[1], seg[2], seg[3], seg[4], seg[5]
+        if #seg == 4 then
+            local P, Q, R, c = seg[1], seg[2], seg[3], seg[4]
             tex.print(string.format('\\SetColor{%d}', math.floor(100*c)))
             tex.print('\\draw[line join=round,preaction={fill=MyColor}]')
+            tex.print(string.format('(%f,%f,%f)--(%f,%f,%f)--(%f,%f,%f)--cycle;',
+            P[1],P[2],P[3],Q[1],Q[2],Q[3],R[1],R[2],R[3]
+            ))
+        end
+        if #seg == 3 then
+            local P, Q, R = seg[1], seg[2], seg[3]
+            tex.print('\\draw[line join=round,preaction={fill=yellow}]')
             tex.print(string.format('(%f,%f,%f)--(%f,%f,%f)--(%f,%f,%f)--cycle;',
             P[1],P[2],P[3],Q[1],Q[2],Q[3],R[1],R[2],R[3]
             ))

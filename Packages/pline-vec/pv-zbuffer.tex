@@ -57,4 +57,18 @@
     )
   }%
 }
+
+\newcommand{\pvappendsolid}[4][]{%
+  \pgfkeys{/pline-vec/z-buffer/.cd,#1}%
+  \directlua{
+    append_solid(
+      \pv@zbuffer@umin, \pv@zbuffer@umax, \pv@zbuffer@usamples,
+      \pv@zbuffer@vmin, \pv@zbuffer@vmax, \pv@zbuffer@vsamples,
+      \pv@zbuffer@wmin, \pv@zbuffer@wmax, \pv@zbuffer@wsamples,
+      function(u,v,w) return #2 end,
+      function(u,v,w) return #3 end,
+      function(u,v,w) return #4 end
+    )
+  }%
+}
 \newcommand{\pvrendersegments}{\directlua{pv_render_segments()}}
