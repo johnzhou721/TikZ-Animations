@@ -121,7 +121,7 @@ function la.inverse(matrix)
     local columns = #matrix[1]
     assert(rows == columns, "You can only take the inverse of a square matrix.")
     local det = la.det(matrix)
-    assert(math.abs(det) > 0.00001, "You cannot take the inverse of a singular matrix.")
+    assert(math.abs(math.abs(det)) > 0.00001, "You cannot take the inverse of a singular matrix.")
 
     local n = rows
     -- Build an augmented matrix [A | I]
