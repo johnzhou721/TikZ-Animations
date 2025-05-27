@@ -158,3 +158,26 @@
         )
     }%
 }
+
+
+% Normalize a 3D vector
+\newcommand{\normalizeVector}[4]{% #1,#2,#3 -> output prefix #4
+  \pgfmathsetmacro{\tmpnorm}{norm(#1,#2,#3)}%
+  \expandafter\pgfmathsetmacro\expandafter{\csname #4x\endcsname}{#1/\tmpnorm}%
+  \expandafter\pgfmathsetmacro\expandafter{\csname #4y\endcsname}{#2/\tmpnorm}%
+  \expandafter\pgfmathsetmacro\expandafter{\csname #4z\endcsname}{#3/\tmpnorm}%
+}
+
+% Compute cross product of two vectors
+\newcommand{\crossProduct}[7]{% u=(#1,#2,#3), v=(#4,#5,#6), out prefix = #7
+  \expandafter\pgfmathsetmacro\expandafter{\csname #7x\endcsname}{crossX(#1,#2,#3,#4,#5,#6)}%
+  \expandafter\pgfmathsetmacro\expandafter{\csname #7y\endcsname}{crossY(#1,#2,#3,#4,#5,#6)}%
+  \expandafter\pgfmathsetmacro\expandafter{\csname #7z\endcsname}{crossZ(#1,#2,#3,#4,#5,#6)}%
+}
+
+% Set a 3D point
+\newcommand{\setPoint}[4]{% (x, y, z) -> prefix
+  \expandafter\pgfmathsetmacro\expandafter{\csname #4x\endcsname}{#1}%
+  \expandafter\pgfmathsetmacro\expandafter{\csname #4y\endcsname}{#2}%
+  \expandafter\pgfmathsetmacro\expandafter{\csname #4z\endcsname}{#3}%
+}

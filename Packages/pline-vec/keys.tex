@@ -27,15 +27,6 @@
         \expandafter
         \endgroup%
         \temp
-        % \pgfmathsetmacro
-        %     {\observerx}
-        %     {pvtransformrotmainx(-#3,-#2,-#1,0,0,1)}
-        % \pgfmathsetmacro
-        %     {\observery}
-        %     {pvtransformrotmainy(-#3,-#2,-#1,0,0,1)}
-        % \pgfmathsetmacro
-        %     {\observerz}
-        %     {pvtransformrotmainz(-#3,-#2,-#1,0,0,1)}
         \pgfmathsetmacro{\pv@internal@a}{(#1)}
         \pgfmathsetmacro{\pv@internal@b}{(#2)}
         \pgfmathsetmacro{\pv@internal@g}{(#3)}
@@ -49,6 +40,15 @@
                 ,{0,0,1}
             )
         }
+        \pgfmathsetmacro
+            {\observerx}
+            {\directlua{tex.print(observer[1])}}
+        \pgfmathsetmacro
+            {\observery}
+            {\directlua{tex.print(observer[2])}}
+        \pgfmathsetmacro
+            {\observerz}
+            {\directlua{tex.print(observer[3])}}
     }
     % boundaries of the coordinate frame
     ,xmin/.estore in = \pv@xmin

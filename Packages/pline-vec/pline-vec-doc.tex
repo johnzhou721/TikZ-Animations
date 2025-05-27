@@ -132,5 +132,12 @@ serves as a test of my functions.
 }
 \subsubsection{The problem with tangency}
 \subsection{Clipping planes by a rectangular prism}
+\begin{tikzpicture}[/pline-vec/main orientation = {pi/2}{pi/3}{5*pi/6}]
+    \pvgetrectangularprism
+    \backfaces
+    \pvgetplane{thename}
+    \draw[spath/use = planethename,preaction = {fill = gray}];
+    \frontfaces
+\end{tikzpicture}
 \subsection{Intersecting planes --- in progress}
 \end{document}
