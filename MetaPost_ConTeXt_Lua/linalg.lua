@@ -355,4 +355,111 @@ function la.sphere(longitude,latitude)
     }}
 end
 
+
+--[[ 
+    Generate an n×n identity matrix 
+]]
+local function identity_matrix(n)
+    local I = {}
+    for i = 1, n do
+        I[i] = {}
+        for j = 1, n do
+            I[i][j] = (i == j) and 1 or 0
+        end
+    end
+    return I
+end
+
+--[[
+    Decompose a square, invertible matrix A into a product of elementary matrices:
+    A = E1 * E2 * ... * Ek
+
+    We perform Gauss–Jordan elimination on a copy of A, keeping track of each
+    row operation.  For each operation (swap, scale, row‐addition), we determine
+    its inverse elementary matrix and append it to the list.  In the end,
+
+        E₁⁻¹, E₂⁻¹, …, Eₖ⁻¹  were recorded in that order, so
+
+        A = E₁⁻¹ * E₂⁻¹ * … * Eₖ⁻¹.
+
+    Returns an array `elem_list` of elementary matrices (each itself an n×n Lua table).
+]]
+function la.decompose(A)
+    local n = #A
+    assert(n > 0 and #A[1] == n, "Matrix must be nonempty and square for decomposition.")
+    -- Deep copy A into M
+    local M = {}
+    for i = 1, n do
+        M[i] = {}
+        for j = 1, n do
+            M[i][j] = A[i][j]
+        end
+    end
+
+    local epsilon = 1e-12
+    local elem_list = {}  -- will hold the inverse elementary matrices in order
+
+    for i = 1, n do
+        -- 1) If pivot M[i][i] is (nearly) zero, swap with a lower row that has a nonzero in column i
+        if math.abs(M[i][i]) < epsilon then
+            local swap_row = nil
+            for r = i + 1, n do
+                if math.abs(M[r][i]) > epsilon then
+                    swap_row = r
+                    break
+                end
+            end
+            assert(swap_row, "Matrix is singular; cannot decompose.")
+            -- Build the elementary swap matrix P that swaps rows i and swap_row
+            local P = identity_matrix(n)
+            P[i], P[swap_row] = P[swap_row], P[i]  -- just swap those two rows in the identity
+            -- Apply P to M:  M ← P * M
+            M = la.mult(P, M)
+            -- A swap is its own inverse, so P is also P⁻¹.  Append it to elem_list.
+            table.insert(elem_list, P)
+        end
+
+        -- 2) Scale row i so that M[i][i] becomes 1
+        local pivot = M[i][i]
+        assert(math.abs(pivot) > epsilon, "Pivot cannot be zero after swapping.")
+        if math.abs(pivot - 1) > epsilon then
+            -- E_scale will divide row i by `pivot`
+            local E_scale = identity_matrix(n)
+            E_scale[i][i] = 1 / pivot
+            -- Apply to M:
+            M = la.mult(E_scale, M)
+            -- Its inverse is "multiply row i by pivot"
+            local E_scale_inv = identity_matrix(n)
+            E_scale_inv[i][i] = pivot
+            table.insert(elem_list, E_scale_inv)
+        end
+        -- Now M[i][i] == 1
+
+        -- 3) For every other row r ≠ i, eliminate the entry in column i
+        for r = 1, n do
+            if r ~= i then
+                local factor = M[r][i]
+                if math.abs(factor) > epsilon then
+                    -- Build the elimination matrix E_elim that does: row_r ← row_r − factor * row_i
+                    local E_elim = identity_matrix(n)
+                    E_elim[r][i] = -factor
+                    -- Apply to M:
+                    M = la.mult(E_elim, M)
+                    -- Inverse of that is: row_r ← row_r + factor * row_i
+                    local E_elim_inv = identity_matrix(n)
+                    E_elim_inv[r][i] = factor
+                    table.insert(elem_list, E_elim_inv)
+                end
+            end
+        end
+        -- At this point, column i is now 0 everywhere except M[i][i] = 1
+    end
+
+    -- If everything went well, M is now the identity matrix.
+    -- The list elem_list = {E₁, E₂, …, Eₖ} holds exactly those inverses of
+    -- the elimination‐step matrices, in the order they must multiply to recover A.
+    return elem_list
+end
+
+
 return la -- ends file
