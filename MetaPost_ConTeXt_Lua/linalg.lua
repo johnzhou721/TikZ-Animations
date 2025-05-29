@@ -359,7 +359,7 @@ end
 --[[ 
     Generate an n×n identity matrix 
 ]]
-local function identity_matrix(n)
+function identity_matrix(n)
     local I = {}
     for i = 1, n do
         I[i] = {}
