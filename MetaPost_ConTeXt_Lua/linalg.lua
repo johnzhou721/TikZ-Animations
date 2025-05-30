@@ -1,6 +1,7 @@
 -- File saved as linalg.lua
 la = {}
-la.pi = 3.14159265358979
+la.pi = math.pi
+la.tau = 2 * math.pi
 
 
 --[[
@@ -226,7 +227,7 @@ end
 function la.rotate2D(angle)
     return {
         {math.cos(angle),math.sin(angle),0}
-        ,{math.cos(angle+la.pi/2),math.sin(angle+la.pi/2),0}
+        ,{math.cos(angle+la.tau/4),math.sin(angle+la.tau/4),0}
         ,{0,0,1}
     }
 end
