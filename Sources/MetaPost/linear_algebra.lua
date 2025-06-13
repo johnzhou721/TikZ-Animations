@@ -1,9 +1,35 @@
--- File saved as linalg.lua
-la = {}
-la.pi = math.pi
+-- File saved as linear_algebra.lua
+local la = {}
 la.tau = 2 * math.pi
 
+--[[
+    Normalize a vector.
+    For homogeneous coordinates, we leave the last component unchanged.
+    We assume the vector is a 1-row matrix, i.e. {{x, y, z, w}}.
+]]
+function la.normalize(v)
+    local vec = v[1]
+    local n = #vec
+    local last = vec[n]
+    local length_squared = 0
+    for i = 1, n - 1 do
+        length_squared = length_squared + vec[i]^2
+    end
+    local length = math.sqrt(length_squared)
+    assert(length > 0, "Cannot normalize a zero-length vector.")
 
+    local result = {}
+    for i = 1, n - 1 do
+        result[i] = vec[i] / length
+    end
+    result[n] = last
+    return {result}
+end
+
+function la.sign(number)
+    if number >= 0 then return "positive" end
+    return "negative"
+end
 --[[
     Inner product
 ]]
@@ -14,6 +40,25 @@ function la.inner(v1,v2)
         result = result + v1[1][component_pos]*v2[1][component_pos]
     end
     return result
+end
+
+--[[
+    Midpoint
+]]
+function la.midpoint(seg)
+    if #seg == 2 then
+        local avgx = (seg[1][1] + seg[2][1]) / 2
+        local avgy = (seg[1][2] + seg[2][2]) / 2
+        local avgz = (seg[1][3] + seg[2][3]) / 2
+        return {{avgx,avgy,avgz,1}}
+    elseif #seg == 3 then 
+        local avgx = (seg[1][1] + seg[2][1]  + seg[3][1]) / 3
+        local avgy = (seg[1][2] + seg[2][2]  + seg[3][2]) / 3
+        local avgz = (seg[1][3] + seg[2][3]  + seg[3][3]) / 3
+        return {{avgx,avgy,avgz,1}}
+    else
+        assert(false, "Can't calculate midpoint.")
+    end
 end
 
 --[[
@@ -30,7 +75,7 @@ function la.cross(v1,v2)
 end
 
 --[[]]
-function la.point_unique(point)
+function la.homogenize(point)
     local result = {}
     for component = 1, #point, 1 do
         result[component] = point[component]/point[#point]
@@ -84,14 +129,28 @@ function la.mult(A,B)
     local columns_A = #A[1]
     local rows_B = #B
     local columns_B = #B[1]
-    assert(columns_A == rows_B, "Wrong size matrices for multiplication.")
+    assert(
+        columns_A == rows_B
+        ,string.format(
+            [[
+                Wrong size matrices for multiplication.
+                Size A: %f,%f Size B: %f,%f
+            ]]
+            ,rows_A,columns_A
+            ,rows_B,columns_B
+        )
+    )
     local product = {}
     for row = 1, rows_A, 1 do
         product[row] = {}
         for column = 1, columns_B, 1 do
             product[row][column] = 0
             for dot_product_step = 1, columns_A, 1 do
-                product[row][column] = product[row][column] + A[row][dot_product_step] * B[dot_product_step][column]
+                product[row][column] = (
+                    product[row][column] + 
+                    A[row][dot_product_step] * 
+                    B[dot_product_step][column]
+                )
             end
         end
     end
@@ -341,17 +400,17 @@ function la.ZYZrotation3D(alpha,beta,gamma)
     return la.mult(
         la.zrotation3D(gamma)
         ,la.mult(
-            la.yrotation3D(alpha)
-            ,la.zrotation3D(beta)
+            la.yrotation3D(beta)
+            ,la.zrotation3D(alpha)
         )
     )
 end
 
 function la.sphere(longitude,latitude)
     return {{
-        math.cos(latitude) * math.cos(longitude)
-        ,math.cos(latitude) * math.sin(longitude)
-        ,math.sin(latitude)
+        math.sin(latitude) * math.cos(longitude)
+        ,math.sin(latitude) * math.sin(longitude)
+        ,math.cos(latitude)
         ,1
     }}
 end
@@ -461,6 +520,7 @@ function la.decompose(A)
     -- the elimination‐step matrices, in the order they must multiply to recover A.
     return elem_list
 end
+
 
 
 return la -- ends file

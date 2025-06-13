@@ -34,7 +34,7 @@
 
 | Milestone                       | Estimated Timeframe  |
 |--------------------------------|---------------------|
-| Plane-plane intersection logic | 2–4 months           |
+| Plane-plane intersection logic | >2–4 months           |
 
 Total estimated time: **2 to 4 months**.
 
