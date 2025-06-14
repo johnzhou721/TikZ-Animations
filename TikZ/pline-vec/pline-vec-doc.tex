@@ -23,16 +23,22 @@ pline-vec is a 3D toolkit for Ti\textit{k}Z. This document will
 one day be the documentation for pline-vec, though it currently
 serves as a test of my functions.
 \section{Examples}
+
+\begin{tikzpicture}
+    \pvvector[red,points=both]{0,0}{1,0}
+    \pvvector{0,1}{1,1}
+\end{tikzpicture}
+
 \subsection{The pline-vec math libraries}
 \subsubsection{Parametric mappings}
 \subsection{Setting the main orientation}
-\begin{tikzpicture}[/pline-vec/main orientation = {pi/2}{pi/3}{5*pi/6}]
+\begin{tikzpicture}[main orientation = {pi/2}{pi/3}{5*pi/6}]
     \draw[->] (0,0) -- (1,0,0) node[pos = 1.2]{\(x\)};
     \draw[->] (0,0) -- (0,1,0) node[pos = 1.2]{\(y\)};
     \draw[->] (0,0) -- (0,0,1) node[pos = 1.2]{\(z\)};
 \end{tikzpicture}
 \subsubsection{Setting sub-orientations}
-\begin{tikzpicture}[/pline-vec/main orientation = {pi/2}{pi/3}{5*pi/6}]
+\begin{tikzpicture}[main orientation = {pi/2}{pi/3}{5*pi/6}]
     \draw[->] (0,0) -- (1,0,0) node[pos = 1.2]{\(x\)};
     \draw[->] (0,0) -- (0,1,0) node[pos = 1.2]{\(y\)};
     \draw[->] (0,0) -- (0,0,1) node[pos = 1.2]{\(z\)};
@@ -78,7 +84,7 @@ serves as a test of my functions.
         ;
 \end{tikzpicture}
 \subsection{Rendering parametric curves}
-\begin{tikzpicture}[/pline-vec/main orientation = {pi/2}{pi/3}{5*pi/6}]
+\begin{tikzpicture}[main orientation = {pi/2}{pi/3}{5*pi/6}]
     \pvappendcurve[
         u min = 0
         ,u max = 2*pi
@@ -132,7 +138,7 @@ serves as a test of my functions.
 }
 \subsubsection{The problem with tangency}
 \subsection{Clipping planes by a rectangular prism}
-\begin{tikzpicture}[/pline-vec/main orientation = {pi/2}{pi/3}{5*pi/6}]
+\begin{tikzpicture}[main orientation = {pi/2}{pi/3}{5*pi/6}]
     \pvgetrectangularprism
     \backfaces
     \pvgetplane{thename}

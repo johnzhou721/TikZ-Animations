@@ -2,7 +2,7 @@
 
 \newcommand{\pvgetplane}[2][]{
     \begingroup
-    \tikzset{/pline-vec/plane/.cd,#1}
+    \tikzset{#1}
     \edef\temp{
     \noexpand%
     \directlua{
@@ -20,7 +20,7 @@
 }
 
 \newcommand{\pvgetrectangularprism}[1][]{%
-    \tikzset{/pline-vec/plane/.cd,#1}%
+    \tikzset{#1}%
 
     \global\def\backfaces{}%
     \global\def\frontfaces{}%

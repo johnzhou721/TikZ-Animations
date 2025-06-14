@@ -89,6 +89,7 @@ function pv_get_plane(
         end
     )
     table.insert(list_of_planes,sorted_intersections)
+    
 end
 
 function get_line(normal_equation1,normal_equation2,boundaries)

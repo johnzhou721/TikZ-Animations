@@ -35,7 +35,7 @@
 \directlua{require("pv-zbuffer.lua")}
 
 \newcommand{\pvappendcurve}[4][]{%
-  \pgfkeys{/pline-vec/z-buffer/.cd,#1}%
+  \tikzset{#1}%
   \directlua{
     append_curve(
       \pv@zbuffer@umin, \pv@zbuffer@umax, \pv@zbuffer@usamples,
@@ -46,7 +46,7 @@
   }%
 }
 \newcommand{\pvappendsurface}[4][]{%
-  \pgfkeys{/pline-vec/z-buffer/.cd,#1}%
+  \tikzset{#1}%
   \directlua{
     pv_append_surface(
       \pv@zbuffer@umin, \pv@zbuffer@umax, \pv@zbuffer@usamples,
@@ -59,7 +59,7 @@
 }
 
 \newcommand{\pvappendsolid}[4][]{%
-  \pgfkeys{/pline-vec/z-buffer/.cd,#1}%
+  \tikzset{#1}%
   \directlua{
     append_solid(
       \pv@zbuffer@umin, \pv@zbuffer@umax, \pv@zbuffer@usamples,

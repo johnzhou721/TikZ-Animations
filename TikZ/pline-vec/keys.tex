@@ -1,9 +1,9 @@
 \tikzset{
-    /pline-vec/.is family
+    % /pline-vec/.is family
     % /pline-vec/ keys
-    ,/pline-vec/.cd
+    % ,/pline-vec/.cd
     % main orientation key
-    ,main orientation/.code n args = {3}{
+    main orientation/.code n args = {3}{
         \begingroup 
         \pgfmathsetmacro{\xx}{ZYZx(#1,#2,#3,1,0,0)}
         \pgfmathsetmacro{\xy}{ZYZy(#1,#2,#3,1,0,0)}
@@ -67,7 +67,7 @@
     ,zmax = 5
     ,size = 2
     % /pline-vec/plane/ keys
-    ,/pline-vec/plane/.cd
+    % ,/pline-vec/plane/.cd
     % normal equation of the plane
     ,na/.estore in = \pv@plane@na
     ,nb/.estore in = \pv@plane@nb
@@ -79,7 +79,7 @@
     ,nc = 1
     ,nd = 1
     % /pline-vec/line/ keys
-    ,/pline-vec/line/.cd
+    % ,/pline-vec/line/.cd
     % point on the line
     ,px/.estore in = \pv@line@px
     ,py/.estore in = \pv@line@py
@@ -96,7 +96,7 @@
     ,dy = 1
     ,dz = 1
     % /pline-vec/vector/ keys
-    ,/pline-vec/vector/.cd
+    % ,/pline-vec/vector/.cd
     % radius of points
     ,point radius/.estore in = \pv@vector@pointradius
     % length of mark
@@ -118,7 +118,6 @@
     ,points/neither/.code = {\edef\pv@vector@points{3}}
     ,points/front/.code = {\edef\pv@vector@points{4}}
     % extra options
-    ,options/.style = {#1}
     % defaults
     ,point radius = 0.06
     ,mark length = 4
@@ -128,7 +127,7 @@
     ,mark step = 1
     ,points = behind
     % /pline-vec/z-buffer/ keys
-    ,/pline-vec/z-buffer/.cd
+    % ,/pline-vec/z-buffer/.cd
     ,u min/.estore in = \pv@zbuffer@umin
     ,u max/.estore in = \pv@zbuffer@umax
     ,u samples/.estore in = \pv@zbuffer@usamples
