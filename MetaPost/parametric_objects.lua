@@ -2,8 +2,11 @@ local po = {}
 
 local la = require("linear_algebra")
 
+
 po.segments = {}
-po.observer = { { 0, 0, 1, 1 } }
+po.observer_dir = { { 0, 0, -1, 0 } }
+po.observer_pos = { { 0, 0, 0, 0 } }
+
 
 function po.single_string_function(str)
     if not str or str == "" then
@@ -26,18 +29,20 @@ function po.triple_string_function(str)
     return load(("return function(u,v,w) return %s end"):format(str))()
 end
 
-function po.append_curve(
-    u_start,
-    u_end,
-    u_samples,
-    fx,
-    fy,
-    fz,
-    options
-)
-    local fx = po.single_string_function(fx)
-    local fy = po.single_string_function(fy)
-    local fz = po.single_string_function(fz)
+function po.append_curve(hash)
+    local u_start   = tonumber(hash.u_start)
+    local u_end     = tonumber(hash.u_end)
+    local u_samples = tonumber(hash.u_samples)
+    local fx_str    = hash.fx
+    local fy_str    = hash.fy
+    local fz_str    = hash.fz
+    local draw_options   = hash.draw_options
+    local name = hash.name
+
+    
+    local fx = po.single_string_function(fx_str)
+    local fy = po.single_string_function(fy_str)
+    local fz = po.single_string_function(fz_str)
 
     local u_step = (u_end - u_start) / (u_samples - 1)
     local function parametric_curve(u)
@@ -48,24 +53,25 @@ function po.append_curve(
         local u = u_start + i * u_step
         local A = parametric_curve(u)
         local B = parametric_curve(u+u_step)
-        table.insert(po.segments,{{A,B},options})
+        table.insert(po.segments,{{A,B},draw_options, name})
     end
 end
 
 function po.append_surface(
     params
 )
-    local u_start   = tonumber(params.u_start)
-    local u_end     = tonumber(params.u_end)
-    local u_samples = tonumber(params.u_samples)
-    local v_start   = tonumber(params.v_start)
-    local v_end     = tonumber(params.v_end)
-    local v_samples = tonumber(params.v_samples)
+    local u_start      = tonumber(params.u_start)
+    local u_end        = tonumber(params.u_end)
+    local u_samples    = tonumber(params.u_samples)
+    local v_start      = tonumber(params.v_start)
+    local v_end        = tonumber(params.v_end)
+    local v_samples    = tonumber(params.v_samples)
     local fx_str       = params.fx
     local fy_str       = params.fy
     local fz_str       = params.fz
     local fill_options = params.fill_options
     local draw_options = params.draw_options
+    local name         = params.name
 
     local fx = po.double_string_function(fx_str)
     local fy = po.double_string_function(fy_str)
@@ -86,12 +92,19 @@ function po.append_surface(
             local B = parametric_surface(u + u_step, v)
             local C = parametric_surface(u, v + v_step)
             local D = parametric_surface(u + u_step, v + v_step)
-            table.insert(po.segments, {{A, B, D}, {fill_options, draw_options}})
-            table.insert(po.segments, {{A, C, D}, {fill_options, draw_options}})
+            table.insert(po.segments, {{A, B, D}, {fill_options, draw_options}, name})
+            table.insert(po.segments, {{A, C, D}, {fill_options, draw_options}, name})
         end
     end
 end
-
+local function get_plane_basis(vector)
+    local origin = {{0,0,0,1}}
+    local basis_i = po.orthogonal_vector(vector)
+    basis_i = la.normalize(basis_i)
+    local basis_j = la.cross(vector,basis_i)
+    basis_j = la.normalize(basis_j)
+    return {origin,basis_i,basis_j}
+end
 
 function po.is_point_in_triangle(point,triangle)
     local P,Q,R = table.unpack(triangle)
@@ -119,17 +132,26 @@ function po.is_point_in_triangle(point,triangle)
 end
 
 function po.compare_segments(S1, S2)
-    if #S1 == 2 or #S2 == 2 then
-        local mid1 = la.midpoint(S1[1])
-        local mid2 = la.midpoint(S2[1])
-        local dot1 =  la.inner(mid1,po.observer)
-        local dot2 =  la.inner(mid2,po.observer)
-        return dot1 > dot2
+    if #S1[1] == 2 or #S2[1] == 2 then
+        local mid1 = la.midpoint({{S1[1][1]},{S1[1][2]}})
+        local mid2 = la.midpoint({{S2[1][1]},{S2[1][2]}}) 
+        if #S1[1] == 3 then
+            local mid1 = la.midpoint({{S1[1][1]},{S1[1][2]},{S1[1][3]}})
+            local mid2 = la.midpoint({{S2[1][1]},{S2[1][2]}})
+        elseif #S2[1] == 3 then
+            local mid1 = la.midpoint({{S1[1][1]},{S1[1][2]}})
+            local mid2 = la.midpoint({{S2[1][1]},{S2[1][2]},{S2[1][3]}})
+        end
+        local dot1 =  la.inner(mid1,po.observer_dir)
+        local dot2 =  la.inner(mid2,po.observer_dir)
+        return dot1 < dot2
     end
 
-    local P1, Q1, R1, C1 = table.unpack(S1)
-    local P2, Q2, R2, C2 = table.unpack(S2)
-    local observer_basis = get_plane_basis(po.observer)
+    local P1, Q1, R1 = table.unpack(S1[1])
+    local P2, Q2, R2 = table.unpack(S2[1])
+    P1, Q1, R1 = {P1}, {Q1}, {R1}
+    P2, Q2, R2 = {P2}, {Q2}, {R2}
+    local observer_basis = get_plane_basis(po.observer_dir)
     local projP1 = po.project_point_onto_basis(P1,observer_basis)
     local projQ1 = po.project_point_onto_basis(Q1,observer_basis)
     local projR1 = po.project_point_onto_basis(R1,observer_basis)
@@ -156,7 +178,7 @@ function po.compare_segments(S1, S2)
             la.add(Q1,la.scale(-1,P1)),
             la.add(R1,la.scale(-1,P1))
         )
-        if la.inner(normal_1,po.observer) < 0 then
+        if la.inner(normal_1,po.observer_dir) > 0 then
             normal_1 = la.scale(-1,normal_1)
         end
         local signed_distance_to_plane
@@ -174,11 +196,11 @@ function po.compare_segments(S1, S2)
                     la.add(
                         P2
                         ,la.scale(
-                            projP2,-1
+                            -1,projP2
                         )
                     )
                     ,normal_1
-                ) < 0
+                ) > 0
             ) then 
                 signed_distance_to_plane = -signed_distance_to_plane
             end
@@ -206,7 +228,7 @@ function po.compare_segments(S1, S2)
                         )
                     )
                     ,normal_1
-                ) < 0
+                ) > 0
             ) then 
                 signed_distance_to_plane = -signed_distance_to_plane
             end
@@ -234,7 +256,7 @@ function po.compare_segments(S1, S2)
                         )
                     )
                     ,normal_1
-                ) < 0
+                ) > 0
             ) then 
                 signed_distance_to_plane = -signed_distance_to_plane
             end
@@ -247,19 +269,10 @@ function po.compare_segments(S1, S2)
     else
         local midpoint_1 = la.midpoint({P1,Q1,R1})
         local midpoint_2 = la.midpoint({P2,Q2,R2})
-        local dot_product_1 = la.inner(midpoint_1,po.observer)
-        local dot_product_2 = la.inner(midpoint_2,po.observer)
-        return dot_product_1 > dot_product_2
+        local dot_product_1 = la.inner(midpoint_1,po.observer_dir)
+        local dot_product_2 = la.inner(midpoint_2,po.observer_dir)
+        return dot_product_1 < dot_product_2
     end
-end
-
-local function get_plane_basis(vector)
-    local origin = {{0,0,0,1}}
-    local basis_i = po.orthogonal_vector(vector)
-    basis_i = la.normalize(basis_i)
-    local basis_j = la.cross(vector,basis_i)
-    basis_j = la.normalize(basis_j)
-    return {origin,basis_i,basis_j}
 end
 
 function po.orthogonal_vector(u)
@@ -301,7 +314,6 @@ end
 
 
 
-
 function po.render_segments()
     table.sort(po.segments, po.compare_segments)
     for _, seg in ipairs(po.segments) do
@@ -309,10 +321,10 @@ function po.render_segments()
             local S3, E3 = seg[1][1], seg[1][2]
             local Sx, Sy = S3[1], S3[2]
             local Ex, Ey = E3[1], E3[2]
-            local color = seg[2]
+            local options = seg[2]
             context(
-                "draw (%.4fcm,%.4fcm) -- (%.4fcm,%.4fcm) withcolor %s;",
-                Sx, Sy, Ex, Ey, color
+                "draw (%.4fcm,%.4fcm) -- (%.4fcm,%.4fcm)"..options,
+                Sx, Sy, Ex, Ey, options
             )
         end
         if #seg[1] == 3 then
@@ -322,22 +334,25 @@ function po.render_segments()
             local Rx, Ry = R[1], R[2]
             local fill_options = seg[2][1]
             local draw_options = seg[2][2]
-            context(
-                [[
-                    path p;
-                    p := (%f,%f) -- (%f,%f) -- (%f,%f) -- cycle;
-                    fill p scaled 1cm
-                ]]..fill_options,
-                Px, Py, Qx, Qy, Rx, Ry
-            )
-            context(
-                [[
-                    path p;
-                    p := (%f,%f) -- (%f,%f) -- (%f,%f) -- cycle;
-                    draw p scaled 1cm
-                ]]..draw_options,
-                Px, Py, Qx, Qy, Rx, Ry
-            )
+            -- local test = la.inner(la.midpoint({{P},{Q},{R}}),po.observer_dir) > la.inner(po.observer_pos,po.observer_dir)
+            if true then
+                context(
+                    [[
+                        path p;
+                        p := (%f,%f) -- (%f,%f) -- (%f,%f) -- cycle;
+                        fill p scaled 1cm
+                    ]]..fill_options,
+                    Px, Py, Qx, Qy, Rx, Ry
+                )
+                context(
+                    [[
+                        path p;
+                        p := (%f,%f) -- (%f,%f) -- (%f,%f) -- cycle;
+                        draw p scaled 1cm
+                    ]]..draw_options,
+                    Px, Py, Qx, Qy, Rx, Ry
+                )
+            end
         end
     end
     po.segments = {}

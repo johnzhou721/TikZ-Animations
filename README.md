@@ -22,21 +22,21 @@ This is not a production library (yet), just something I’ve been building and 
 <tr>
 <td align="center">
 <img src="Animations\elliptic_spherical_mobius_transformation.gif" width="240"><br>
-<sub><code>Inversion of a sphere via a Möbius transformation</code></sub>
+<sub><code>Elliptic Spherical Mobius Transformation</code></sub>
 </td>
 <td align="center">
 <img src="Animations\zooming_in_on_sphere.gif" width="240"><br>
-<sub><code>Rotating a 3D shell with painter’s algorithm sorting</code></sub>
+<sub><code>Moving a Sphere Through the Camera</code></sub>
 </td>
 </tr>
 <tr>
 <td align="center">
 <img src="Animations\camera_angle_torus.gif" width="240"><br>
-<sub><code>Parametric morph between saddle surfaces</code></sub>
+<sub><code>Rotation in Rotated Basis</code></sub>
 </td>
 <td align="center">
 <img src="Animations\tre_foil_knot.gif" width="240"><br>
-<sub><code>Sorted triangle mesh rendering using Lua</code></sub>
+<sub><code>Trefoil Knot</code></sub>
 </td>
 </tr>
 </table>

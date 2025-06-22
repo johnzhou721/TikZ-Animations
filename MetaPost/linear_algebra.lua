@@ -26,6 +26,11 @@ function la.normalize(v)
     return {result}
 end
 
+function la.norm(v)
+    local length = math.sqrt((v[1][1])^2+(v[1][2])^2+(v[1][3])^2)
+    return length
+end
+
 function la.sign(number)
     if number >= 0 then return "positive" end
     return "negative"
@@ -47,14 +52,14 @@ end
 ]]
 function la.midpoint(seg)
     if #seg == 2 then
-        local avgx = (seg[1][1] + seg[2][1]) / 2
-        local avgy = (seg[1][2] + seg[2][2]) / 2
-        local avgz = (seg[1][3] + seg[2][3]) / 2
+        local avgx = (seg[1][1][1] + seg[2][1][1]) / 2
+        local avgy = (seg[1][1][2] + seg[2][1][2]) / 2
+        local avgz = (seg[1][1][3] + seg[2][1][3]) / 2
         return {{avgx,avgy,avgz,1}}
     elseif #seg == 3 then 
-        local avgx = (seg[1][1] + seg[2][1]  + seg[3][1]) / 3
-        local avgy = (seg[1][2] + seg[2][2]  + seg[3][2]) / 3
-        local avgz = (seg[1][3] + seg[2][3]  + seg[3][3]) / 3
+        local avgx = (seg[1][1][1] + seg[2][1][1]  + seg[3][1][1]) / 3
+        local avgy = (seg[1][1][2] + seg[2][1][2]  + seg[3][1][2]) / 3
+        local avgz = (seg[1][1][3] + seg[2][1][3]  + seg[3][1][3]) / 3
         return {{avgx,avgy,avgz,1}}
     else
         assert(false, "Can't calculate midpoint.")
@@ -73,15 +78,32 @@ function la.cross(v1,v2)
         ,1
     }}
 end
+function la.is_valid_w(matrix)
+        if math.abs(matrix[1][4]) <= 0.005 then
+            return false
+        end
+    return true
+end
 
---[[]]
-function la.homogenize(point)
+function la.reciprocate_by_homogenous(matrix)
     local result = {}
-    for component = 1, #point, 1 do
-        result[component] = point[component]/point[#point]
+    for i = 1, #matrix do
+        local row = matrix[i]
+        local w = row[4]
+        if w == 0 then
+            error("Cannot reciprocate row " .. i .. ": homogeneous coordinate w = 0")
+        end
+        --if w<0 then w=-w end
+        result[i] = {
+            row[1]/w,
+            row[2]/w,
+            row[3]/w,
+            1
+        }
     end
     return result
 end
+
 
 --[[
     Matrix addition
@@ -357,6 +379,21 @@ function la.scale3D(scale)
     }
 end
 
+-- Element-wise scalar multiplication of a matrix
+function la.scale(factor, A)
+    local rows = #A
+    local cols = #A[1]
+    local result = {}
+    for i = 1, rows do
+        result[i] = {}
+        for j = 1, cols do
+            result[i][j] = A[i][j] * factor
+        end
+    end
+    return result
+end
+
+
 function la.XYZscale3D(xscale,yscale,zscale)
     return {
         {xscale,0,0,0}
@@ -377,9 +414,9 @@ end
 
 function la.yrotation3D(angle)
     return {
-        {math.cos(angle),0,-math.sin(angle),0}
+        {math.cos(angle),0,math.sin(angle),0}
         ,{0,1,0,0}
-        ,{math.sin(angle),0,math.cos(angle),0}
+        ,{-math.sin(angle),0,math.cos(angle),0}
         ,{0,0,0,1}
     }
 end
