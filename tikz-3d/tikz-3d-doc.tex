@@ -1,0 +1,18 @@
+% tikz-3d-doc.tex
+% arara: lualatex
+\documentclass{article}
+\usepackage{tikz-3d}
+\begin{document}
+    \begin{tikzpicture}
+        \appendcurve[
+            u min = 0
+            ,u max = 1
+            ,u samples = 2
+            ,x = {math.cos(u)}
+            ,y = {math.sin(u)}
+            ,z = {0}
+            ,draw options = {red}
+            ,name = {George}
+        ]
+    \end{tikzpicture}
+\end{document}

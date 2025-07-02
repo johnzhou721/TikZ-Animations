@@ -1,0 +1,23 @@
+% tikz-3d.sty
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{tikz-3d}[
+    2025/05/10 v0.01 LaTeX package 3D illustrations in TikZ.
+]
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta}
+
+\input{tikzkeys}
+
+\ExplSyntaxOn
+\lua_load_module:n { parametric }
+\NewDocumentCommand { \appendcurve } {o} {
+    \begingroup
+        \tikzset{
+            %/tikz-3d/parametric/curve/.search also = {/tikz}
+            ,/tikz-3d/parametric/curve/.cd
+            ,#1
+        }
+        \__tikztd_appendcurve: {}
+    \endgroup
+}
+\ExplSyntaxOff

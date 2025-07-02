@@ -1,0 +1,73 @@
+% tikzkeys.tex
+\tikzset{
+    /tikz-3d/.is family % abbreviated "td"
+    ,/tikz-3d/.cd 
+        ,/tikz-3d/clipped-subspace/.cd % abbreviated "cs"
+            ,x min/.estore in = \tikz@td@cs@xmin
+            ,x max/.estore in = \tikz@td@cs@xmax
+            ,y min/.estore in = \tikz@td@cs@ymin
+            ,y max/.estore in = \tikz@td@cs@ymax
+            ,z min/.estore in = \tikz@td@cs@zmin
+            ,z max/.estore in = \tikz@td@cs@zmax
+            ,/tikz-3d/clipped-subspace/plane/.cd % abbreviated "p"
+                % normal equation ax + by + cz + d = 0
+                ,na/.estore in = \tikz@td@cs@p@na
+                ,nb/.estore in = \tikz@td@cs@p@nb
+                ,nc/.estore in = \tikz@td@cs@p@nc
+                ,nd/.estore in = \tikz@td@cs@p@nd
+            ,/tikz-3d/clipped-subspace/line/.cd % abbreviated "l"
+                % normal equation ax + by + c = 0
+                ,na/.estore in = \tikz@td@cs@l@na
+                ,nb/.estore in = \tikz@td@cs@l@nb
+                ,nc/.estore in = \tikz@td@cs@l@nc
+        ,/tikz-3d/parametric/.cd % abbreviated "p"
+            ,/tikz-3d/parametric/curve/.cd % abbreviated "c"
+                ,u min/.estore in = \tikz@td@p@c@umin
+                ,u max/.estore in = \tikz@td@p@c@umax
+                ,u samples/.estore in = \tikz@td@p@c@usamples
+                ,x/.code = {\edef\tikz@td@p@c@x{#1}}
+                ,y/.code = {\edef\tikz@td@p@c@y{#1}}
+                ,z/.code = {\edef\tikz@td@p@c@z{#1}}
+                ,draw options/.estore in = \tikz@td@p@c@drawoptions
+                ,name/.estore in = \tikz@td@p@c@name
+                ,u min = 0
+                ,u max = 1
+                ,u samples = 2
+                ,x = {math.cos(u)}
+                ,y = {math.sin(u)}
+                ,z = 0
+                ,draw options = {line cap = round}
+                ,name = George
+            ,/tikz-3d/parametric/surface/.cd % abbreviated "surf"
+                ,u min/.estore in = \tikz@td@p@surf@umin
+                ,u max/.estore in = \tikz@td@p@surf@umax
+                ,u samples/.estore in = \tikz@td@p@surf@usamples
+                ,v min/.estore in = \tikz@td@p@surf@vmin
+                ,v max/.estore in = \tikz@td@p@surf@vmax
+                ,v samples/.estore in = \tikz@td@p@surf@vsamples
+            ,/tikz-3d/parametric/solid/.cd % abbreviated "s"
+                ,u min/.estore in = \tikz@td@p@s@umin
+                ,u max/.estore in = \tikz@td@p@s@umax
+                ,u samples/.estore in = \tikz@td@p@s@usamples
+                ,v min/.estore in = \tikz@td@p@s@vmin
+                ,v max/.estore in = \tikz@td@p@s@vmax
+                ,v samples/.estore in = \tikz@td@p@s@vsamples
+                ,w min/.estore in = \tikz@td@p@s@wmin
+                ,w max/.estore in = \tikz@td@p@s@wmax
+                ,w samples/.estore in = \tikz@td@p@s@wsamples
+        ,/tikz-3d/ode/.cd % abbreviated "ode"
+        ,/tikz-3d/geometric-vector/.cd % abbreviated "gm"
+            ,point radius/.estore in = \tikz@td@gm@pointradius
+            ,mark length/.estore in = \tikz@td@gm@marklength
+            ,mark/.is choice 
+                ,mark/false/.code = {\edef\tikz@td@gm@mark{0}}
+                ,mark/true/.code = {\edef\tikz@td@gm@mark{1}}
+            ,mark start/.estore in = \tikz@td@gm@markstart
+            ,mark stop/.estore in = \tikz@td@gm@markstop
+            ,mark step/.estore in = \tikz@td@gm@markstep
+            ,points/.is choice 
+                ,points/neither/.code = {\edef\tikz@td@gm@points{0}}
+                ,points/behind/.code = {\edef\tikz@td@gm@points{1}}
+                ,points/both/.code = {\edef\tikz@td@gm@points{2}}
+                ,points/front/.code = {\edef\tikz@td@gm@points{3}}
+}
