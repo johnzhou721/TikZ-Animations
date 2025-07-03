@@ -1,5 +1,6 @@
 -- parametric.lua
 local rtc = require "register_tex_cmd"
+local ss = require "segment_sorting"
 
 
 local segments = {}
@@ -36,6 +37,7 @@ local function append_curve(hash)
 
     u_start = single_string_expression(u_start)
     u_stop = single_string_expression(u_stop)
+    u_samples = single_string_expression(u_samples)
 
     local u_step = (u_stop - u_start) / (u_samples - 1)
 
@@ -85,8 +87,10 @@ local function append_surface(hash)
 
     u_start = single_string_expression(u_start)
     u_stop = single_string_expression(u_stop)
+    u_samples = single_string_expression(u_samples)
     v_start = single_string_expression(v_start)
     v_stop = single_string_expression(v_stop)
+    v_samples = single_string_expression(v_samples)
 
     local u_step = (u_stop - u_start) / (u_samples - 1)
     local v_step = (v_stop - v_start) / (v_samples - 1)
@@ -106,19 +110,19 @@ local function append_surface(hash)
             table.insert(
                 segments, 
                 { 
-                    segment = { A, B, D }, 
+                    segment      = { A, B, D }, 
                     draw_options = draw_options,
                     fill_options = fill_options, 
-                    name = name 
+                    name         = name 
                 }
             )
             table.insert(
                 segments, 
                 { 
-                    segment = { A, C, D }, 
+                    segment      = { A, C, D }, 
                     draw_options = draw_options,
                     fill_options = fill_options, 
-                    name = name 
+                    name         = name 
                 }
             )
         end
@@ -126,6 +130,7 @@ local function append_surface(hash)
 end
 
 local function render_segments()
+    table.sort(segments,ss.compare_triangles)
     for _, segment in ipairs(segments) do
         if #segment.segment == 2 then
             local S, E = segment.segment[1], segment.segment[2]
