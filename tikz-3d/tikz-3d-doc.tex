@@ -6,13 +6,14 @@
     \begin{tikzpicture}
         \appendcurve[
             u min = 0
-            ,u max = 1
-            ,u samples = 2
-            ,x = {math.cos(u)}
-            ,y = {math.sin(u)}
+            ,u max = {2*math.pi}
+            ,u samples = 360
+            ,x = {2*math.cos(u)}
+            ,y = {2*math.sin(u)}
             ,z = {0}
             ,draw options = {red}
             ,name = {George}
         ]
+        \rendersegments
     \end{tikzpicture}
 \end{document}
