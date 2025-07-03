@@ -2,7 +2,7 @@ local mm = require "matrix_math"
 
 local ss = {}
 
-local observer = {{0,0,1,1}}
+local observer = {{0,0,-1,1}}
 
 local function is_point_in_triangle(point,triangle)
     local P,Q,R = table.unpack(triangle)
