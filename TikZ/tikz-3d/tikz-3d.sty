@@ -1,0 +1,52 @@
+% tikz-3d.sty
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{tikz-3d}[
+    2025/05/10 v0.01 LaTeX package 3D illustrations in TikZ.
+]
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta}
+
+\input{tikzkeys}
+
+\ExplSyntaxOn
+\lua_load_module:n { parametric }
+\lua_load_module:n { matrix_math }
+\lua_load_module:n { clipped_subspace }
+\NewDocumentCommand { \appendcurve } {o} {
+    \begingroup
+        \tikzset{
+            /tikz-3d/parametric/curve/.search~also = {/tikz}
+            ,/tikz-3d/parametric/curve/.cd
+            ,#1
+        }
+        \__tikztd_appendcurve: {}
+    \endgroup
+}
+\NewDocumentCommand { \appendsurface } {o} {
+    \begingroup
+        \tikzset{
+            /tikz-3d/parametric/surface/.search~also = {/tikz}
+            ,/tikz-3d/parametric/surface/.cd
+            ,#1
+        }
+        \__tikztd_appendsurface: {}
+    \endgroup
+}
+\NewDocumentCommand { \rendersegments } {} {
+    \__tikztd_rendersegments: {}
+}
+
+\NewDocumentCommand { \appendplane } {o} {
+    \begingroup
+        \tikzset{
+            /tikz-3d/clipped-subspace/plane/.search~also = {/tikz-3d/clipped-subspace/}
+            ,/tikz-3d/clipped-subspace/plane/.cd
+            ,#1
+        }
+        \__tikztd_appendplane: {}
+    \endgroup
+}
+\NewDocumentCommand { \renderplanes } {} {
+    \__tikztd_renderplanes: {}
+}
+\ExplSyntaxOff

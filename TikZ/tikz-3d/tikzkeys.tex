@@ -9,12 +9,26 @@
             ,y max/.estore in = \tikz@td@cs@ymax
             ,z min/.estore in = \tikz@td@cs@zmin
             ,z max/.estore in = \tikz@td@cs@zmax
+            ,x min = -5
+            ,x max = 5
+            ,y min = -5
+            ,y max = 5
+            ,z min = -5
+            ,z max = 5
             ,/tikz-3d/clipped-subspace/plane/.cd % abbreviated "p"
                 % normal equation ax + by + cz + d = 0
                 ,a/.estore in = \tikz@td@cs@p@a
                 ,b/.estore in = \tikz@td@cs@p@b
                 ,c/.estore in = \tikz@td@cs@p@c
                 ,d/.estore in = \tikz@td@cs@p@d
+                ,draw options/.estore in = \tikz@td@cs@p@drawoptions
+                ,fill options/.estore in = \tikz@td@cs@p@filloptions
+                ,a = 1
+                ,b = 1
+                ,c = 1
+                ,d = 1
+                ,draw options = {draw, line cap = round,line join = round}
+                ,fill options = {fill = red, fill opacity = 0.7}
             ,/tikz-3d/clipped-subspace/line/.cd % abbreviated "l"
                 % normal equation ax + by + c = 0
                 ,a/.estore in = \tikz@td@cs@l@a
@@ -46,6 +60,24 @@
                 ,v min/.estore in = \tikz@td@p@surf@vmin
                 ,v max/.estore in = \tikz@td@p@surf@vmax
                 ,v samples/.estore in = \tikz@td@p@surf@vsamples
+                ,x/.code = {\edef\tikz@td@p@surf@x{#1}}
+                ,y/.code = {\edef\tikz@td@p@surf@y{#1}}
+                ,z/.code = {\edef\tikz@td@p@surf@z{#1}}
+                ,draw options/.estore in = \tikz@td@p@surf@drawoptions
+                ,fill options/.estore in = \tikz@td@p@surf@filloptions
+                ,name/.estore in = \tikz@td@p@surf@name
+                ,u min = 0
+                ,u max = tau
+                ,u samples = 36
+                ,v min = 0
+                ,v max = pi
+                ,v samples = 18
+                ,x = {sphere(u,v)[1][1]}
+                ,y = {sphere(u,v)[1][2]}
+                ,z = {sphere(u,v)[1][3]}
+                ,draw options = {draw, line cap = round,line join = round}
+                ,fill options = {fill = red, fill opacity = 0.7}
+                ,name = Bob
             ,/tikz-3d/parametric/solid/.cd % abbreviated "s"
                 ,u min/.estore in = \tikz@td@p@s@umin
                 ,u max/.estore in = \tikz@td@p@s@umax

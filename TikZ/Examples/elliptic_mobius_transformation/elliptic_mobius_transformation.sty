@@ -1,0 +1,45 @@
+% elliptic_mobius_transformation.sty
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{elliptic_mobius_transformation}[
+    2025/05/10 v0.01 LaTeX package 3D illustrations in TikZ.
+]
+
+\RequirePackage{tikz}
+
+\tikzset{
+    /tikz-3d/.is family % abbreviated "td"
+    ,/tikz-3d/.cd
+        ,/tikz-3d/parametric/.cd % abbreviated "p"
+            ,/tikz-3d/parametric/curve/.cd % abbreviated "c"
+                ,u min/.estore in = \tikz@td@p@c@umin
+                ,u max/.estore in = \tikz@td@p@c@umax
+                ,u samples/.estore in = \tikz@td@p@c@usamples
+                ,x/.code = {\edef\tikz@td@p@c@x{#1}}
+                ,y/.code = {\edef\tikz@td@p@c@y{#1}}
+                ,z/.code = {\edef\tikz@td@p@c@z{#1}}
+                ,draw options/.estore in = \tikz@td@p@c@drawoptions
+                ,name/.estore in = \tikz@td@p@c@name
+                ,u min = 0
+                ,u max = 1
+                ,u samples = 2
+                ,x = {math.cos(u)}
+                ,y = {math.sin(u)}
+                ,z = 0
+                ,draw options = {line cap = round}
+                ,name = George
+}
+\ExplSyntaxOn
+\lua_load_module:n { elliptic_mobius_transformation }
+\NewDocumentCommand { \appendcurve } { o } {
+    \begingroup
+        \tikzset{
+            ,/tikz-3d/parametric/curve/.cd
+            ,#1
+        }
+        \__jasper_appendcurve: {}
+    \endgroup
+}
+\NewDocumentCommand { \rendersegments } { } {
+    \__jasper_rendersegments: {}
+}
+\ExplSyntaxOff

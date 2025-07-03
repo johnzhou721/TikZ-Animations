@@ -1,0 +1,123 @@
+% elliptic_mobius_transformation.tex
+% arara: lualatex
+\documentclass{article}
+\PassOptionsToPackage{paperwidth=10cm, paperheight=10cm, margin=0cm}{geometry}
+\usepackage{elliptic_mobius_transformation,geometry,nopageno}
+\begin{document}
+    \foreach \angle in {1,...,24} {
+        \noindent\begin{tikzpicture}
+            \clip (-5,-5) rectangle (5,5);
+            \foreach \longitude in {1,...,36}{
+                \let\longitude\longitude
+                \appendcurve[
+                    u min = 0
+                    ,u max = {math.pi}
+                    ,u samples = 200
+                    ,x = {
+                        matrix_multiply(
+                            stereographic_projection(
+                                matrix_multiply(
+                                    sphere(2*math.pi*token.get_macro("longitude")/36,u)
+                                    ,euler(0,math.pi/2,(2*math.pi/24)*token.get_macro("angle")/36)
+                                )
+                            ),
+                            euler(math.pi/2,math.pi/3,math.pi/6)
+                        )[1][1]
+                    }
+                    ,y = {
+                        matrix_multiply(
+                            stereographic_projection(
+                                matrix_multiply(
+                                    sphere(2*math.pi*token.get_macro("longitude")/36,u)
+                                    ,euler(0,math.pi/2,(2*math.pi/24)*token.get_macro("angle")/36)
+                                )
+                            ),
+                            euler(math.pi/2,math.pi/3,math.pi/6)
+                        )[1][2]
+                    }
+                    ,z = 0*u
+                ]
+                \appendcurve[
+                    u min = 0
+                    ,u max = {math.pi}
+                    ,u samples = 200
+                    ,x = {
+                        matrix_multiply(
+                            matrix_multiply(
+                                sphere(2*math.pi*token.get_macro("longitude")/36,u)
+                                ,euler(0,math.pi/2,(2*math.pi/24)*token.get_macro("angle")/36)
+                            ),
+                            euler(math.pi/2,math.pi/3,math.pi/6)
+                        )[1][1]
+                    }
+                    ,y = {
+                        matrix_multiply(
+                            matrix_multiply(
+                                sphere(2*math.pi*token.get_macro("longitude")/36,u)
+                                ,euler(0,math.pi/2,(2*math.pi/24)*token.get_macro("angle")/36)
+                            ),
+                            euler(math.pi/2,math.pi/3,math.pi/6)
+                        )[1][2]
+                    }
+                    ,z = 0*u
+                ]
+            }
+            \foreach \latitude in {1,...,18}{
+                \let\latitude\latitude
+                \appendcurve[
+                    u min = 0
+                    ,u max = {2*math.pi}
+                    ,u samples = 200
+                    ,x = {
+                        matrix_multiply(
+                            stereographic_projection(
+                                matrix_multiply(
+                                    sphere(u,2*math.pi*token.get_macro("latitude")/36)
+                                    ,euler(0,math.pi/2,(2*math.pi/24)*token.get_macro("angle")/36)
+                                )
+                            ),
+                            euler(math.pi/2,math.pi/3,math.pi/6)
+                        )[1][1]
+                    }
+                    ,y = {
+                        matrix_multiply(
+                            stereographic_projection(
+                                matrix_multiply(
+                                    sphere(u,2*math.pi*token.get_macro("latitude")/36)
+                                    ,euler(0,math.pi/2,(2*math.pi/24)*token.get_macro("angle")/36)
+                                )
+                            ),
+                            euler(math.pi/2,math.pi/3,math.pi/6)
+                        )[1][2]
+                    }
+                    ,z = 0*u
+                ]
+                \appendcurve[
+                    u min = 0
+                    ,u max = {2*math.pi}
+                    ,u samples = 200
+                    ,x = {
+                        matrix_multiply(
+                            matrix_multiply(
+                                sphere(u,2*math.pi*token.get_macro("latitude")/36)
+                                ,euler(0,math.pi/2,(2*math.pi/24)*token.get_macro("angle")/36)
+                            ),
+                            euler(math.pi/2,math.pi/3,math.pi/6)
+                        )[1][1]
+                    }
+                    ,y = {
+                        matrix_multiply(
+                            matrix_multiply(
+                                sphere(u,2*math.pi*token.get_macro("latitude")/36)
+                                ,euler(0,math.pi/2,(2*math.pi/24)*token.get_macro("angle")/36)
+                            ),
+                            euler(math.pi/2,math.pi/3,math.pi/6)
+                        )[1][2]
+                    }
+                    ,z = 0*u
+                ]
+            }
+            \rendersegments
+        \end{tikzpicture}\newpage
+    }
+\end{document}

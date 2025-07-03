@@ -6,14 +6,17 @@
     \begin{tikzpicture}
         \appendcurve[
             u min = 0
-            ,u max = {2*math.pi}
+            ,u max = {2*pi}
             ,u samples = 360
-            ,x = {2*math.cos(u)}
-            ,y = {2*math.sin(u)}
+            ,x = {2*cos(u)}
+            ,y = {2*sin(u)}
             ,z = {0}
             ,draw options = {red}
             ,name = {George}
         ]
+        \appendsurface[]
+        \appendplane[]
+        \renderplanes
         \rendersegments
     \end{tikzpicture}
 \end{document}
