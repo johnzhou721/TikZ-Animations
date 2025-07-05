@@ -1,0 +1,111 @@
+% geometric_vector.tex
+\newcommand{\drawpoint}[2][]{
+    \begingroup 
+        \coordinate (@) at (#2);
+        \node at (@) [
+            circle
+            ,minimum size = 2*\tikz@td@gm@pointradius cm
+            ,inner sep = 0pt
+            ,outer sep = 0pt
+            ,fill
+            ,#1
+        ] {};
+    \endgroup
+}
+\newcommand{\drawmark}[1][]{
+    \begingroup
+        \pgfmathsetmacro{\tmp}{\tikz@td@gm@marklength/2}
+        \draw
+            [
+                #1
+            ]
+            (0,-\tmp pt) -- (0,\tmp pt);
+    \endgroup
+}
+\newcommand{\drawvector}[3][]{
+    \begingroup
+        \tikzset{#1}
+        \coordinate (@start) at (#2);
+        \ifnum\tikz@td@gm@points=0
+            \drawpoint[#1]{@start}
+            \draw
+                [
+                    shorten < = \tikz@td@gm@pointradius cm
+                    ,#1
+                ] (@start) -- ++(#3);
+        \fi
+        \ifnum\tikz@td@gm@points=1
+            \drawpoint[#1]{@start}
+            \draw
+                [
+                    shorten < = \tikz@td@gm@pointradius cm
+                    ,shorten > = \tikz@td@gm@pointradius cm
+                    ,#1
+                ] (@start) -- ++(#3) coordinate (@end);
+            \drawpoint[#1]{@end}
+        \fi
+        \ifnum\tikz@td@gm@points=2
+            \draw
+                [
+                    #1
+                ] (@start) -- ++(#3);
+        \fi
+        \ifnum\tikz@td@gm@points=3
+            \draw
+                [
+                    shorten > = \pv@vector@pointradius cm
+                    ,#1
+                ] (@start) -- ++(#3) coordinate (@end);
+            \drawpoint[#1]{@end}
+        \fi
+        \ifnum\tikz@td@gm@mark=1
+            \path
+                [
+                    decoration = {
+                        markings
+                        ,mark =
+                            between positions \tikz@td@gm@markstart
+                            and \tikz@td@gm@markstop
+                            step \tikz@td@gm@markstep
+                            with 
+                                {
+                                    \drawmark
+                                        [%
+                                            #1%
+                                        ]%
+                                }
+                    }
+                    ,decorate
+                ] (#2) -- ++(#3);
+        \fi
+    \endgroup
+}
+
+% Labels a path:
+% #2 - Start Coordinate,
+% #3 - End Coordinate,
+% #4 - Vector (direction),
+% #5 - Relative Position along path,
+% #6 - Offset coordinate,
+% #7 - The label text.
+\newcommand{\drawlabel}[7][]{
+    \begingroup
+    \path
+        [
+            decoration = {
+                markings
+                ,mark =
+                    at position #4
+                    with 
+                        {
+                            \node
+                                [
+                                    #1
+                                ]
+                                at (#5,#6) {#7};
+                        }
+            }
+            ,decorate
+        ] (#2) -- ++(#3);
+    \endgroup
+}

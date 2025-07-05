@@ -1,7 +1,11 @@
 -- parametric.lua
+local mm = require "matrix_math"
 local rtc = require "register_tex_cmd"
 local ss = require "segment_sorting"
-
+_ENV = _G -- use this to *add* the functions in test
+for i,j in pairs(mm) do
+  _ENV[i] = j
+end
 
 local segments = {}
 local observer_dir = { { 0, 0, -1, 1} }
@@ -15,14 +19,15 @@ local function single_string_expression(str)
 end
 
 local function append_curve(hash)
-    local u_start      = hash.u_start
-    local u_stop       = hash.u_stop
-    local u_samples    = hash.u_samples
-    local x            = hash.x
-    local y            = hash.y
-    local z            = hash.z
-    local draw_options = hash.draw_options
-    local name         = hash.name
+    local u_start        = hash.u_start
+    local u_stop         = hash.u_stop
+    local u_samples      = hash.u_samples
+    local x              = hash.x
+    local y              = hash.y
+    local z              = hash.z
+    local draw_options   = hash.draw_options
+    local name           = hash.name
+    local transformation = hash.transformation
 
     local function single_string_function(str)
         if not str or str == "" then
@@ -38,6 +43,7 @@ local function append_curve(hash)
     u_start = single_string_expression(u_start)
     u_stop = single_string_expression(u_stop)
     u_samples = single_string_expression(u_samples)
+    transformation = single_string_expression(transformation)
 
     local u_step = (u_stop - u_start) / (u_samples - 1)
 
@@ -49,10 +55,11 @@ local function append_curve(hash)
         local u = u_start + i * u_step
         local A = parametric_curve(u)
         local B = parametric_curve(u+u_step)
+        local the_segment = matrix_multiply({ A, B }, transformation)
         table.insert(
             segments, 
             { 
-                segment = { A, B }, 
+                segment = the_segment, 
                 draw_options = draw_options, 
                 name = name 
             }
@@ -61,18 +68,19 @@ local function append_curve(hash)
 end
 
 local function append_surface(hash)
-    local u_start      = hash.u_start
-    local u_stop       = hash.u_stop
-    local u_samples    = hash.u_samples
-    local v_start      = hash.v_start
-    local v_stop       = hash.v_stop
-    local v_samples    = hash.v_samples
-    local x            = hash.x
-    local y            = hash.y
-    local z            = hash.z
-    local draw_options = hash.draw_options
-    local fill_options = hash.fill_options
-    local name         = hash.name
+    local u_start        = hash.u_start
+    local u_stop         = hash.u_stop
+    local u_samples      = hash.u_samples
+    local v_start        = hash.v_start
+    local v_stop         = hash.v_stop
+    local v_samples      = hash.v_samples
+    local x              = hash.x
+    local y              = hash.y
+    local z              = hash.z
+    local draw_options   = hash.draw_options
+    local fill_options   = hash.fill_options
+    local name           = hash.name
+    local transformation = hash.transformation
 
     local function double_string_function(str)
         if not str or str == "" then
@@ -91,6 +99,7 @@ local function append_surface(hash)
     v_start = single_string_expression(v_start)
     v_stop = single_string_expression(v_stop)
     v_samples = single_string_expression(v_samples)
+    transformation = single_string_expression(transformation)
 
     local u_step = (u_stop - u_start) / (u_samples - 1)
     local v_step = (v_stop - v_start) / (v_samples - 1)
@@ -107,10 +116,12 @@ local function append_surface(hash)
             local B = parametric_surface(u + u_step, v)
             local C = parametric_surface(u, v + v_step)
             local D = parametric_surface(u + u_step, v + v_step)
+            local the_segment1 = matrix_multiply({ A, B, D },transformation)
+            local the_segment2 = matrix_multiply({ A, C, D },transformation)
             table.insert(
                 segments, 
                 { 
-                    segment      = { A, B, D }, 
+                    segment      = the_segment1, 
                     draw_options = draw_options,
                     fill_options = fill_options, 
                     name         = name 
@@ -119,7 +130,7 @@ local function append_surface(hash)
             table.insert(
                 segments, 
                 { 
-                    segment      = { A, C, D }, 
+                    segment      = the_segment2, 
                     draw_options = draw_options,
                     fill_options = fill_options, 
                     name         = name 
@@ -176,14 +187,15 @@ end
 rtc.register_tex_cmd(
     "appendcurve", function()
     append_curve{
-        u_start      = token.get_macro("tikz@td@p@c@umin"),
-        u_stop       = token.get_macro("tikz@td@p@c@umax"),
-        u_samples    = token.get_macro("tikz@td@p@c@usamples"),
-        x            = token.get_macro("tikz@td@p@c@x"),
-        y            = token.get_macro("tikz@td@p@c@y"),
-        z            = token.get_macro("tikz@td@p@c@z"),
-        draw_options = token.get_macro("tikz@td@p@c@drawoptions"),
-        name         = token.get_macro("tikz@td@p@c@name")
+        u_start        = token.get_macro("tikz@td@p@c@umin"),
+        u_stop         = token.get_macro("tikz@td@p@c@umax"),
+        u_samples      = token.get_macro("tikz@td@p@c@usamples"),
+        x              = token.get_macro("tikz@td@p@c@x"),
+        y              = token.get_macro("tikz@td@p@c@y"),
+        z              = token.get_macro("tikz@td@p@c@z"),
+        draw_options   = token.get_macro("tikz@td@p@c@drawoptions"),
+        name           = token.get_macro("tikz@td@p@c@name"),
+        transformation = token.get_macro("tikz@td@p@c@transformation")
     } end,
     { }
 )
@@ -191,18 +203,19 @@ rtc.register_tex_cmd(
 rtc.register_tex_cmd(
     "appendsurface", function()
     append_surface{
-        u_start      = token.get_macro("tikz@td@p@surf@umin"),
-        u_stop       = token.get_macro("tikz@td@p@surf@umax"),
-        u_samples    = token.get_macro("tikz@td@p@surf@usamples"),
-        v_start      = token.get_macro("tikz@td@p@surf@vmin"),
-        v_stop       = token.get_macro("tikz@td@p@surf@vmax"),
-        v_samples    = token.get_macro("tikz@td@p@surf@vsamples"),
-        x            = token.get_macro("tikz@td@p@surf@x"),
-        y            = token.get_macro("tikz@td@p@surf@y"),
-        z            = token.get_macro("tikz@td@p@surf@z"),
-        draw_options = token.get_macro("tikz@td@p@surf@drawoptions"),
-        fill_options = token.get_macro("tikz@td@p@surf@filloptions"),
-        name         = token.get_macro("tikz@td@p@surf@name")
+        u_start        = token.get_macro("tikz@td@p@surf@umin"),
+        u_stop         = token.get_macro("tikz@td@p@surf@umax"),
+        u_samples      = token.get_macro("tikz@td@p@surf@usamples"),
+        v_start        = token.get_macro("tikz@td@p@surf@vmin"),
+        v_stop         = token.get_macro("tikz@td@p@surf@vmax"),
+        v_samples      = token.get_macro("tikz@td@p@surf@vsamples"),
+        x              = token.get_macro("tikz@td@p@surf@x"),
+        y              = token.get_macro("tikz@td@p@surf@y"),
+        z              = token.get_macro("tikz@td@p@surf@z"),
+        draw_options   = token.get_macro("tikz@td@p@surf@drawoptions"),
+        fill_options   = token.get_macro("tikz@td@p@surf@filloptions"),
+        name           = token.get_macro("tikz@td@p@surf@name"),
+        transformation = token.get_macro("tikz@td@p@surf@transformation")
     } end,
     { }
 )

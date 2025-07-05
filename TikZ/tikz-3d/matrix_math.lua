@@ -2,26 +2,26 @@
 
 local mm = {}
 
-cos   = math.cos
-acos  = math.acos
-sin   = math.sin
-asin  = math.asin
-tan   = math.tan
-atan  = math.atan
-atan2 = math.atan2
-sqrt  = math.sqrt 
-min   = math.min 
-max   = math.max 
-abs   = math.abs
-pi    = math.pi 
-tau   = 2*pi
+mm.cos   = math.cos
+mm.acos  = math.acos
+mm.sin   = math.sin
+mm.asin  = math.asin
+mm.tan   = math.tan
+mm.atan  = math.atan
+mm.atan2 = math.atan2
+mm.sqrt  = math.sqrt 
+mm.min   = math.min 
+mm.max   = math.max 
+mm.abs   = math.abs
+mm.pi    = math.pi 
+mm.tau   = 2*mm.pi
 
 --- matrix multiplication
 ---
 --- @param A table<table<number>> left matrix
 --- @param B table<table<number>> right matrix
 --- @return table<table<number>> the product
-function matrix_multiply(A,B)
+function mm.matrix_multiply(A,B)
     local rows_A = #A
     local columns_A = #A[1]
     local rows_B = #B
@@ -54,7 +54,7 @@ function matrix_multiply(A,B)
     return product
 end
 
-function y_rotation_3D(angle)
+function mm.yrotation(angle)
     local c = cos(angle)
     local s = sin(angle)
     return {
@@ -65,7 +65,7 @@ function y_rotation_3D(angle)
     }
 end
 
-function z_rotation_3D(angle)
+function mm.zrotation(angle)
     local c = cos(angle)
     local s = sin(angle)
     return {
@@ -76,17 +76,17 @@ function z_rotation_3D(angle)
     }
 end
 
-function euler(alpha,beta,gamma)
+function mm.euler(alpha,beta,gamma)
     return matrix_multiply(
-        z_rotation_3D(gamma)
+        zrotation(gamma)
         ,matrix_multiply(
-            y_rotation_3D(beta)
-            ,z_rotation_3D(alpha)
+            yrotation(beta)
+            ,zrotation(alpha)
         )
     )
 end
 
-function sphere(longitude,latitude)
+function mm.sphere(longitude,latitude)
     local s = sin(latitude)
     return {{
         s * cos(longitude)
@@ -172,6 +172,17 @@ function mm.normalize(vector)
         ,vector[1][3]/len
         ,1
     }}
+end
+
+function mm.identity_matrix()
+    local I = {}
+    for i = 1, 4 do
+        I[i] = {}
+        for j = 1, 4 do
+            I[i][j] = (i == j) and 1 or 0
+        end
+    end
+    return I
 end
 
 function mm.midpoint(triangle)

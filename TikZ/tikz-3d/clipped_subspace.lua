@@ -1,46 +1,13 @@
 -- clipped_subspace.lua
+local mm = require "matrix_math"
 local rtc = require "register_tex_cmd"
+_ENV = _G -- use this to *add* the functions in test
+for i,j in pairs(mm) do
+  _ENV[i] = j
+end
+
 
 local list_of_planes = {}
-
-local function dot_product(u,v)
-    local result = u[1][1]*v[1][1] + u[1][2]*v[1][2] + u[1][3]*v[1][3]
-    return result
-end
-
-local function cross_product(u,v)
-    local x = u[1][2]*v[1][3]-u[1][3]*v[1][2]
-    local y = u[1][3]*v[1][1]-u[1][1]*v[1][3]
-    local z = u[1][1]*v[1][2]-u[1][2]*v[1][1]
-    local result = {{x,y,z,1}}
-    return result
-end
-
-local function orthogonal_vector(u)
-    local v
-    if (u[1][1]~=0 and u[1][2]==0 and u[1][3]==0) then
-        v = cross_product(u,{{0,1,0,1}})
-    else
-        v = cross_product(u,{{1,0,0,1}})
-    end
-    result = v
-    return result
-end
-
-local function norm(u)
-    local result = math.sqrt((u[1][1])^2 + (u[1][2])^2 + (u[1][3])^2)
-    return result
-end
-
-local function normalize(vector)
-    local len = norm(vector)
-    return {{
-        vector[1][1]/len
-        ,vector[1][2]/len
-        ,vector[1][3]/len
-        ,1
-    }}
-end
 
 local function single_string_expression(str)
     if not str or str == "" then
@@ -64,6 +31,7 @@ local function append_plane(hash)
     local zmax         = hash.zmax
     local fill_options = hash.fill_options
     local draw_options = hash.fill_options
+    local transform    = single_string_expression(hash.transformation)
 
     d_value = single_string_expression(d_value)
     xmin = single_string_expression(xmin)
@@ -166,6 +134,9 @@ local function append_plane(hash)
     for i, plane in ipairs(sorted_intersections) do 
         table.insert(result.points,plane.point)
     end
+    for i, point in ipairs(result.points) do
+        result.points[i] = matrix_multiply(result.points[i],transform)
+    end
     table.insert(list_of_planes,result)
 end
 
@@ -178,23 +149,25 @@ local function render_planes()
         end
         tex.sprint(" cycle;")
     end
+    list_of_planes = {}
 end
 
 rtc.register_tex_cmd(
     "appendplane", function()
     append_plane{
-        a            = token.get_macro("tikz@td@cs@p@a"),
-        b            = token.get_macro("tikz@td@cs@p@b"),
-        c            = token.get_macro("tikz@td@cs@p@c"),
-        d            = token.get_macro("tikz@td@cs@p@d"),
-        xmin         = token.get_macro("tikz@td@cs@xmin"),
-        xmax         = token.get_macro("tikz@td@cs@xmax"),
-        ymin         = token.get_macro("tikz@td@cs@ymin"),
-        ymax         = token.get_macro("tikz@td@cs@ymax"),
-        zmin         = token.get_macro("tikz@td@cs@zmin"),
-        zmax         = token.get_macro("tikz@td@cs@zmax"),
-        fill_options = token.get_macro("tikz@td@cs@p@filloptions"),
-        draw_options = token.get_macro("tikz@td@cs@p@drawoptions")
+        a              = token.get_macro("tikz@td@cs@p@a"),
+        b              = token.get_macro("tikz@td@cs@p@b"),
+        c              = token.get_macro("tikz@td@cs@p@c"),
+        d              = token.get_macro("tikz@td@cs@p@d"),
+        xmin           = token.get_macro("tikz@td@cs@xmin"),
+        xmax           = token.get_macro("tikz@td@cs@xmax"),
+        ymin           = token.get_macro("tikz@td@cs@ymin"),
+        ymax           = token.get_macro("tikz@td@cs@ymax"),
+        zmin           = token.get_macro("tikz@td@cs@zmin"),
+        zmax           = token.get_macro("tikz@td@cs@zmax"),
+        fill_options   = token.get_macro("tikz@td@cs@p@filloptions"),
+        draw_options   = token.get_macro("tikz@td@cs@p@drawoptions"),
+        transformation = token.get_macro("tikz@td@cs@transformation")
     } end,
     { }
 )

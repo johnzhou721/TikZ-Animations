@@ -1,46 +1,35 @@
 % tikz-3d-doc.tex
 % arara: lualatex
-\documentclass{article}
-\usepackage{tikz-3d}
+% arara: lualatex
+\PassOptionsToPackage{english}{babel}
+\PassOptionsToPackage{colorlinks = true}{hyperref}
+\PassOptionsToPackage{margin = 1in}{geometry}
+\PassOptionsToPackage{depth = 4}{bookmark}
+\documentclass[12pt]{report}
+\usepackage{
+    tikz-3d
+    ,microtype
+    ,babel
+    ,fontspec
+    ,geometry
+    ,bookmark
+    ,hyperref
+}
+\setcounter{tocdepth}{3}
+\setmainfont{Carlito}
+\title{Ti\textit{k}Z-3D}
+\author{Jasper}
+\date{\today}
 \begin{document}
     \begin{tikzpicture}
         \appendcurve[
             u min = 0
             ,u max = {2*tau}
             ,u samples = 2*36
-            ,x = {
-                matrix_multiply(
-                    {{
-                        2*cos(u),
-                        2*sin(u),
-                        u,
-                        1
-                    }},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][1]
-            }
-            ,y = {
-                matrix_multiply(
-                    {{
-                        2*cos(u),
-                        2*sin(u),
-                        u,
-                        1
-                    }},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][2]
-            }
-            ,z = {
-                matrix_multiply(
-                    {{
-                        2*cos(u),
-                        2*sin(u),
-                        u,
-                        1
-                    }},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][3]
-            }
+            ,transformation = {euler(pi/2,pi/3,pi/6)}
+            ,x = {2*cos(u)}
+            ,y = {2*sin(u)}
+            ,z = {u}
             ,draw options = {purple, ultra thick}
             ,name = {Rick}
         ]
@@ -48,25 +37,11 @@
             u min = 0
             ,u max = {4}
             ,u samples = 2
-            ,x = {
-                matrix_multiply(
-                    {{u,0,0,1}},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][1]
-            }
-            ,y = {
-                matrix_multiply(
-                    {{u,0,0,1}},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][2]
-            }
-            ,z = {
-                matrix_multiply(
-                    {{u,0,0,1}},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][3]
-            }
-            ,draw options = {purple, ultra thick,->}
+            ,transformation = {euler(pi/2,pi/3,pi/6)}
+            ,x = {u}
+            ,y = {0}
+            ,z = {0}
+            ,draw options = {purple, ultra thick, ->}
         ]
         \appendcurve[
             u min = 0
@@ -114,7 +89,7 @@
                     euler(pi/2,pi/3,pi/6)
                 )[1][3]
             }
-            ,draw options = {purple, ultra thick,->}
+            ,draw options = {purple, ultra thick, ->}
         ]
         \appendsurface[
             u min = 0
@@ -123,45 +98,15 @@
             ,v min = 0
             ,v max = {tau}
             ,v samples = 36
-            ,x = {
-                matrix_multiply(
-                    {{
-                        2*cos(u)+sphere(u,v)[1][1],
-                        2*sin(u)+sphere(u,v)[1][2],
-                        u+sphere(u,v)[1][3],
-                        1
-                    }},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][1]
-            }
-            ,y = {
-                matrix_multiply(
-                    {{
-                        2*cos(u)+sphere(u,v)[1][1],
-                        2*sin(u)+sphere(u,v)[1][2],
-                        u+sphere(u,v)[1][3],
-                        1
-                    }},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][2]
-            }
-            ,z = {
-                matrix_multiply(
-                    {{
-                        2*cos(u)+sphere(u,v)[1][1],
-                        2*sin(u)+sphere(u,v)[1][2],
-                        u+sphere(u,v)[1][3],
-                        1
-                    }},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][3]
-            }
+            ,transformation = {euler(pi/2,pi/3,pi/6)}
+            ,x = {2*cos(u)+sphere(u,v)[1][1]}
+            ,y = {2*sin(u)+sphere(u,v)[1][2]}
+            ,z = {u+sphere(u,v)[1][3]}
             ,draw options = {draw, green, ultra thin, line join = round}
             ,fill options = {fill = purple, fill opacity = 0.3}
-            ,name = {Rick}
+            ,name = {Mackenzie}
         ]
-        %\appendplane[z min = -3]
-        %\renderplanes
         \rendersegments
+        \drawplane[]
     \end{tikzpicture}
 \end{document}

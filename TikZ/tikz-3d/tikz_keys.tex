@@ -9,12 +9,14 @@
             ,y max/.estore in = \tikz@td@cs@ymax
             ,z min/.estore in = \tikz@td@cs@zmin
             ,z max/.estore in = \tikz@td@cs@zmax
+            ,transformation/.code = {\edef\tikz@td@cs@transformation{#1}}
             ,x min = -5
             ,x max = 5
             ,y min = -5
             ,y max = 5
             ,z min = -5
             ,z max = 5
+            ,transformation = {identity_matrix()}
             ,/tikz-3d/clipped-subspace/plane/.cd % abbreviated "p"
                 % normal equation ax + by + cz + d = 0
                 ,a/.estore in = \tikz@td@cs@p@a
@@ -30,10 +32,14 @@
                 ,draw options = {draw, line cap = round,line join = round}
                 ,fill options = {fill = red, fill opacity = 0.7}
             ,/tikz-3d/clipped-subspace/line/.cd % abbreviated "l"
-                % normal equation ax + by + c = 0
+                % direction vector
                 ,a/.estore in = \tikz@td@cs@l@a
                 ,b/.estore in = \tikz@td@cs@l@b
                 ,c/.estore in = \tikz@td@cs@l@c
+                % point
+                ,x/.estore in = \tikz@td@cs@l@x
+                ,y/.estore in = \tikz@td@cs@l@y
+                ,z/.estore in = \tikz@td@cs@l@z
             ,/tikz-3d/clipped-subspace/point/.cd % abbreviated "pt"
         ,/tikz-3d/parametric/.cd % abbreviated "p"
             ,/tikz-3d/parametric/curve/.cd % abbreviated "c"
@@ -45,6 +51,7 @@
                 ,z/.code = {\edef\tikz@td@p@c@z{#1}}
                 ,draw options/.estore in = \tikz@td@p@c@drawoptions
                 ,name/.estore in = \tikz@td@p@c@name
+                ,transformation/.code = {\edef\tikz@td@p@c@transformation{#1}}
                 ,u min = 0
                 ,u max = 1
                 ,u samples = 2
@@ -53,6 +60,7 @@
                 ,z = 0
                 ,draw options = {line cap = round}
                 ,name = George
+                ,transformation = {identity_matrix()}
             ,/tikz-3d/parametric/surface/.cd % abbreviated "surf"
                 ,u min/.estore in = \tikz@td@p@surf@umin
                 ,u max/.estore in = \tikz@td@p@surf@umax
@@ -66,6 +74,7 @@
                 ,draw options/.estore in = \tikz@td@p@surf@drawoptions
                 ,fill options/.estore in = \tikz@td@p@surf@filloptions
                 ,name/.estore in = \tikz@td@p@surf@name
+                ,transformation/.code = {\edef\tikz@td@p@surf@transformation{#1}}
                 ,u min = 0
                 ,u max = tau
                 ,u samples = 36
@@ -78,6 +87,7 @@
                 ,draw options = {draw, line cap = round,line join = round}
                 ,fill options = {fill = red, fill opacity = 0.7}
                 ,name = Bob
+                ,transformation = {identity_matrix()}
             ,/tikz-3d/parametric/solid/.cd % abbreviated "s"
                 ,u min/.estore in = \tikz@td@p@s@umin
                 ,u max/.estore in = \tikz@td@p@s@umax
