@@ -1,7 +1,7 @@
 -- clipped_subspace.lua
 local mm = require "matrix_math"
 local rtc = require "register_tex_cmd"
-_ENV = _G -- use this to *add* the functions in test
+_ENV = _G
 for i,j in pairs(mm) do
   _ENV[i] = j
 end
@@ -17,36 +17,29 @@ local function single_string_expression(str)
 end
 
 local function append_plane(hash)
-    local a            = hash.a
-    local b            = hash.b
-    local c            = hash.c
-    local d            = hash.d
-    local normal       = {{single_string_expression(a),single_string_expression(b),single_string_expression(c),1}}
-    local d_value      = d
-    local xmin         = hash.xmin
-    local xmax         = hash.xmax
-    local ymin         = hash.ymin
-    local ymax         = hash.ymax
-    local zmin         = hash.zmin
-    local zmax         = hash.zmax
+    local a            = single_string_expression(hash.a)
+    local b            = single_string_expression(hash.b)
+    local c            = single_string_expression(hash.c)
+    local d            = single_string_expression(hash.d)
+    local xmin         = single_string_expression(hash.xmin)
+    local xmax         = single_string_expression(hash.xmax)
+    local ymin         = single_string_expression(hash.ymin)
+    local ymax         = single_string_expression(hash.ymax)
+    local zmin         = single_string_expression(hash.zmin)
+    local zmax         = single_string_expression(hash.zmax)
     local fill_options = hash.fill_options
     local draw_options = hash.fill_options
     local transform    = single_string_expression(hash.transformation)
 
-    d_value = single_string_expression(d_value)
-    xmin = single_string_expression(xmin)
-    xmax = single_string_expression(xmax)
-    ymin = single_string_expression(ymin)
-    ymax = single_string_expression(ymax)
-    zmin = single_string_expression(zmin)
-    zmax = single_string_expression(zmax)
+    local normal       = {{a,b,c,1}}
+
 
     local intersections = {}
     local sorted_intersections = {}
     local function plane(u,v)
-        local x = (d_value-normal[1][2]*u-normal[1][3]*v)/normal[1][1]
-        local y = (d_value-normal[1][1]*u-normal[1][3]*v)/normal[1][2]
-        local z = (d_value-normal[1][1]*u-normal[1][2]*v)/normal[1][3]
+        local x = (d-normal[1][2]*u-normal[1][3]*v)/normal[1][1]
+        local y = (d-normal[1][1]*u-normal[1][3]*v)/normal[1][2]
+        local z = (d-normal[1][1]*u-normal[1][2]*v)/normal[1][3]
         local result = {{x,y,z,1}}
         return result
     end

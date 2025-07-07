@@ -11,102 +11,103 @@
     ,microtype
     ,babel
     ,fontspec
+    ,caption
     ,geometry
     ,bookmark
     ,hyperref
 }
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+\DeclareCaptionFormat{tikztd}{#1#2\par\noindent#3}
+\captionsetup{
+    justification = raggedright
+    ,singlelinecheck = false
+    ,format = tikztd
+}
 \setcounter{tocdepth}{3}
 \setmainfont{Carlito}
-\title{Ti\textit{k}Z-3D}
+\title{The Ti\textit{k}Z-3D Package}
 \author{Jasper}
 \date{\today}
 \begin{document}
-    \begin{tikzpicture}
-        \appendcurve[
-            u min = 0
-            ,u max = {2*tau}
-            ,u samples = 2*36
-            ,transformation = {euler(pi/2,pi/3,pi/6)}
-            ,x = {2*cos(u)}
-            ,y = {2*sin(u)}
-            ,z = {u}
-            ,draw options = {purple, ultra thick}
-            ,name = {Rick}
-        ]
-        \appendcurve[
-            u min = 0
-            ,u max = {4}
-            ,u samples = 2
-            ,transformation = {euler(pi/2,pi/3,pi/6)}
-            ,x = {u}
-            ,y = {0}
-            ,z = {0}
-            ,draw options = {purple, ultra thick, ->}
-        ]
-        \appendcurve[
-            u min = 0
-            ,u max = {4}
-            ,u samples = 2
-            ,x = {
-                matrix_multiply(
-                    {{0,u,0,1}},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][1]
-            }
-            ,y = {
-                matrix_multiply(
-                    {{0,u,0,1}},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][2]
-            }
-            ,z = {
-                matrix_multiply(
-                    {{0,u,0,1}},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][3]
-            }
-            ,draw options = {purple, ultra thick,->}
-        ]
-        \appendcurve[
-            u min = 0
-            ,u max = {4}
-            ,u samples = 2
-            ,x = {
-                matrix_multiply(
-                    {{0,0,u,1}},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][1]
-            }
-            ,y = {
-                matrix_multiply(
-                    {{0,0,u,1}},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][2]
-            }
-            ,z = {
-                matrix_multiply(
-                    {{0,0,u,1}},
-                    euler(pi/2,pi/3,pi/6)
-                )[1][3]
-            }
-            ,draw options = {purple, ultra thick, ->}
-        ]
-        \appendsurface[
-            u min = 0
-            ,u max = {2*tau}
-            ,u samples = 2*36
-            ,v min = 0
-            ,v max = {tau}
-            ,v samples = 36
-            ,transformation = {euler(pi/2,pi/3,pi/6)}
-            ,x = {2*cos(u)+sphere(u,v)[1][1]}
-            ,y = {2*sin(u)+sphere(u,v)[1][2]}
-            ,z = {u+sphere(u,v)[1][3]}
-            ,draw options = {draw, green, ultra thin, line join = round}
-            ,fill options = {fill = purple, fill opacity = 0.3}
-            ,name = {Mackenzie}
-        ]
-        \rendersegments
-        \drawplane[]
-    \end{tikzpicture}
+    \maketitle 
+    \tableofcontents
+    \chapter{Introduction}
+        Ti\textit{k}Z-3D is a Lua-based 3D graphics package for 
+        Ti\textit{k}Z.
+        \section{What are the current capabilities of Ti\textit{k}Z-3D?}
+            Ti\textit{k}Z-3D can render multiple non-intersecting 
+            triangulated mesh surfaces at once. It is also possible 
+            to draw a plane which has been clipped by a cube.
+            There are commands for drawing and labelling geometric 
+            vectors too. Curves and surfaces can be defined using 
+            matrix transformations.
+        \section{
+            How does Ti\textit{k}Z-3D improve on existing packages?
+        }
+            There are two significant packages for 3D artwork in 
+            Ti\textit{k}Z: pgfplots and tikz-3dplot.
+            pgfplots can z-sort the faces of a single parametric 
+            surface, but not multiple surfaces at once.
+            Both pgfplots and tikz-3dplot are capable of changing 
+            the camera view, but the result is necessarily 
+            orthographic, and the rotations are restricted to 
+            azimuth and elevation; that is, the \(z\)-axis is always 
+            vertical. Neither pgfplots nor tikz-3dplot enable 
+            matrix math. Ti\textit{k}Z-3D is built to render 
+            multiple parametric objects at once, enable arbitrary
+            object orientations in non-orthographic projections, 
+            and enable matrix math.
+        \section{Where is the package at, and where it is heading?}
+            The vision of the package Ti\textit{k}Z-3D is to one 
+            day be able to render arbitrary numbers of intersecting 
+            polygons, by clipping them with each other; this would 
+            enable arbitrary surface intersections, without 
+            visual artefacts. A more near term goal of 
+            Ti\textit{k}Z-3D is to also implement an ODE 
+            solving tool which approximates trajectories in 
+            vector fields.
+    \chapter{Geometric Vectors}
+        \section{}
+        \begin{figure}
+            \centering
+            \begin{tikzpicture}
+                \drawvector[points = both,yellow]{0,0}{2,0}
+                \drawvector[blue]{4,0}{-2,0}
+            \end{tikzpicture}
+            \caption{The exact location of a geometric vector's tip.}
+            %\label{}
+        \end{figure}
+        \begin{figure}
+            \centering
+            \begin{tikzpicture}
+                \appendcurve[
+                    u min = 0
+                    ,u max = {tau}
+                    ,u samples = 200
+                    ,transformation = {euler(pi/2,pi/3,pi/2)}
+                    ,x = {2*cos(u)}
+                    ,y = {2*sin(u)}
+                    ,z = {u}
+                    ,draw options = {purple, ultra thick}
+                ]
+                \appendsurface[
+                    u min = 0
+                    ,u max = {tau}
+                    ,u samples = 36
+                    ,v min = 0
+                    ,v max = {tau}
+                    ,v samples = 36*2/3
+                    ,transformation = {euler(pi/2,pi/3,pi/2)}
+                    ,x = {2*cos(u)+sphere(u,v)[1][1]}
+                    ,y = {2*sin(u)+sphere(u,v)[1][2]}
+                    ,z = {u+sphere(u,v)[1][3]}
+                    ,draw options = {draw, blue, ultra thin, line join = round}
+                    ,fill options = {fill = green, fill opacity = 0.3}
+                ]
+                \rendersegments
+            \end{tikzpicture}
+            \caption{A triangulated mesh surface and a curve.}
+            %\label{}
+        \end{figure}
 \end{document}

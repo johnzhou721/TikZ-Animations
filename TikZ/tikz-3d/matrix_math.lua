@@ -11,10 +11,12 @@ mm.atan  = math.atan
 mm.atan2 = math.atan2
 mm.sqrt  = math.sqrt 
 mm.min   = math.min 
-mm.max   = math.max 
+mm.max   = math.max
 mm.abs   = math.abs
 mm.pi    = math.pi 
 mm.tau   = 2*mm.pi
+
+local cos, sin = math.cos, math.sin
 
 --- matrix multiplication
 ---
@@ -53,6 +55,8 @@ function mm.matrix_multiply(A,B)
     end
     return product
 end
+local matrix_multiply = mm.matrix_multiply
+
 
 function mm.yrotation(angle)
     local c = cos(angle)
@@ -78,10 +82,10 @@ end
 
 function mm.euler(alpha,beta,gamma)
     return matrix_multiply(
-        zrotation(gamma)
+        mm.zrotation(gamma)
         ,matrix_multiply(
-            yrotation(beta)
-            ,zrotation(alpha)
+            mm.yrotation(beta)
+            ,mm.zrotation(alpha)
         )
     )
 end

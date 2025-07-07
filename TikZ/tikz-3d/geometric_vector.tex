@@ -8,6 +8,8 @@
             ,inner sep = 0pt
             ,outer sep = 0pt
             ,fill
+            ,/tikz-3d/geometric-vector/.search also = {/tikz}
+            ,/tikz-3d/geometric-vector/.cd
             ,#1
         ] {};
     \endgroup
@@ -15,45 +17,64 @@
 \newcommand{\drawmark}[1][]{
     \begingroup
         \pgfmathsetmacro{\tmp}{\tikz@td@gm@marklength/2}
-        \draw
-            [
-                #1
-            ]
-            (0,-\tmp pt) -- (0,\tmp pt);
+        \draw[
+            /tikz-3d/geometric-vector/.search also = {/tikz}
+            ,/tikz-3d/geometric-vector/.cd
+            ,#1
+        ] (0,-\tmp pt) -- (0,\tmp pt);
     \endgroup
 }
 \newcommand{\drawvector}[3][]{
     \begingroup
-        \tikzset{#1}
+        \tikzset{
+            /tikz-3d/geometric-vector/.search also = {/tikz},
+            /tikz-3d/geometric-vector/.cd,
+            #1
+        }
         \coordinate (@start) at (#2);
-        \ifnum\tikz@td@gm@points=0
-            \drawpoint[#1]{@start}
-            \draw
-                [
-                    shorten < = \tikz@td@gm@pointradius cm
-                    ,#1
-                ] (@start) -- ++(#3);
-        \fi
         \ifnum\tikz@td@gm@points=1
             \drawpoint[#1]{@start}
             \draw
                 [
-                    shorten < = \tikz@td@gm@pointradius cm
+                    very thick
+                    ,{-Stealth[round]}
+                    ,shorten < = \tikz@td@gm@pointradius cm
+                    ,/tikz-3d/geometric-vector/.search also = {/tikz}
+                    ,/tikz-3d/geometric-vector/.cd
+                    ,#1
+                ] (@start) -- ++(#3);
+        \fi
+        \ifnum\tikz@td@gm@points=2
+            \drawpoint[#1]{@start}
+            \draw
+                [
+                    very thick
+                    ,{-Stealth[round]}
+                    ,shorten < = \tikz@td@gm@pointradius cm
                     ,shorten > = \tikz@td@gm@pointradius cm
+                    ,/tikz-3d/geometric-vector/.search also = {/tikz}
+                    ,/tikz-3d/geometric-vector/.cd
                     ,#1
                 ] (@start) -- ++(#3) coordinate (@end);
             \drawpoint[#1]{@end}
         \fi
-        \ifnum\tikz@td@gm@points=2
+        \ifnum\tikz@td@gm@points=0
             \draw
                 [
-                    #1
+                    very thick
+                    ,{-Stealth[round]}
+                    ,/tikz-3d/geometric-vector/.search also = {/tikz}
+                    ,/tikz-3d/geometric-vector/.cd
+                    ,#1
                 ] (@start) -- ++(#3);
         \fi
         \ifnum\tikz@td@gm@points=3
             \draw
                 [
-                    shorten > = \pv@vector@pointradius cm
+                    very thick
+                    ,{-Stealth[round]}
+                    ,/tikz-3d/geometric-vector/.search also = {/tikz}
+                    ,/tikz-3d/geometric-vector/.cd
                     ,#1
                 ] (@start) -- ++(#3) coordinate (@end);
             \drawpoint[#1]{@end}
@@ -67,13 +88,7 @@
                             between positions \tikz@td@gm@markstart
                             and \tikz@td@gm@markstop
                             step \tikz@td@gm@markstep
-                            with 
-                                {
-                                    \drawmark
-                                        [%
-                                            #1%
-                                        ]%
-                                }
+                            with {\drawmark}
                     }
                     ,decorate
                 ] (#2) -- ++(#3);

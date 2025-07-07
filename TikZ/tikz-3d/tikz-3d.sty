@@ -4,26 +4,127 @@
     2025/05/10 v0.01 LaTeX package 3D illustrations in TikZ.
 ]
 \RequirePackage{tikz}
+\usetikzlibrary{arrows.meta}
 \input{tikz_keys}
 \input{command_definitions}
 \input{geometric_vector}
 
 
-% \newcommand{\appendbox}[1][]{
-%     \tikzset{
-%         /tikz-3d/clipped-subspace/plane/.search~also = 
-%             {/tikz-3d/clipped-subspace}
-%         ,/tikz-3d/clipped-subspace/plane/.cd
-%         ,#1
-%     }
-%     \appendcurve[
-%         u min = \tikz@td@cs@xmin
-%         ,u max = \tikz@td@cs@xmax
-%         ,u samples = 45
-%         ,x = u
-%         ,y = \tikz@td@cs@ymin
-%         ,z = \tikz@td@cs@ymin
-%         ,draw options = {draw}
-%         ,transformation = \tikz@td@cs@transformation
-%     ]
-% }
+\newcommand{\appendbox}[1][]{
+    \begingroup
+    \tikzset{
+        /tikz-3d/clipped-subspace/plane/.search also = {/tikz-3d/clipped-subspace},
+        /tikz-3d/clipped-subspace/plane/.cd,
+        #1
+    }
+    % For brevity, assign keys to macros
+    \def\xmin{\tikz@td@cs@xmin}
+    \def\xmax{\tikz@td@cs@xmax}
+    \def\ymin{\tikz@td@cs@ymin}
+    \def\ymax{\tikz@td@cs@ymax}
+    \def\zmin{\tikz@td@cs@zmin}
+    \def\zmax{\tikz@td@cs@zmax}
+
+    % Bottom square edges
+    \appendcurve[
+        u min=0, u max=1, u samples=2,
+        x = (1-u)*\xmin + u*\xmax,
+        y = \ymin,
+        z = \zmin,
+        draw options = {draw},
+        transformation = \tikz@td@cs@transformation
+    ]
+    \appendcurve[
+        u min=0, u max=1, u samples=2,
+        x = \xmax,
+        y = (1-u)*\ymin + u*\ymax,
+        z = \zmin,
+        draw options = {draw},
+        transformation = \tikz@td@cs@transformation
+    ]
+    \appendcurve[
+        u min=0, u max=1, u samples=2,
+        x = (1-u)*\xmax + u*\xmin,
+        y = \ymax,
+        z = \zmin,
+        draw options = {draw},
+        transformation = \tikz@td@cs@transformation
+    ]
+    \appendcurve[
+        u min=0, u max=1, u samples=2,
+        x = \xmin,
+        y = (1-u)*\ymax + u*\ymin,
+        z = \zmin,
+        draw options = {draw},
+        transformation = \tikz@td@cs@transformation
+    ]
+
+    % Top square edges
+    \appendcurve[
+        u min=0, u max=1, u samples=2,
+        x = (1-u)*\xmin + u*\xmax,
+        y = \ymin,
+        z = \zmax,
+        draw options = {draw},
+        transformation = \tikz@td@cs@transformation
+    ]
+    \appendcurve[
+        u min=0, u max=1, u samples=2,
+        x = \xmax,
+        y = (1-u)*\ymin + u*\ymax,
+        z = \zmax,
+        draw options = {draw},
+        transformation = \tikz@td@cs@transformation
+    ]
+    \appendcurve[
+        u min=0, u max=1, u samples=2,
+        x = (1-u)*\xmax + u*\xmin,
+        y = \ymax,
+        z = \zmax,
+        draw options = {draw},
+        transformation = \tikz@td@cs@transformation
+    ]
+    \appendcurve[
+        u min=0, u max=1, u samples=2,
+        x = \xmin,
+        y = (1-u)*\ymax + u*\ymin,
+        z = \zmax,
+        draw options = {draw},
+        transformation = \tikz@td@cs@transformation
+    ]
+
+    % Vertical edges (pillars)
+    \appendcurve[
+        u min=0, u max=1, u samples=2,
+        x = \xmin,
+        y = \ymin,
+        z = (1-u)*\zmin + u*\zmax,
+        draw options = {draw},
+        transformation = \tikz@td@cs@transformation
+    ]
+    \appendcurve[
+        u min=0, u max=1, u samples=2,
+        x = \xmax,
+        y = \ymin,
+        z = (1-u)*\zmin + u*\zmax,
+        draw options = {draw},
+        transformation = \tikz@td@cs@transformation
+    ]
+    \appendcurve[
+        u min=0, u max=1, u samples=2,
+        x = \xmax,
+        y = \ymax,
+        z = (1-u)*\zmin + u*\zmax,
+        draw options = {draw},
+        transformation = \tikz@td@cs@transformation
+    ]
+    \appendcurve[
+        u min=0, u max=1, u samples=2,
+        x = \xmin,
+        y = \ymax,
+        z = (1-u)*\zmin + u*\zmax,
+        draw options = {draw},
+        transformation = \tikz@td@cs@transformation
+    ]
+    \endgroup
+}
