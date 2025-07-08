@@ -544,7 +544,7 @@ end
 rtc.register_tex_cmd(
     "appendplane", function()
     append_plane{
-        a              = token.get_macro("tikz@td@cs@p@a"),
+        a              =  token.get_macro("tikz@td@cs@p@a"),
         b              = token.get_macro("tikz@td@cs@p@b"),
         c              = token.get_macro("tikz@td@cs@p@c"),
         d              = token.get_macro("tikz@td@cs@p@d"),

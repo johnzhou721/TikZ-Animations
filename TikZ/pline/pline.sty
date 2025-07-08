@@ -3,7 +3,10 @@
 \ProvidesPackage{pline}[
     2025/05/10 v0.01 LaTeX package 3D illustrations in TikZ.
 ]
-\RequirePackage{tikz,pline-expl3-command-definitions}
+\RequirePackage{
+    tikz
+    ,pline-expl3-command-definitions
+    ,pline-tikz-keys
+    ,pline-latex2e-command-definitions
+}
 \usetikzlibrary{arrows.meta}
-\input{pline-tikz-keys}
-\input{pline-latex2e-command-definitions}

@@ -13,13 +13,14 @@
     ,fontspec
     ,unicode-math,
     ,caption
+    ,subcaption
     ,xcolor
     ,geometry
     ,minted
     ,bookmark
     ,hyperref
 }
-\setmathfont{FiraMath-Regular.otf}
+\setmathfont{IBMPlexMath-Regular}
 \counterwithin{figure}{section}
 \counterwithin{table}{section}
 \DeclareCaptionFormat{pline}{#1#2\par\noindent#3}
@@ -28,6 +29,7 @@
     ,singlelinecheck = false
     ,format = pline
 }
+\captionsetup[subfigure]{format=hang}
 \setcounter{tocdepth}{3}
 \setmainfont{Carlito}
 \title{The pline Package}
@@ -58,10 +60,10 @@
             orthographic, and the rotations are restricted to 
             azimuth and elevation; that is, the \(z\)-axis is always 
             vertical. Neither pgfplots nor tikz-3dplot enable 
-            matrix math. pline is built to render 
+            matrix  pline is built to render 
             multiple parametric objects at once, enable arbitrary
             object orientations in non-orthographic projections, 
-            and enable matrix math.
+            and enable matrix 
         \section{Where is the package at, and where it is heading?}
             The vision of the package pline is to one 
             day be able to render arbitrary numbers of intersecting 
@@ -71,7 +73,7 @@
             pline is to also implement an ODE 
             solving tool which approximates trajectories in 
             vector fields. I also want to add capabilities for 
-            doing programming in Lua, instead of in pgfmath.
+            doing programming in Lua, instead of in pgf
     \chapter{Geometric Vectors}
         \section{How are geometric vectors defined in pline?}
             Geometric vectors are defined by two things: a 
@@ -122,13 +124,35 @@
 \end{minted}
             \begin{figure}
                 \centering
-                \begin{tikzpicture}
-                    \drawvector[points = neither]{0,0}{0,1}
-                    \drawvector[points = behind]{1,0}{0,1}
-                    \drawvector[points = front]{2,0}{0,1}
-                    \drawvector[points = both]{3,0}{0,1}
-                \end{tikzpicture}
-                \caption{The keys for \mintinline{latex}{points}.}
+                \begin{subfigure}{0.3\textwidth}
+                    \centering
+                    \begin{tikzpicture}
+                        \drawvector[points = neither]{0,0}{0,1}
+                    \end{tikzpicture}
+                    \caption{\mintinline{latex}{points = neither}}
+                \end{subfigure}
+                \begin{subfigure}{0.3\textwidth}
+                    \centering
+                    \begin{tikzpicture}
+                        \drawvector[points = behind]{1,0}{0,1}
+                    \end{tikzpicture}
+                    \caption{\mintinline{latex}{points = behind}}
+                \end{subfigure}\par
+                \begin{subfigure}{0.3\textwidth}
+                    \centering
+                    \begin{tikzpicture}
+                        \drawvector[points = front]{2,0}{0,1}
+                    \end{tikzpicture}
+                    \caption{\mintinline{latex}{points = front}}
+                \end{subfigure}
+                \begin{subfigure}{0.3\textwidth}
+                    \centering
+                    \begin{tikzpicture}
+                        \drawvector[points = both]{3,0}{0,1}
+                    \end{tikzpicture}
+                    \caption{\mintinline{latex}{points = both}}
+                \end{subfigure}
+                \caption{The values for the key \mintinline{latex}{points}.}
                 \label{fig:2-1-2}
             \end{figure}
     \chapter{Parametric Objects}
@@ -213,13 +237,155 @@
                         }
                         ,fill options = {
                             fill = green
-                            ,fill opacity = 0.3
+                            ,fill opacity = 0.7
                         }
                     ]
+                    \foreach \u in {0,...,35} {
+                        \foreach \v in {0,...,35} {
+                            \pgfmathsetmacro{\uscale}{2*pi/(36-1)}
+                            \pgfmathsetmacro{\vscale}{2*pi/(36*2/3-1)}
+                            \pgfmathsetmacro{\u}{\u*\uscale}
+                            \pgfmathsetmacro{\v}{\v*\vscale}
+                            \appendcurve[
+                                u min = 0
+                                ,u max = 0.3
+                                ,u samples = 2
+                                ,transformation = {euler(pi/2,pi/3,pi/2)}
+                                ,x = {
+                                    2 * cos(token.get_macro("u")) +
+                                    (u + 1) * sphere(token.get_macro("u"),token.get_macro("v"))[1][1]
+                                }
+                                ,y = {
+                                    2 * sin(token.get_macro("u")) +
+                                    (u + 1) * sphere(token.get_macro("u"),token.get_macro("v"))[1][2]
+                                }
+                                ,z = {
+                                    token.get_macro("u") + 
+                                    (u + 1) * sphere(
+                                        token.get_macro("u"),
+                                        token.get_macro("v")
+                                    )[1][3]
+                                }
+                                ,draw options = {-{Stealth[round]}}
+                            ]
+                        } 
+                    }
                     \rendersegments
                 \end{tikzpicture}
                 \caption{A triangulated mesh surface and a curve.}
                 \label{fig:3-1-1}
+            \end{figure}
+            \begin{figure}
+                \centering
+                \begin{tikzpicture}
+                    \clip (-5,-5) rectangle (5,5);
+                    \pgfmathsetmacro{\angle}{0}
+                    \let\angle\angle
+                    \foreach \longitude in {1,...,36}{
+                        \let\longitude\longitude
+                        \appendcurve[
+                            u min = 0
+                            ,u max = {pi}
+                            ,u samples = 4*45
+                            ,transformation = {euler(pi/2,pi/3,pi/6)}
+                            ,x = {
+                                stereographic_projection(
+                                    matrix_multiply(
+                                        sphere(2*pi*token.get_macro("longitude")/36,u)
+                                        ,euler(0,pi/2,(2*pi/24)*token.get_macro("angle")/36)
+                                    )
+                                )[1][1]
+                            }
+                            ,y = {
+                                stereographic_projection(
+                                    matrix_multiply(
+                                        sphere(2*pi*token.get_macro("longitude")/36,u)
+                                        ,euler(0,pi/2,(2*pi/24)*token.get_macro("angle")/36)
+                                    )
+                                )[1][2]
+                            }
+                            ,z = 0*u
+                        ]
+                        \appendcurve[
+                            u min = 0
+                            ,u max = {pi}
+                            ,u samples = 23
+                            ,transformation = {
+                                matrix_multiply(
+                                    euler(0,pi/2,(2*pi/24)*token.get_macro("angle")/36)
+                                    ,euler(pi/2,pi/3,pi/6)
+                                )
+                            }
+                            ,x = {
+                                sphere(
+                                    tau * 
+                                    token.get_macro("longitude") / 
+                                    36
+                                    ,u
+                                )[1][1]
+                            }
+                            ,y = {
+                                sphere(
+                                    tau * 
+                                    token.get_macro("longitude") / 
+                                    36
+                                    ,u
+                                )[1][2]
+                            }
+                            ,z = {
+                                sphere(
+                                    tau * 
+                                    token.get_macro("longitude") / 
+                                    36
+                                    ,u
+                                )[1][3]
+                            }
+                        ]
+                    }
+                    \foreach \latitude in {1,...,18}{
+                        \let\latitude\latitude
+                        \appendcurve[
+                            u min = 0
+                            ,u max = {2*pi}
+                            ,u samples = 4*45
+                            ,transformation = {euler(pi/2,pi/3,pi/6)}
+                            ,x = {
+                                stereographic_projection(
+                                    matrix_multiply(
+                                        sphere(u,tau*token.get_macro("latitude")/36)
+                                        ,euler(0,pi/2,(tau/24)*token.get_macro("angle")/36)
+                                    )
+                                )[1][1]
+                            }
+                            ,y = {
+                                stereographic_projection(
+                                    matrix_multiply(
+                                        sphere(u,tau*token.get_macro("latitude")/36)
+                                        ,euler(0,pi/2,(tau/24)*token.get_macro("angle")/36)
+                                    )
+                                )[1][2]
+                            }
+                            ,z = 0*u
+                        ]
+                        \appendcurve[
+                            u min = 0
+                            ,u max = {2*pi}
+                            ,u samples = 45
+                            ,transformation = {
+                                matrix_multiply(
+                                    euler(0,pi/2,(2*pi/24)*token.get_macro("angle")/36)
+                                    ,euler(pi/2,pi/3,pi/6)
+                                )
+                            }
+                            ,x = {sphere(u,2*pi*token.get_macro("latitude")/36)[1][1]}
+                            ,y = {sphere(u,2*pi*token.get_macro("latitude")/36)[1][2]}
+                            ,z = {sphere(u,2*pi*token.get_macro("latitude")/36)[1][3]}
+                        ]
+                    }
+                    \rendersegments
+                \end{tikzpicture}
+                \caption{Automatic division by zero handling.}
+                \label{3-1-2}
             \end{figure}
     \chapter{Clipped Subspaces}
         \section{Clipping individual planes.}

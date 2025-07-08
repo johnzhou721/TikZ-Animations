@@ -225,5 +225,14 @@ function mm.project_point_onto_basis(point,basis)
     return result
 end
 
+function mm.stereographic_projection(tbl)
+    local x = tbl[1][1]
+    local y = tbl[1][2]
+    local z = tbl[1][3]
+    return {{x / (1 - z), y / (1 - z), 0, 1}}
+end
+
+
+
 
 return mm
