@@ -387,3 +387,284 @@ rtc.register_tex_cmd(
     } end,
     { }
 )
+
+local function get_line(normal_equation1,normal_equation2,boundaries)
+    local a1,b1,c1,d1 = table.unpack(normal_equation1)
+    local a2,b2,c2,d2 = table.unpack(normal_equation2)
+    local xmin,xmax,ymin,ymax,zmin,zmax = table.unpack(boundaries)
+    function Lyofx(x)
+        return (
+            (
+                (
+                    d2 - 
+                    c2 * d1 / c1
+                ) - (
+                    a2 -
+                    c2 * a1 / c1
+                ) * x
+            ) / (
+                b2 -
+                c2 * b1 / c1
+            )
+        )
+    end
+    function Lzofx(x)
+        return (
+            (
+                (
+                    d2 - 
+                    b2 * d1 / b1
+                ) - (
+                    a2 -
+                    b2 * a1 / b1
+                ) * x
+            ) / (
+                c2 -
+                b2 * c1 / b1
+            )
+        )
+    end
+    function Lzofy(y)
+        return (
+            (
+                (
+                    d2 - 
+                    a2 * d1 / a1
+                ) - (
+                    b2 -
+                    a2 * b1 / a1
+                ) * y
+            ) / (
+                c2 -
+                a2 * c1 / a1
+            )
+        )
+    end
+    function Lxofy(y)
+        return (
+            (
+                (
+                    d2 - 
+                    c2 * d1 / c1
+                ) - (
+                    b2 -
+                    c2 * b1 / c1
+                ) * y
+            ) / (
+                a2 -
+                c2 * a1 / c1
+            )
+        )
+    end
+    function Lyofz(z)
+        return (
+            (
+                (
+                    d2 - 
+                    a2 * d1 / a1
+                ) - (
+                    c2 -
+                    a2 * c1 / a1
+                ) * z
+            ) / (
+                b2 -
+                a2 * b1 / a1
+            )
+        )
+    end
+    function Lxofz(z)
+        return (
+            (
+                (
+                    d2 - 
+                    b2 * d1 / b1
+                ) - (
+                    c2 -
+                    b2 * c1 / b1
+                ) * z
+            ) / (
+                a2 -
+                b2 * a1 / b1
+            )
+        )
+    end
+
+    if not (
+        math.abs(b2-c2*b1/c1)<0.0001 or
+        math.abs(c2-b2*c1/b1)<0.0001
+    ) then
+        startx = xmin
+        starty = Lyofx(xmin)
+        startz = Lzofx(xmin)
+        endx = xmax
+        endy = Lyofx(xmax)
+        endz = Lzofx(xmax)
+         -- y coord
+        if endy>ymax then
+            endx = Lxofy(ymax)
+            endy = Lyofx(Lxofy(ymax))
+            endz = Lzofx(Lxofy(ymax))
+        end
+
+        if endy<ymin then
+            endx = Lxofy(ymin)
+            endy = Lyofx(Lxofy(ymin))
+            endz = Lzofx(Lxofy(ymin))
+        end
+
+        if starty>ymax then
+            startx = Lxofy(ymax)
+            starty = Lyofx(Lxofy(ymax))
+            startz = Lzofx(Lxofy(ymax))
+        end
+        
+        if starty<ymin then
+            startx = Lxofy(ymin)
+            starty = Lyofx(Lxofy(ymin))
+            startz = Lzofx(Lxofy(ymin))
+        end
+
+         -- z coord
+        if endz>zmax then
+            endx = Lxofz(zmax)
+            endy = Lyofx(Lxofz(zmax))
+            endz = Lzofx(Lxofz(zmax))
+        end
+        if endz<zmin then
+            endx = Lxofz(zmin)
+            endy = Lyofx(Lxofz(zmin))
+            endz = Lzofx(Lxofz(zmin))
+        end
+        if startz>zmax then
+            startz = Lxofz(zmax)
+            startz = Lyofx(Lxofz(zmax))
+            startz = Lzofx(Lxofz(zmax))
+        end
+        if startz<zmin then
+            startz = Lxofz(zmin)
+            startz = Lyofx(Lxofz(zmin))
+            startz = Lzofx(Lxofz(zmin))
+        end
+    else
+        if not (
+            math.abs(c2-a2*c1/a1)<0.001 or
+            math.abs(a2-c2*a1/c1)<0.001
+        ) then
+            startx = Lxofy(ymin)
+            starty = ymin
+            startz = Lzofy(ymin)
+            endx = Lxofy(ymax)
+            endy = ymax
+            endz = Lzofy(ymax)
+
+            if endx>xmax then
+                endx = Lxofy(Lyofx(xmax))
+                endy = Lyofx(xmax) 
+                endz = Lzofy(Lyofx(xmax))
+            end
+
+            if endx<xmin then
+                endx = Lxofy(Lyofx(xmin))
+                endy = Lyofx(xmin) 
+                endz = Lzofy(Lyofx(xmin))
+            end
+
+            if startx>xmax then
+                startx = Lxofy(Lyofx(xmax))
+                starty = Lyofx(xmax) 
+                startz = Lzofy(Lyofx(xmax))
+            end
+
+            if startx<xmin then
+                startx = Lxofy(Lyofx(xmin))
+                starty = Lyofx(xmin) 
+                startz = Lzofy(Lyofx(xmin))
+            end
+
+            if endz>zmax then
+                endx = Lxofy(Lyofz(zmax))
+                endy = Lyofz(zmax)
+                endz = Lzofy(Lyofz(zmax))
+            end
+
+            if endz<zmin then
+                endx = Lxofy(Lyofz(zmin))
+                endy = Lyofz(zmin)
+                endz = Lzofy(Lyofz(zmin))
+            end
+
+            if startz>zmax then
+                startx = Lxofy(Lyofz(zmax))
+                starty = Lyofz(zmax)
+                startz = Lzofy(Lyofz(zmax))
+            end
+
+            if startz<zmin then
+                startx = Lxofy(Lyofz(zmin))
+                starty = Lyofz(zmin)
+                startz = Lzofy(Lyofz(zmin))
+            end
+        else
+            if not (
+            math.abs(b2-a2*b1/a1)<0.001 or
+            math.abs(a2-b2*a1/b1)<0.001 
+            ) then
+                startx = Lxofz(zmin)
+                starty = Lyofz(zmin)
+                startz = zmin
+                endx = Lxofz(zmax)
+                endy = Lyofz(zmax)
+                endz = zmax
+
+                if endx>xmax then
+                    endx = Lxofz(Lzofx(xmax))
+                    endy = Lyofz(Lzofx(xmax))
+                    endz = Lzofx(xmax)
+                end
+
+                if endx<xmin then
+                    endx = Lxofz(Lzofx(xmin))
+                    endy = Lyofz(Lzofx(xmin))
+                    endz = Lzofx(xmin)
+                end
+
+                if endy>ymax then
+                    endx = Lxofz(Lzofy(ymax))
+                    endy = Lyofz(Lzofy(ymax))
+                    endz = Lzofy(ymax)
+                end
+                if endy<ymin then
+                    endx = Lxofz(Lzofy(ymin))
+                    endy = Lyofz(Lzofy(ymin))
+                    endz = Lzofy(ymin)
+                end
+                
+                
+                if startx>xmax then
+                    startx = Lxofz(Lzofx(xmax))
+                    starty = Lyofz(Lzofx(xmax))
+                    startz = Lzofx(xmax)
+                end
+
+                if startx<xmin then
+                    startx = Lxofz(Lzofx(xmin))
+                    starty = Lyofz(Lzofx(xmin))
+                    startz = Lzofx(xmin)
+                end
+
+                if starty>ymax then
+                    startx = Lxofz(Lzofy(ymax))
+                    starty = Lyofz(Lzofy(ymax))
+                    startz = Lzofy(ymax)
+                end
+                if starty<ymin then
+                    startx = Lxofz(Lzofy(ymin))
+                    starty = Lyofz(Lzofy(ymin))
+                    startz = Lzofy(ymin)
+                end
+            end
+        end
+    end
+    point = {startx,starty,startz}
+    direction_vector = addition({endx,endy,endz},scalar_multiplication(point,-1))
+end
