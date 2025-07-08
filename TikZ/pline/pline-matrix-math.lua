@@ -1,4 +1,4 @@
--- matrix math.lua
+-- pline-matrix-math.lua
 
 local mm = {}
 mm.tau = 2*math.pi 

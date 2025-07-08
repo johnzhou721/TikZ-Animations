@@ -1,4 +1,4 @@
--- parametric.lua
+-- pline-parametric-objects.lua
 local mm = require "pline-matrix-math"
 local rtc = require "pline-register-tex-cmd"
 local ENV_ = {}

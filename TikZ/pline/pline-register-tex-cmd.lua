@@ -1,4 +1,4 @@
--- register_tex_cmd.lua
+-- pline-register-tex-cmd.lua
 
 local rtc = {}
 
