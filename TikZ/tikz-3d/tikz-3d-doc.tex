@@ -1,6 +1,6 @@
 % tikz-3d-doc.tex
-% arara: lualatex
-% arara: lualatex
+% arara: lualatex: { options: ["-shell-escape"] }
+% arara: lualatex: { options: ["-shell-escape"] }
 \PassOptionsToPackage{english}{babel}
 \PassOptionsToPackage{colorlinks = true}{hyperref}
 \PassOptionsToPackage{margin = 1in}{geometry}
@@ -12,7 +12,9 @@
     ,babel
     ,fontspec
     ,caption
+    ,xcolor
     ,geometry
+    ,minted
     ,bookmark
     ,hyperref
 }
@@ -66,48 +68,155 @@
             visual artefacts. A more near term goal of 
             Ti\textit{k}Z-3D is to also implement an ODE 
             solving tool which approximates trajectories in 
-            vector fields.
+            vector fields. I also want to add capabilities for 
+            doing programming in Lua, instead of in pgfmath.
     \chapter{Geometric Vectors}
-        \section{}
-        \begin{figure}
-            \centering
-            \begin{tikzpicture}
-                \drawvector[points = both,yellow]{0,0}{2,0}
-                \drawvector[blue]{4,0}{-2,0}
-            \end{tikzpicture}
-            \caption{The exact location of a geometric vector's tip.}
-            %\label{}
-        \end{figure}
-        \begin{figure}
-            \centering
-            \begin{tikzpicture}
-                \appendcurve[
-                    u min = 0
-                    ,u max = {tau}
-                    ,u samples = 200
-                    ,transformation = {euler(pi/2,pi/3,pi/2)}
-                    ,x = {2*cos(u)}
-                    ,y = {2*sin(u)}
-                    ,z = {u}
-                    ,draw options = {purple, ultra thick}
-                ]
-                \appendsurface[
-                    u min = 0
-                    ,u max = {tau}
-                    ,u samples = 36
-                    ,v min = 0
-                    ,v max = {tau}
-                    ,v samples = 36*2/3
-                    ,transformation = {euler(pi/2,pi/3,pi/2)}
-                    ,x = {2*cos(u)+sphere(u,v)[1][1]}
-                    ,y = {2*sin(u)+sphere(u,v)[1][2]}
-                    ,z = {u+sphere(u,v)[1][3]}
-                    ,draw options = {draw, blue, ultra thin, line join = round}
-                    ,fill options = {fill = green, fill opacity = 0.3}
-                ]
-                \rendersegments
-            \end{tikzpicture}
-            \caption{A triangulated mesh surface and a curve.}
-            %\label{}
-        \end{figure}
+        \section{How are geometric vectors defined in Ti\textit{k}Z-3D?}
+            Geometric vectors are defined by two things: a 
+            start-coordinate, and a relative displacement.
+            There are two classifications of geometric vectors;
+            there are zero vectors, and non-zero vectors.
+            A zero vector is represented by a small circle.
+            A non-zero vector is represented by a line segment
+            with an arrow. The endpoints of a non-zerovector 
+            may or may not have a circle centered on the endpoint.
+            If there is no circle drawn, the arrow stops directly
+            at the endpoint. If a circle is drawn, then the arrow 
+            tip is moved back by the circle's radius. Observe 
+            the tips of the vectors in Figure \ref{fig:2-1-1}.
+            Both tips lie on the same point, despite one arrow tip 
+            being offset by the circle's radius.
+            \begin{figure}
+                \centering
+                \begin{tikzpicture}
+                    \drawvector[points = both,green]{0,0}{2,0}
+                    \drawvector[blue]{4,0}{-2,0}
+                \end{tikzpicture}
+                \caption{The exact location of a geometric vector's tip.}
+                \label{fig:2-1-1}
+            \end{figure}
+            The syntax for drawing Figure \ref{fig:2-1-1} is shown in 
+            the following code.
+\begin{minted}{tex}
+\begin{tikzpicture}
+    \drawvector[points = both,yellow]{0,0}{2,0}
+    \drawvector[blue]{4,0}{-2,0}
+\end{tikzpicture}
+\end{minted}
+            There are four values for the key 
+            \mintinline{latex}{points}: \mintinline{latex}{neither}, 
+            \mintinline{latex}{behind}, \mintinline{latex}{front} and 
+            \mintinline{latex}{both}. These tell the command
+            \mintinline{latex}{\drawvector} whether and where to put 
+            circles over the endpoints. See Figure  \ref{fig:2-1-2}, 
+            which uses  the following code.
+\begin{minted}{tex}
+\begin{tikzpicture}
+    \drawvector[points = neither]{0,0}{0,1}
+    \drawvector[points = behind]{1,0}{0,1}
+    \drawvector[points = front]{2,0}{0,1}
+    \drawvector[points = both]{3,0}{0,1}
+\end{tikzpicture}
+\end{minted}
+            \begin{figure}
+                \centering
+                \begin{tikzpicture}
+                    \drawvector[points = neither]{0,0}{0,1}
+                    \drawvector[points = behind]{1,0}{0,1}
+                    \drawvector[points = front]{2,0}{0,1}
+                    \drawvector[points = both]{3,0}{0,1}
+                \end{tikzpicture}
+                \caption{The keys for \mintinline{latex}{points}.}
+                \label{fig:2-1-2}
+            \end{figure}
+    \chapter{Parametric Objects}
+        \section{How is a parametric object defined?}
+            Parametric objects are defined using a handful of 
+            different pieces of information. In particular, they 
+            use parametric functions, domain parameters and a samples
+            parameter for each dimension in the domain. Figure 
+            \ref{fig:3-1-1} is defined by the following code:
+\begin{minted}{tex}
+\begin{tikzpicture}
+    \appendcurve[
+        u min = 0
+        ,u max = {tau}
+        ,u samples = 200
+        ,transformation = {euler(pi/2,pi/3,pi/2)}
+        ,x = {2*cos(u)}
+        ,y = {2*sin(u)}
+        ,z = {u}
+        ,draw options = {
+            purple
+            ,ultra thick
+            ,line join = round
+        }
+    ]
+    \appendsurface[
+        u min = 0
+        ,u max = {tau}
+        ,u samples = 36
+        ,v min = 0
+        ,v max = {tau}
+        ,v samples = 36*2/3
+        ,transformation = {euler(pi/2,pi/3,pi/2)}
+        ,x = {2*cos(u)+sphere(u,v)[1][1]}
+        ,y = {2*sin(u)+sphere(u,v)[1][2]}
+        ,z = {u+sphere(u,v)[1][3]}
+        ,draw options = {
+            draw
+            ,blue,ultra thin
+            ,line join = round
+        }
+        ,fill options = {
+            fill = green
+            ,fill opacity = 0.3
+        }
+    ]
+    \rendersegments
+\end{tikzpicture}
+\end{minted}
+            \begin{figure}
+                \centering
+                \begin{tikzpicture}
+                    \appendcurve[
+                        u min = 0
+                        ,u max = {tau}
+                        ,u samples = 200
+                        ,transformation = {euler(pi/2,pi/3,pi/2)}
+                        ,x = {2*cos(u)}
+                        ,y = {2*sin(u)}
+                        ,z = {u}
+                        ,draw options = {
+                            purple
+                            ,ultra thick
+                            ,line join = round
+                        }
+                    ]
+                    \appendsurface[
+                        u min = 0
+                        ,u max = {tau}
+                        ,u samples = 36
+                        ,v min = 0
+                        ,v max = {tau}
+                        ,v samples = 36*2/3
+                        ,transformation = {euler(pi/2,pi/3,pi/2)}
+                        ,x = {2*cos(u)+sphere(u,v)[1][1]}
+                        ,y = {2*sin(u)+sphere(u,v)[1][2]}
+                        ,z = {u+sphere(u,v)[1][3]}
+                        ,draw options = {
+                            draw
+                            ,blue,ultra thin
+                            ,line join = round
+                        }
+                        ,fill options = {
+                            fill = green
+                            ,fill opacity = 0.3
+                        }
+                    ]
+                    \rendersegments
+                \end{tikzpicture}
+                \caption{A triangulated mesh surface and a curve.}
+                \label{fig:3-1-1}
+            \end{figure}
 \end{document}

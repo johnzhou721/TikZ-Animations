@@ -1,5 +1,5 @@
 local mm = require "matrix_math"
-_ENV = _G -- use this to *add* the functions in test
+_ENV = _G
 for i,j in pairs(mm) do
   _ENV[i] = j
 end
