@@ -1,0 +1,39 @@
+% pline-expl3-command-definitions.sty
+\ProvidesExplFile
+    {pline-expl3-command-definitions}
+    {2025/07/08}{1.0.0}{Test file}
+\lua_load_module:n { pline-parametric-objects }
+\NewDocumentCommand { \appendcurve } {o} {
+    \group_begin:
+    \tikzset{
+        /pline/parametric/curve/.search~also = {/tikz}
+        ,/pline/parametric/curve/.cd
+        ,#1
+    }
+    \__tikztd_appendcurve:
+    \group_end:
+}
+\NewDocumentCommand { \appendsurface } {o} {
+    \group_begin:
+    \tikzset{
+        /pline/parametric/surface/.search~also = {/tikz}
+        ,/pline/parametric/surface/.cd
+        ,#1
+    }
+    \__tikztd_appendsurface:
+    \group_end:
+}
+\NewDocumentCommand { \rendersegments } {} {
+    \__tikztd_rendersegments:
+}
+\NewDocumentCommand { \appendplane } {o} {
+    \group_begin:
+    \tikzset{
+        /pline/clipped-subspace/plane/.search~also = 
+            {/pline/clipped-subspace}
+        ,/pline/clipped-subspace/plane/.cd
+        ,#1
+    }
+    \__tikztd_appendplane:
+    \group_end:
+}

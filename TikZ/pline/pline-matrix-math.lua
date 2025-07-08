@@ -1,20 +1,7 @@
 -- matrix math.lua
 
 local mm = {}
-
-mm.cos   = math.cos
-mm.acos  = math.acos
-mm.sin   = math.sin
-mm.asin  = math.asin
-mm.tan   = math.tan
-mm.atan  = math.atan
-mm.atan2 = math.atan2
-mm.sqrt  = math.sqrt 
-mm.min   = math.min 
-mm.max   = math.max
-mm.abs   = math.abs
-mm.pi    = math.pi 
-mm.tau   = 2*mm.pi
+mm.tau = 2*math.pi 
 
 local cos, sin = math.cos, math.sin
 
@@ -23,39 +10,40 @@ local cos, sin = math.cos, math.sin
 --- @param A table<table<number>> left matrix
 --- @param B table<table<number>> right matrix
 --- @return table<table<number>> the product
-function mm.matrix_multiply(A,B)
+function mm.matrix_multiply(A, B)
     local rows_A = #A
     local columns_A = #A[1]
     local rows_B = #B
     local columns_B = #B[1]
     assert(
-        columns_A == rows_B
-        ,string.format(
+        columns_A == rows_B,
+        string.format(
             [[
                 Wrong size matrices for multiplication.
-                Size A: %f,%f Size B: %f,%f
-            ]]
-            ,rows_A,columns_A
-            ,rows_B,columns_B
+                Size A: %d,%d Size B: %d,%d
+            ]],
+            rows_A, columns_A,
+            rows_B, columns_B
         )
     )
     local product = {}
-    for row = 1, rows_A, 1 do
+    for row = 1, rows_A do
         product[row] = {}
-        for column = 1, columns_B, 1 do
+        for column = 1, columns_B do
             product[row][column] = 0
-            for dot_product_step = 1, columns_A, 1 do
-                product[row][column] = (
-                    product[row][column] + 
-                    A[row][dot_product_step] * 
-                    B[dot_product_step][column]
-                )
+            for dot_product_step = 1, columns_A do
+                local a = A[row][dot_product_step]
+                local b = B[dot_product_step][column]
+                assert(type(a) == "number", 
+                    string.format("Expected number but got %s in A[%d][%d]", type(a), row, dot_product_step))
+                assert(type(b) == "number", 
+                    string.format("Expected number but got %s in B[%d][%d]", type(b), dot_product_step, column))
+                product[row][column] = product[row][column] + a * b
             end
         end
     end
     return product
 end
-local matrix_multiply = mm.matrix_multiply
 
 
 function mm.yrotation(angle)
@@ -81,9 +69,9 @@ function mm.zrotation(angle)
 end
 
 function mm.euler(alpha,beta,gamma)
-    return matrix_multiply(
+    return mm.matrix_multiply(
         mm.zrotation(gamma)
-        ,matrix_multiply(
+        ,mm.matrix_multiply(
             mm.yrotation(beta)
             ,mm.zrotation(alpha)
         )

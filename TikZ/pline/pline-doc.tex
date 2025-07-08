@@ -7,10 +7,11 @@
 \PassOptionsToPackage{depth = 4}{bookmark}
 \documentclass[12pt]{report}
 \usepackage{
-    tikz-3d
+    pline
     ,microtype
     ,babel
     ,fontspec
+    ,unicode-math,
     ,caption
     ,xcolor
     ,geometry
@@ -18,6 +19,7 @@
     ,bookmark
     ,hyperref
 }
+\setmathfont{FiraMath-Regular.otf}
 \counterwithin{figure}{section}
 \counterwithin{table}{section}
 \DeclareCaptionFormat{tikztd}{#1#2\par\noindent#3}
@@ -28,24 +30,24 @@
 }
 \setcounter{tocdepth}{3}
 \setmainfont{Carlito}
-\title{The Ti\textit{k}Z-3D Package}
+\title{The pline Package}
 \author{Jasper}
 \date{\today}
 \begin{document}
     \maketitle 
     \tableofcontents
     \chapter{Introduction}
-        Ti\textit{k}Z-3D is a Lua-based 3D graphics package for 
+        pline is a Lua-based 3D graphics package for 
         Ti\textit{k}Z.
-        \section{What are the current capabilities of Ti\textit{k}Z-3D?}
-            Ti\textit{k}Z-3D can render multiple non-intersecting 
+        \section{What are the current capabilities of pline?}
+            pline can render multiple non-intersecting 
             triangulated mesh surfaces at once. It is also possible 
             to draw a plane which has been clipped by a cube.
             There are commands for drawing and labelling geometric 
             vectors too. Curves and surfaces can be defined using 
             matrix transformations.
         \section{
-            How does Ti\textit{k}Z-3D improve on existing packages?
+            How does pline improve on existing packages?
         }
             There are two significant packages for 3D artwork in 
             Ti\textit{k}Z: pgfplots and tikz-3dplot.
@@ -56,22 +58,22 @@
             orthographic, and the rotations are restricted to 
             azimuth and elevation; that is, the \(z\)-axis is always 
             vertical. Neither pgfplots nor tikz-3dplot enable 
-            matrix math. Ti\textit{k}Z-3D is built to render 
+            matrix math. pline is built to render 
             multiple parametric objects at once, enable arbitrary
             object orientations in non-orthographic projections, 
             and enable matrix math.
         \section{Where is the package at, and where it is heading?}
-            The vision of the package Ti\textit{k}Z-3D is to one 
+            The vision of the package pline is to one 
             day be able to render arbitrary numbers of intersecting 
             polygons, by clipping them with each other; this would 
             enable arbitrary surface intersections, without 
             visual artefacts. A more near term goal of 
-            Ti\textit{k}Z-3D is to also implement an ODE 
+            pline is to also implement an ODE 
             solving tool which approximates trajectories in 
             vector fields. I also want to add capabilities for 
             doing programming in Lua, instead of in pgfmath.
     \chapter{Geometric Vectors}
-        \section{How are geometric vectors defined in Ti\textit{k}Z-3D?}
+        \section{How are geometric vectors defined in pline?}
             Geometric vectors are defined by two things: a 
             start-coordinate, and a relative displacement.
             There are two classifications of geometric vectors;
