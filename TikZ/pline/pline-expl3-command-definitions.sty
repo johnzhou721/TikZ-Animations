@@ -10,7 +10,7 @@
         ,/pline/parametric/curve/.cd
         ,#1
     }
-    \__tikztd_appendcurve:
+    \__pline_appendcurve:
     \group_end:
 }
 \NewDocumentCommand { \appendsurface } {o} {
@@ -20,11 +20,11 @@
         ,/pline/parametric/surface/.cd
         ,#1
     }
-    \__tikztd_appendsurface:
+    \__pline_appendsurface:
     \group_end:
 }
 \NewDocumentCommand { \rendersegments } {} {
-    \__tikztd_rendersegments:
+    \__pline_rendersegments:
 }
 \NewDocumentCommand { \appendplane } {o} {
     \group_begin:
@@ -34,6 +34,6 @@
         ,/pline/clipped-subspace/plane/.cd
         ,#1
     }
-    \__tikztd_appendplane:
+    \__pline_appendplane:
     \group_end:
 }

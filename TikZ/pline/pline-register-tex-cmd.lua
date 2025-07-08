@@ -13,7 +13,7 @@ local rtc = {}
 function rtc.register_tex_cmd(name, func, args, protected)
     -- The extended version of this function uses `N` and `w` where appropriate,
     -- but only using `n` is good enough for exposition purposes.
-    name = "__tikztd_" .. name .. ":" .. ("n"):rep(#args)
+    name = "__pline_" .. name .. ":" .. ("n"):rep(#args)
 
     -- Push the appropriate scanner functions onto the scanning stack.
     local scanners = {}
