@@ -28,7 +28,7 @@
     \__tikztd_rendersegments: {}
 }
 
-\NewDocumentCommand { \drawplane } {o} {
+\NewDocumentCommand { \appendplane } {o} {
     \begingroup
         \tikzset{
             /tikz-3d/clipped-subspace/plane/.search~also = {/tikz-3d/clipped-subspace}
@@ -36,7 +36,6 @@
             ,#1
         }
         \__tikztd_appendplane: {}
-        \__tikztd_renderplanes: {}
     \endgroup
 }
 \ExplSyntaxOff

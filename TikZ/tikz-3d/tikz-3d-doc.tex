@@ -219,4 +219,14 @@
                 \caption{A triangulated mesh surface and a curve.}
                 \label{fig:3-1-1}
             \end{figure}
+    \chapter{Clipped Subspaces}
+        \section{Clipping individual planes.}
+            \begin{figure}
+                \centering
+                \begin{tikzpicture}
+                    \appendprism[transformation = {euler(pi/2,pi/3,pi/3)}]
+                    \appendplane[transformation = {euler(pi/2,pi/3,pi/3)}]
+                    \rendersegments
+                \end{tikzpicture}
+            \end{figure}
 \end{document}

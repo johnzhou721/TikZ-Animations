@@ -3,7 +3,7 @@ local mm = require "matrix_math"
 local rtc = require "register_tex_cmd"
 local ss = require "segment_sorting"
 _ENV = _G -- use this to *add* the functions in test
-for i,j in pairs(mm) do
+for i,j in pairs(mm,math) do
   _ENV[i] = j
 end
 
@@ -178,6 +178,28 @@ local function render_segments()
                     )
                 )
             end
+        elseif #segment.segment > 3 then
+            local path = {}
+            local include = true
+            local abs = math.abs
+            for _, P in ipairs(segment.segment) do
+                local x, y = P[1], P[2]
+                if abs(x) >= 100 or abs(y) >= 100 then
+                    include = false
+                    break
+                end
+                table.insert(path, string.format("(%f,%f)", x, y))
+            end
+            if include then
+                tex.sprint(
+                    string.format(
+                        "\\path[preaction={%s},postaction={%s}] %s -- cycle;",
+                        segment.fill_options or "",
+                        segment.draw_options or "",
+                        table.concat(path, " -- ")
+                    )
+                )
+            end
         end
     end
     segments = {}
@@ -221,3 +243,147 @@ rtc.register_tex_cmd(
 )
 
 rtc.register_tex_cmd("rendersegments", function() render_segments() end, { })
+
+local function single_string_expression(str)
+    if not str or str == "" then
+        return nil
+    end
+    return load(("return %s"):format(str))()
+end
+
+local function append_plane(hash)
+    local a            = single_string_expression(hash.a)
+    local b            = single_string_expression(hash.b)
+    local c            = single_string_expression(hash.c)
+    local d            = single_string_expression(hash.d)
+    local xmin         = single_string_expression(hash.xmin)
+    local xmax         = single_string_expression(hash.xmax)
+    local ymin         = single_string_expression(hash.ymin)
+    local ymax         = single_string_expression(hash.ymax)
+    local zmin         = single_string_expression(hash.zmin)
+    local zmax         = single_string_expression(hash.zmax)
+    local fill_options = hash.fill_options
+    local draw_options = hash.fill_options
+    local transform    = single_string_expression(hash.transformation)
+
+    local normal       = {{a,b,c,1}}
+
+
+    local intersections = {}
+    local sorted_intersections = {}
+    local function plane(u,v)
+        local x = (d-normal[1][2]*u-normal[1][3]*v)/normal[1][1]
+        local y = (d-normal[1][1]*u-normal[1][3]*v)/normal[1][2]
+        local z = (d-normal[1][1]*u-normal[1][2]*v)/normal[1][3]
+        local result = {{x,y,z,1}}
+        return result
+    end
+    local function add_intersection(i)
+        if (
+            i[1][1]>=xmin and i[1][1]<=xmax and
+            i[1][2]>=ymin and i[1][2]<=ymax and
+            i[1][3]>=zmin and i[1][3]<=zmax
+        ) then
+            table.insert(intersections,{{i[1][1],i[1][2],i[1][3],1}})
+        end
+    end
+    if normal[1][1]~=0 then
+        for y = ymin, ymax, ymax-ymin do
+            for z = zmin, zmax, zmax-zmin do
+                local x = plane(y,z)[1][1]
+                add_intersection({{x,y,z,1}})
+            end
+        end
+    end
+    if normal[1][2]~=0 then
+        for x = xmin, xmax, xmax-xmin do
+            for z = zmin, zmax, zmax-zmin do
+                local y = plane(x,z)[1][2]
+                add_intersection({{x,y,z,1}})
+            end
+        end
+    end
+    if normal[1][3]~=0 then
+        for x = xmin, xmax, xmax-xmin do
+            for y = ymin, ymax, ymax-ymin do
+                local z = plane(x,y)[1][3]
+                add_intersection({{x,y,z,1}})
+            end
+        end
+    end
+    local n = normalize(normal)
+    local u = orthogonal_vector(n)
+    local u = normalize(u)
+    local v = cross_product(n,u)
+    local centroid = {{0,0,0,1}}
+    local number_of_points = 0
+    for index, value in ipairs(intersections) do
+        centroid[1][1] = centroid[1][1]+value[1][1]
+        centroid[1][2] = centroid[1][2]+value[1][2]
+        centroid[1][3] = centroid[1][3]+value[1][3]
+        number_of_points = number_of_points + 1
+    end
+    local centroid = {{
+        centroid[1][1]/number_of_points
+        ,centroid[1][2]/number_of_points
+        ,centroid[1][3]/number_of_points
+        ,1
+    }}
+    for index, value in ipairs(intersections) do
+        local ax = dot_product(
+            {{
+                value[1][1]-centroid[1][1]
+                ,value[1][2]-centroid[1][2]
+                ,value[1][3]-centroid[1][3]
+                ,1
+            }},{{u[1][1],u[1][2],u[1][3],1}}
+        )
+        local ay = dot_product(
+            {{
+                value[1][1]-centroid[1][1]
+                ,value[1][2]-centroid[1][2]
+                ,value[1][3]-centroid[1][3]
+                ,1
+            }},{{v[1][1],v[1][2],v[1][3],1}}
+        )
+        local anglea = atan2(ay,ax)
+        table.insert(
+            sorted_intersections
+            ,{angle = anglea, point = {{value[1][1],value[1][2],value[1][3],1}}, draw_options = draw_options, fill_options = fill_options}
+        )
+    end 
+    table.sort(
+        sorted_intersections
+        ,function(a, b)
+            return a.angle < b.angle
+        end
+    )
+    local result = { segment = {}, draw_options = draw_options, fill_options = fill_options }
+    for i, plane in ipairs(sorted_intersections) do 
+        table.insert(result.segment,plane.point)
+    end
+    for i, point in ipairs(result.segment) do
+        result.segment[i] = matrix_multiply(result.segment[i],transform)[1]
+    end
+    table.insert(segments,result)
+end
+
+rtc.register_tex_cmd(
+    "appendplane", function()
+    append_plane{
+        a              = token.get_macro("tikz@td@cs@p@a"),
+        b              = token.get_macro("tikz@td@cs@p@b"),
+        c              = token.get_macro("tikz@td@cs@p@c"),
+        d              = token.get_macro("tikz@td@cs@p@d"),
+        xmin           = token.get_macro("tikz@td@cs@xmin"),
+        xmax           = token.get_macro("tikz@td@cs@xmax"),
+        ymin           = token.get_macro("tikz@td@cs@ymin"),
+        ymax           = token.get_macro("tikz@td@cs@ymax"),
+        zmin           = token.get_macro("tikz@td@cs@zmin"),
+        zmax           = token.get_macro("tikz@td@cs@zmax"),
+        fill_options   = token.get_macro("tikz@td@cs@p@filloptions"),
+        draw_options   = token.get_macro("tikz@td@cs@p@drawoptions"),
+        transformation = token.get_macro("tikz@td@cs@transformation")
+    } end,
+    { }
+)

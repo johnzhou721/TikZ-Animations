@@ -72,6 +72,23 @@ function ss.compare_triangles(triangle_1,triangle_2)
 
         return depth_mid(triangle_1.segment) > depth_mid(triangle_2.segment)
     end
+
+
+    if #triangle_1.segment > 3 or #triangle_2.segment > 3 then
+        local function depth_mid(segment)
+            local x, y, z = 0, 0, 0
+            local n = #segment
+            for i = 1, n do
+                local pt = segment[i]
+                x = x + pt[1]
+                y = y + pt[2]
+                z = z + pt[3]
+            end
+            local centroid = {{x / n, y / n, z / n, 1}}
+            return dot_product(centroid, observer)
+        end
+        return depth_mid(triangle_1.segment) > depth_mid(triangle_2.segment)
+    end
     ---
     local P_1, Q_1, R_1 = table.unpack(triangle_1.segment)
     local P_2, Q_2, R_2 = table.unpack(triangle_2.segment)
