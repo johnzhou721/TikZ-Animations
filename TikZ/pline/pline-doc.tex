@@ -731,6 +731,75 @@
                 \caption{Automatic division by zero handling.}
                 \label{fig:3-1-2}
             \end{figure}
+            \begin{figure}
+                \centering
+                \begin{tikzpicture}
+                    \clip (-5,-5) rectangle (5,5);
+                    \foreach[count = \c from 1] \angle in {20,40,...,80} {
+                        \pgfmathsetmacro{\angle}{\angle*pi/180}
+                        \let\angle\angle
+                        \appendsurface[
+                            u min = pi/6
+                            ,u max = 0.75*tau
+                            ,u samples = 36 
+                            ,v min = 0
+                            ,v max = tau
+                            ,v samples = 36
+                            ,transformation = {euler(pi/2,pi/3,pi/6+pi)}
+                            ,draw options = {draw = black}
+                            ,fill options = {
+                                \ifnum\c=1
+                                    fill = red
+                                \fi
+                                \ifnum\c=2
+                                    fill = yellow
+                                \fi
+                                \ifnum\c=3
+                                    fill = green
+                                \fi
+                                \ifnum\c=4
+                                    fill = blue
+                                \fi
+                                ,fill opacity = 0.6
+                            }
+                            ,x = {
+                                (1 / cos(token.get_macro("angle"))) *
+                                cos(u) + 
+                                sqrt(
+                                    (
+                                        1 / 
+                                        cos(token.get_macro("angle"))
+                                    )^2 - cos(token.get_macro("angle"))
+                                ) * 
+                                sphere(u,v)[1][1]
+                            }
+                            ,y = {
+                                (1 / cos(token.get_macro("angle"))) *
+                                sin(u) + 
+                                sqrt(
+                                    (
+                                        1 / 
+                                        cos(token.get_macro("angle"))
+                                    )^2 - cos(token.get_macro("angle"))
+                                ) * 
+                                sphere(u,v)[1][2]
+                            }
+                            ,z = {
+                                sqrt(
+                                    (
+                                        1 / 
+                                        cos(token.get_macro("angle"))
+                                    )^2 - cos(token.get_macro("angle"))
+                                ) * 
+                                sphere(u,v)[1][3]
+                            }
+                        ]
+                    }
+                    \rendersegments
+                \end{tikzpicture}
+                \caption{Stereographically nested tori.}
+                \label{fig:3-1-3}
+            \end{figure}
     \chapter{Clipped Subspaces}
         \section{Clipping individual planes.}
             \begin{figure}

@@ -317,69 +317,57 @@ local function compare_triangles(triangle_1,triangle_2)
 end
 
 local function render_segments()
-    table.sort(segments,compare_triangles)
+    table.sort(segments, compare_triangles)
+
     for _, segment in ipairs(segments) do
-        if #segment.segment == 2 then
-            local S, E = segment.segment[1], segment.segment[2]
-            local Sx, Sy = S[1], S[2]
-            local Ex, Ey = E[1], E[2]
-            local options = segment.draw_options
-            local abs = math.abs 
-            if (abs(Sx)<100 and abs(Sy)<100 and abs(Ex)<100 and abs(Ey)<100) then
-                tex.sprint(
-                    string.format(
-                        "\\draw[%s] (%f,%f) -- (%f,%f);"
-                        ,options,Sx, Sy, Ex, Ey
-                    )
-                )
+        local pts = segment.segment
+        local skip = false
+
+        -- check bounding box for every point
+        for _, P in ipairs(pts) do
+            if math.abs(P[1]) > 100 or math.abs(P[2]) > 100 then
+                skip = true
+                break
             end
-        elseif #segment.segment == 3 then
-            local P, Q, R = segment.segment[1], segment.segment[2], segment.segment[3]
-            local Px, Py = P[1], P[2]
-            local Qx, Qy = Q[1], Q[2]
-            local Rx, Ry = R[1], R[2]
-            if (
-                math.abs(Px)<100 and 
-                math.abs(Py)<100 and 
-                math.abs(Qx)<100 and 
-                math.abs(Qy)<100 and
-                math.abs(Rx)<100 and 
-                math.abs(Ry)<100
-            ) then
-                tex.sprint(
-                    string.format(
-                        "\\path[preaction = {%s},postaction = {%s}] (%f,%f) -- (%f,%f) -- (%f,%f) -- cycle;",
-                        segment.fill_options,segment.draw_options
-                        ,Px,Py,Qx,Qy,Rx,Ry
-                    )
-                )
-            end
-        elseif #segment.segment > 3 then
-            local path = {}
-            local include = true
-            local abs = math.abs
-            for _, P in ipairs(segment.segment) do
-                local x, y = P[1], P[2]
-                if abs(x) >= 100 or abs(y) >= 100 then
-                    include = false
-                    break
+        end
+
+        if not skip then
+            if #pts == 2 then
+                -- draw a line segment
+                local S, E = pts[1], pts[2]
+                tex.sprint(string.format(
+                    "\\draw[%s] (%f,%f) -- (%f,%f);",
+                    segment.draw_options, S[1], S[2], E[1], E[2]
+                ))
+
+            elseif #pts == 3 then
+                -- draw a filled triangle
+                local P, Q, R = pts[1], pts[2], pts[3]
+                tex.sprint(string.format(
+                    "\\path[preaction={%s},postaction={%s}] (%f,%f) -- (%f,%f) -- (%f,%f) -- cycle;",
+                    segment.fill_options, segment.draw_options,
+                    P[1], P[2], Q[1], Q[2], R[1], R[2]
+                ))
+
+            elseif #pts > 3 then
+                -- draw a general polygon
+                local path = {}
+                for _, P in ipairs(pts) do
+                    table.insert(path, string.format("(%f,%f)", P[1], P[2]))
                 end
-                table.insert(path, string.format("(%f,%f)", x, y))
-            end
-            if include then
-                tex.sprint(
-                    string.format(
-                        "\\path[preaction={%s},postaction={%s}] %s -- cycle;",
-                        segment.fill_options or "",
-                        segment.draw_options or "",
-                        table.concat(path, " -- ")
-                    )
-                )
+                tex.sprint(string.format(
+                    "\\path[preaction={%s},postaction={%s}] %s -- cycle;",
+                    segment.fill_options or "", segment.draw_options or "",
+                    table.concat(path, " -- ")
+                ))
             end
         end
     end
+
+    -- clear for next frame
     segments = {}
 end
+
 
 
 rtc.register_tex_cmd(
