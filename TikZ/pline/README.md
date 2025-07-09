@@ -1,6 +1,6 @@
-Package Name:  pline
-Package Version: v0.01, 2025/07/08
-GitHub: https://github.com/Pseudonym321/TikZ-Animations/tree/master1/TikZ/pline
+Package Name:  pline\
+Package Version: v0.01, 2025/07/08\
+GitHub: https://github.com/Pseudonym321/TikZ-Animations/tree/master1/TikZ/pline\
 Author Name:  Jasper Nice
 
 This work is licensed under the LaTeX Project Public License, 

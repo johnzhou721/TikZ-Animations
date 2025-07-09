@@ -77,7 +77,9 @@
             pline is to also implement an ODE 
             solving tool which approximates trajectories in 
             vector fields. I also want to add capabilities for 
-            doing programming in Lua, instead of in pgf
+            doing programming in Lua, instead of in pgf.
+            I also want to add culling for projective 
+            transformations.
     \chapter{Geometric Vectors}
         \section{How are geometric vectors defined in pline?}
             Geometric vectors are defined by two things: a 
@@ -169,6 +171,27 @@
                 \caption{The values for the key \mintinline{latex}{points}.}
                 \label{fig:2-1-2}
             \end{figure}
+            The \mintinline{latex}{\drawvector} syntax is mostly
+            meant for diagrams which don't use \(z\)-sorting.
+            Still, they can be used in some 3D still-diagrams;
+            for instance, these vectors connect nicely.
+            They will also eventually be able to be drawn flat 
+            on planes. There is also a zero-vector command 
+            available via \mintinline{latex}{\drawpoint}.
+            See Figure \ref{fig:2-1-3}, with the following code.
+\begin{minted}{tex}
+\begin{tikzpicture}
+    \drawpoint[red]{0,0}
+\end{tikzpicture}
+\end{minted}
+            \begin{figure}
+                \centering
+                \begin{tikzpicture}
+                    \drawpoint[red]{0,0}
+                \end{tikzpicture}
+                \caption{Zero-vector}
+                \label{fig:2-1-3}
+            \end{figure}
     \chapter{Parametric Objects}
         \section{How is a parametric object defined?}
             Parametric objects are defined using a handful of 
@@ -225,18 +248,29 @@
                 ,u samples = 2
                 ,transformation = {euler(pi/2,pi/3,pi/2)}
                 ,x = {
-                    2 * cos(token.get_macro("u")) +
-                    (u + 1) * sphere(token.get_macro("u"),token.get_macro("v"))[1][1]
+                    2 * 
+                    cos(token.get_macro("u")) +
+                    (u + 1) * 
+                    sphere(
+                        token.get_macro("u")
+                        ,token.get_macro("v")
+                    )[1][1]
                 }
                 ,y = {
-                    2 * sin(token.get_macro("u")) +
-                    (u + 1) * sphere(token.get_macro("u"),token.get_macro("v"))[1][2]
+                    2 * 
+                    sin(token.get_macro("u")) +
+                    (u + 1) * 
+                    sphere(
+                        token.get_macro("u")
+                        ,token.get_macro("v")
+                    )[1][2]
                 }
                 ,z = {
                     token.get_macro("u") + 
-                    (u + 1) * sphere(
-                        token.get_macro("u"),
-                        token.get_macro("v")
+                    (u + 1) * 
+                    sphere(
+                        token.get_macro("u")
+                        ,token.get_macro("v")
                     )[1][3]
                 }
                 ,draw options = {-{Stealth[round]}}
@@ -294,20 +328,32 @@
                                 u min = 0
                                 ,u max = 0.3
                                 ,u samples = 2
-                                ,transformation = {euler(pi/2,pi/3,pi/2)}
+                                ,transformation = 
+                                    {euler(pi/2,pi/3,pi/2)}
                                 ,x = {
-                                    2 * cos(token.get_macro("u")) +
-                                    (u + 1) * sphere(token.get_macro("u"),token.get_macro("v"))[1][1]
+                                    2 * 
+                                    cos(token.get_macro("u")) +
+                                    (u + 1) * 
+                                    sphere(
+                                        token.get_macro("u")
+                                        ,token.get_macro("v")
+                                    )[1][1]
                                 }
                                 ,y = {
-                                    2 * sin(token.get_macro("u")) +
-                                    (u + 1) * sphere(token.get_macro("u"),token.get_macro("v"))[1][2]
+                                    2 * 
+                                    sin(token.get_macro("u")) +
+                                    (u + 1) * 
+                                    sphere(
+                                        token.get_macro("u")
+                                        ,token.get_macro("v")
+                                    )[1][2]
                                 }
                                 ,z = {
                                     token.get_macro("u") + 
-                                    (u + 1) * sphere(
-                                        token.get_macro("u"),
-                                        token.get_macro("v")
+                                    (u + 1) * 
+                                    sphere(
+                                        token.get_macro("u")
+                                        ,token.get_macro("v")
                                     )[1][3]
                                 }
                                 ,draw options = {-{Stealth[round]}}
@@ -319,7 +365,9 @@
                 \caption{A triangulated mesh surface and a curve.}
                 \label{fig:3-1-1}
             \end{figure}
-            And the code for Figure \ref{fig:3-1-2} is as follows.
+            The package is capable of handling division by zero errors
+            without erroring.
+            The code for Figure \ref{fig:3-1-2} is as follows.
 \begin{minted}{tex}
 \begin{tikzpicture}
     \clip (-5,-5) rectangle (5,5);
@@ -335,16 +383,38 @@
             ,x = {
                 stereographic_projection(
                     matrix_multiply(
-                        sphere(2*pi*token.get_macro("longitude")/36,u)
-                        ,euler(0,pi/2,(2*pi/24)*token.get_macro("angle")/36)
+                        sphere(
+                            tau * 
+                            token.get_macro("longitude") /
+                            36
+                            ,u
+                        )
+                        ,euler(
+                            0
+                            ,pi/2
+                            ,(2*pi/24) *
+                            token.get_macro("angle") / 
+                            36
+                        )
                     )
                 )[1][1]
             }
             ,y = {
                 stereographic_projection(
                     matrix_multiply(
-                        sphere(2*pi*token.get_macro("longitude")/36,u)
-                        ,euler(0,pi/2,(2*pi/24)*token.get_macro("angle")/36)
+                        sphere(
+                            tau *
+                            token.get_macro("longitude") /
+                            36
+                            ,u
+                        )
+                        ,euler(
+                            0
+                            ,pi/2
+                            ,(2*pi/24) * 
+                            token.get_macro("angle") / 
+                            36
+                        )
                     )
                 )[1][2]
             }
@@ -356,7 +426,13 @@
             ,u samples = 23
             ,transformation = {
                 matrix_multiply(
-                    euler(0,pi/2,(2*pi/24)*token.get_macro("angle")/36)
+                    euler(
+                        0
+                        ,pi/2
+                        ,(2*pi/24) * 
+                        token.get_macro("angle") / 
+                        36
+                    )
                     ,euler(pi/2,pi/3,pi/6)
                 )
             }
@@ -396,16 +472,38 @@
             ,x = {
                 stereographic_projection(
                     matrix_multiply(
-                        sphere(u,tau*token.get_macro("latitude")/36)
-                        ,euler(0,pi/2,(tau/24)*token.get_macro("angle")/36)
+                        sphere(
+                            u
+                            ,tau *
+                            token.get_macro("latitude") / 
+                            36
+                        )
+                        ,euler(
+                            0
+                            ,pi/2
+                            ,(tau/24) * 
+                            token.get_macro("angle") / 
+                            36
+                        )
                     )
                 )[1][1]
             }
             ,y = {
                 stereographic_projection(
                     matrix_multiply(
-                        sphere(u,tau*token.get_macro("latitude")/36)
-                        ,euler(0,pi/2,(tau/24)*token.get_macro("angle")/36)
+                        sphere(
+                            u
+                            ,tau *
+                            token.get_macro("latitude") /
+                            36
+                        )
+                        ,euler(
+                            0
+                            ,pi/2
+                            ,(tau/24) *
+                            token.get_macro("angle") /
+                            36
+                        )
                     )
                 )[1][2]
             }
@@ -417,13 +515,34 @@
             ,u samples = 45
             ,transformation = {
                 matrix_multiply(
-                    euler(0,pi/2,(2*pi/24)*token.get_macro("angle")/36)
+                    euler(
+                        0
+                        ,pi/2
+                        ,(2*pi/24) *
+                        token.get_macro("angle") /
+                        36
+                    )
                     ,euler(pi/2,pi/3,pi/6)
                 )
             }
-            ,x = {sphere(u,2*pi*token.get_macro("latitude")/36)[1][1]}
-            ,y = {sphere(u,2*pi*token.get_macro("latitude")/36)[1][2]}
-            ,z = {sphere(u,2*pi*token.get_macro("latitude")/36)[1][3]}
+            ,x = {
+                sphere(
+                    u
+                    ,tau*token.get_macro("latitude")/36
+                )[1][1]
+            }
+            ,y = {
+                sphere(
+                    u
+                    ,tau*token.get_macro("latitude")/36
+                )[1][2]
+            }
+            ,z = {
+                sphere(
+                    u
+                    ,tau*token.get_macro("latitude")/36
+                )[1][3]
+            }
         ]
     }
     \rendersegments
@@ -445,16 +564,38 @@
                             ,x = {
                                 stereographic_projection(
                                     matrix_multiply(
-                                        sphere(2*pi*token.get_macro("longitude")/36,u)
-                                        ,euler(0,pi/2,(2*pi/24)*token.get_macro("angle")/36)
+                                        sphere(
+                                            tau * 
+                                            token.get_macro("longitude") /
+                                            36
+                                            ,u
+                                        )
+                                        ,euler(
+                                            0
+                                            ,pi/2
+                                            ,(2*pi/24) *
+                                            token.get_macro("angle") / 
+                                            36
+                                        )
                                     )
                                 )[1][1]
                             }
                             ,y = {
                                 stereographic_projection(
                                     matrix_multiply(
-                                        sphere(2*pi*token.get_macro("longitude")/36,u)
-                                        ,euler(0,pi/2,(2*pi/24)*token.get_macro("angle")/36)
+                                        sphere(
+                                            tau *
+                                            token.get_macro("longitude") /
+                                            36
+                                            ,u
+                                        )
+                                        ,euler(
+                                            0
+                                            ,pi/2
+                                            ,(2*pi/24) * 
+                                            token.get_macro("angle") / 
+                                            36
+                                        )
                                     )
                                 )[1][2]
                             }
@@ -466,7 +607,13 @@
                             ,u samples = 23
                             ,transformation = {
                                 matrix_multiply(
-                                    euler(0,pi/2,(2*pi/24)*token.get_macro("angle")/36)
+                                    euler(
+                                        0
+                                        ,pi/2
+                                        ,(2*pi/24) * 
+                                        token.get_macro("angle") / 
+                                        36
+                                    )
                                     ,euler(pi/2,pi/3,pi/6)
                                 )
                             }
@@ -506,16 +653,38 @@
                             ,x = {
                                 stereographic_projection(
                                     matrix_multiply(
-                                        sphere(u,tau*token.get_macro("latitude")/36)
-                                        ,euler(0,pi/2,(tau/24)*token.get_macro("angle")/36)
+                                        sphere(
+                                            u
+                                            ,tau *
+                                            token.get_macro("latitude") / 
+                                            36
+                                        )
+                                        ,euler(
+                                            0
+                                            ,pi/2
+                                            ,(tau/24) * 
+                                            token.get_macro("angle") / 
+                                            36
+                                        )
                                     )
                                 )[1][1]
                             }
                             ,y = {
                                 stereographic_projection(
                                     matrix_multiply(
-                                        sphere(u,tau*token.get_macro("latitude")/36)
-                                        ,euler(0,pi/2,(tau/24)*token.get_macro("angle")/36)
+                                        sphere(
+                                            u
+                                            ,tau *
+                                            token.get_macro("latitude") /
+                                            36
+                                        )
+                                        ,euler(
+                                            0
+                                            ,pi/2
+                                            ,(tau/24) *
+                                            token.get_macro("angle") /
+                                            36
+                                        )
                                     )
                                 )[1][2]
                             }
@@ -527,13 +696,34 @@
                             ,u samples = 45
                             ,transformation = {
                                 matrix_multiply(
-                                    euler(0,pi/2,(2*pi/24)*token.get_macro("angle")/36)
+                                    euler(
+                                        0
+                                        ,pi/2
+                                        ,(2*pi/24) *
+                                        token.get_macro("angle") /
+                                        36
+                                    )
                                     ,euler(pi/2,pi/3,pi/6)
                                 )
                             }
-                            ,x = {sphere(u,2*pi*token.get_macro("latitude")/36)[1][1]}
-                            ,y = {sphere(u,2*pi*token.get_macro("latitude")/36)[1][2]}
-                            ,z = {sphere(u,2*pi*token.get_macro("latitude")/36)[1][3]}
+                            ,x = {
+                                sphere(
+                                    u
+                                    ,tau*token.get_macro("latitude")/36
+                                )[1][1]
+                            }
+                            ,y = {
+                                sphere(
+                                    u
+                                    ,tau*token.get_macro("latitude")/36
+                                )[1][2]
+                            }
+                            ,z = {
+                                sphere(
+                                    u
+                                    ,tau*token.get_macro("latitude")/36
+                                )[1][3]
+                            }
                         ]
                     }
                     \rendersegments
@@ -546,9 +736,38 @@
             \begin{figure}
                 \centering
                 \begin{tikzpicture}
-                    \appendprism[transformation = {euler(pi/2,pi/3,pi/3)}]
-                    \appendplane[transformation = {euler(pi/2,pi/3,pi/3)}]
+                    \appendprism[%
+                        a = 1
+                        ,b = 2
+                        ,c = 3
+                        ,d = 4
+                        ,x min = -1
+                        ,x max = 1
+                        ,y min = -1
+                        ,y max = 1
+                        ,z min = -1
+                        ,z max = 1
+                        ,transformation = {euler(pi/2,pi/3,pi/3)}
+                    ]
+                    \appendplane[%
+                        a = 1
+                        ,b = 2
+                        ,c = 3
+                        ,d = 1
+                        ,x min = -1
+                        ,x max = 1
+                        ,y min = -1
+                        ,y max = 1
+                        ,z min = -1
+                        ,z max = 1
+                        ,transformation = {euler(pi/2,pi/3,pi/3)}
+                    ]
                     \rendersegments
                 \end{tikzpicture}
+                \caption{%
+                    A plane which has been clipped by a rectangular 
+                    prism.
+                }
+                \label{fig:4-1-1}
             \end{figure}
 \end{document}
