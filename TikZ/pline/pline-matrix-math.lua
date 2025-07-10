@@ -202,7 +202,7 @@ function mm.det(matrix)
             end
             table.insert(minor,new_row)
         end
-        det = det + matrix[1][element] * (-1)^(element+1) * la.det(minor)
+        det = det + matrix[1][element] * (-1)^(element+1) * mm.det(minor)
     end
     return det
 end
