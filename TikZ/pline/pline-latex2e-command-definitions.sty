@@ -17,12 +17,12 @@
 }
 \newcommand{\drawmark}[1][]{
     \begingroup
-        \pgfmathsetmacro{\tmp}{\tikz@td@gm@marklength/2}
+        \pgfmathsetmacro{\tikz@td@gm@halfmarklength}{\tikz@td@gm@marklength/2}
         \draw[
             /pline/geometric-vector/.search also = {/tikz}
             ,/pline/geometric-vector/.cd
             ,#1
-        ] (0,-\tmp pt) -- (0,\tmp pt);
+        ] (0,-\tikz@td@gm@halfmarklength pt) -- (0,\tikz@td@gm@halfmarklength pt);
     \endgroup
 }
 \newcommand{\drawvector}[3][]{
