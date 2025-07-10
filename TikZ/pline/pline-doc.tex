@@ -48,7 +48,8 @@
         \section{What are the current capabilities of pline?}
             pline can render multiple non-intersecting 
             triangulated mesh surfaces at once. It is also possible 
-            to draw a plane which has been clipped by a cube.
+            to draw a plane which has been clipped by a rectangular
+            prism.
             There are commands for drawing and labelling geometric 
             vectors too. Curves and surfaces can be defined using 
             matrix transformations.
@@ -63,11 +64,13 @@
             the camera view, but the result is necessarily 
             orthographic, and the rotations are restricted to 
             azimuth and elevation; that is, the \(z\)-axis is always 
-            vertical. Neither pgfplots nor tikz-3dplot enable 
-            matrix  pline is built to render 
+            vertical. tikz-3dplot offers useful pgfmath capabilities 
+            for doing vector operations.
+            Neither pgfplots nor tikz-3dplot enable 
+            matrix transformations. pline is built to render 
             multiple parametric objects at once, enable arbitrary
             object orientations in non-orthographic projections, 
-            and enable matrix 
+            and enable matrix transformations.
         \section{Where is the package at, and where it is heading?}
             The vision of the package pline is to one 
             day be able to render arbitrary numbers of intersecting 
@@ -77,9 +80,12 @@
             pline is to also implement an ODE 
             solving tool which approximates trajectories in 
             vector fields. I also want to add capabilities for 
-            doing programming in Lua, instead of in pgf.
-            I also want to add culling for projective 
-            transformations.
+            doing programming in Lua, instead of in pgf,
+            essentially replacing the pgfmath capabilities of 
+            tikz-3dplot with faster Lua-based capabilities.
+            Soon there will also be proper camera culling for 
+            projective scenes; that is, the action of not drawing 
+            segments which are behind the viewing plane.
     \chapter{Geometric Vectors}
         \section{How are geometric vectors defined in pline?}
             Geometric vectors are defined by two things: a 
@@ -121,21 +127,11 @@
             circles over the endpoints. See Figure  \ref{fig:2-1-2}, 
             which uses  the following code.
 \begin{minted}{tex}
-% a)
 \begin{tikzpicture}
-    \drawvector[points = neither]{0,0}{0,1}
-\end{tikzpicture}
-% b)
-\begin{tikzpicture}
-    \drawvector[points = behind]{1,0}{0,1}
-\end{tikzpicture}
-% c)
-\begin{tikzpicture}
-    \drawvector[points = front]{2,0}{0,1}
-\end{tikzpicture}
-% d)
-\begin{tikzpicture}
-    \drawvector[points = both]{3,0}{0,1}
+    \drawvector[points = neither]{0,0}{0,1} % a)
+    \drawvector[points = behind]{1,0}{0,1} % b)
+    \drawvector[points = front]{2,0}{0,1} % c)
+    \drawvector[points = both]{3,0}{0,1} % d)
 \end{tikzpicture}
 \end{minted}
             \begin{figure}
@@ -197,8 +193,9 @@
             Parametric objects are defined using a handful of 
             different pieces of information. In particular, they 
             use parametric functions, domain parameters and a samples
-            parameter for each dimension in the domain. Figure 
-            \ref{fig:3-1-1} is defined by the following code:
+            parameter for each dimension in the domain. Of course, 
+            there are also parameters for color and such as well. 
+            Figure \ref{fig:3-1-1} is defined by the following code:
 \begin{minted}{tex}
 \begin{tikzpicture}
     \appendcurve[
@@ -365,9 +362,11 @@
                 \caption{A triangulated mesh surface and a curve.}
                 \label{fig:3-1-1}
             \end{figure}
-            The package is capable of handling division by zero errors
-            without erroring.
-            The code for Figure \ref{fig:3-1-2} is as follows.
+            pline is also capable of handling division by zero
+            without erroring. This is because the math is handled in
+            Lua, where division by zero doesn't error. We clip our 
+            results to be well within the scope of the Ti\textit{z}Z
+            canvas. The code for Figure \ref{fig:3-1-2} is as follows.
 \begin{minted}{tex}
 \begin{tikzpicture}
     \clip (-5,-5) rectangle (5,5);
@@ -551,7 +550,11 @@
             \begin{figure}
                 \centering
                 \begin{tikzpicture}
-                    \clip (-5,-5) rectangle (5,5);
+                    \clip 
+                        (-\textwidth/2,-5) 
+                        rectangle 
+                        (\textwidth/2,5)
+                    ;
                     \pgfmathsetmacro{\angle}{0}
                     \let\angle\angle
                     \foreach \longitude in {1,...,36}{
@@ -731,10 +734,90 @@
                 \caption{Automatic division by zero handling.}
                 \label{fig:3-1-2}
             \end{figure}
+            pline is meant to be compatible with Ti\textit{k}Z, and
+            they are meant to be used together---at least for now.
+            Maybe one day pline will have enough capabilities to 
+            do things like for loops and conditionals---\textit{at 
+            home}. The code for Figure \ref{fig:3-1-3}, which 
+            illustrates the use of a conditional, is given.
+\begin{minted}{tex}
+\begin{tikzpicture}
+    \clip 
+        (-\textwidth/2,-5) 
+        rectangle 
+        (\textwidth/2,5)
+    ;
+    \foreach[count = \c from 1] \angle in {20,40,...,80} {
+        \pgfmathsetmacro{\angle}{\angle*pi/180}
+        \let\angle\angle
+        \appendsurface[
+            u min = pi/6
+            ,u max = 0.75*tau
+            ,u samples = 36 
+            ,v min = 0
+            ,v max = tau
+            ,v samples = 36
+            ,transformation = {euler(pi/2,pi/3,pi/6+pi)}
+            ,draw options = {draw = black}
+            ,fill options = {
+                \ifnum\c=1
+                    fill = red
+                \fi
+                \ifnum\c=2
+                    fill = yellow
+                \fi
+                \ifnum\c=3
+                    fill = green
+                \fi
+                \ifnum\c=4
+                    fill = blue
+                \fi
+                ,fill opacity = 0.6
+            }
+            ,x = {
+                (1 / cos(token.get_macro("angle"))) *
+                cos(u) + 
+                sqrt(
+                    (
+                        1 / 
+                        cos(token.get_macro("angle"))
+                    )^2 - cos(token.get_macro("angle"))
+                ) * 
+                sphere(u,v)[1][1]
+            }
+            ,y = {
+                (1 / cos(token.get_macro("angle"))) *
+                sin(u) + 
+                sqrt(
+                    (
+                        1 / 
+                        cos(token.get_macro("angle"))
+                    )^2 - cos(token.get_macro("angle"))
+                ) * 
+                sphere(u,v)[1][2]
+            }
+            ,z = {
+                sqrt(
+                    (
+                        1 / 
+                        cos(token.get_macro("angle"))
+                    )^2 - cos(token.get_macro("angle"))
+                ) * 
+                sphere(u,v)[1][3]
+            }
+        ]
+    }
+    \rendersegments
+\end{tikzpicture}
+\end{minted}
             \begin{figure}
                 \centering
                 \begin{tikzpicture}
-                    \clip (-5,-5) rectangle (5,5);
+                    \clip 
+                        (-\textwidth/2,-5) 
+                        rectangle 
+                        (\textwidth/2,5)
+                    ;
                     \foreach[count = \c from 1] \angle in {20,40,...,80} {
                         \pgfmathsetmacro{\angle}{\angle*pi/180}
                         \let\angle\angle
@@ -801,7 +884,50 @@
                 \label{fig:3-1-3}
             \end{figure}
     \chapter{Clipped Subspaces}
+        A big focus for the future of this package is 
+        triangle-triangle clipping, which generalizes to 
+        polygon clipping. This dream is twofold; firstly it will 
+        enable parametric surfaces to intersect, and secondly 
+        it will enable intersecting plane diagrams which haven't 
+        been achieved in full generality in tikz yet.
         \section{Clipping individual planes.}
+            This is where the technology is at currently. We can 
+            clip a single plane by a rectangular prism, and draw them.
+            Eventually, when the polygon clipping gets going, this will 
+            evolve into a tool for graphing intersecting planes without
+            using approximations. The code for Figure \ref{fig:4-1-1} 
+            is given.
+\begin{minted}{tex}
+\begin{tikzpicture}
+    \appendprism[%
+        a = 1
+        ,b = 2
+        ,c = 3
+        ,d = 4
+        ,x min = -1
+        ,x max = 1
+        ,y min = -1
+        ,y max = 1
+        ,z min = -1
+        ,z max = 1
+        ,transformation = {euler(pi/2,pi/3,pi/3)}
+    ]
+    \appendplane[%
+        a = 1
+        ,b = 2
+        ,c = 3
+        ,d = 1
+        ,x min = -1
+        ,x max = 1
+        ,y min = -1
+        ,y max = 1
+        ,z min = -1
+        ,z max = 1
+        ,transformation = {euler(pi/2,pi/3,pi/3)}
+    ]
+    \rendersegments
+\end{tikzpicture}
+\end{minted}
             \begin{figure}
                 \centering
                 \begin{tikzpicture}

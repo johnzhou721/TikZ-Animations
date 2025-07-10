@@ -45,6 +45,167 @@ function mm.matrix_multiply(A, B)
     return product
 end
 
+function mm.reciprocate_by_homogenous(matrix)
+    local result = {}
+    for i = 1, #matrix do
+        local row = matrix[i]
+        local w = row[4]
+        if w == 0 then
+            error("Cannot reciprocate row " .. i .. ": homogeneous coordinate w = 0")
+        end
+        --if w<0 then w=-w end
+        result[i] = {
+            row[1]/w,
+            row[2]/w,
+            row[3]/w,
+            1
+        }
+    end
+    return result
+end
+
+function mm.add(A, B)
+    local rows_A = #A
+    local columns_A = #A[1]
+    local rows_B = #B
+    local columns_B = #B[1]
+    assert(rows_A == rows_B and columns_A == columns_B, "Wrong size matrices for addition.")
+    local sum = {}
+    for row = 1, rows_A, 1 do
+        sum[row] = {}
+        for column = 1, columns_A, 1 do
+            sum[row][column] = A[row][column] + B[row][column]
+        end
+    end
+    return sum
+end
+
+function mm.sub(A,B)
+    local rows_A = #A
+    local columns_A = #A[1]
+    local rows_B = #B
+    local columns_B = #B[1]
+    assert(rows_A == rows_B and columns_A == columns_B, "Wrong size matrices for subtraction.")
+    local sum = {}
+    for row = 1, rows_A, 1 do
+        sum[row] = {}
+        for column = 1, columns_A, 1 do
+            sum[row][column] = A[row][column] - B[row][column]
+        end
+    end
+    return sum
+end
+
+function  mm.transpose(A)
+    local rows_A = #A
+    local columns_A = #A[1]
+    local result = {}
+    for row = 1, columns_A, 1 do
+        result[row] = {}
+        for column = 1, rows_A, 1 do
+            result[row][column] = A[column][row]
+        end
+    end
+    return result
+end
+
+function mm.inverse(matrix)
+    local rows = #matrix
+    local columns = #matrix[1]
+    assert(rows == columns, "You can only take the inverse of a square matrix.")
+    local det = mm.det(matrix)
+    assert(math.abs(math.abs(det)) > 0.00001, "You cannot take the inverse of a singular matrix.")
+
+    local n = rows
+    -- Build an augmented matrix [A | I]
+    local augment = {}
+    for i = 1, n do
+        augment[i] = {}
+        -- copy row i of A
+        for j = 1, n do
+            augment[i][j] = matrix[i][j]
+        end
+        -- append row i of I
+        for j = 1, n do
+            augment[i][n + j] = (i == j) and 1 or 0
+        end
+    end
+
+    -- Gauss-Jordan elimination
+    for i = 1, n do
+        -- If pivot is zero (or very close), swap with a lower row that has a nonzero pivot
+        if math.abs(augment[i][i]) < 1e-12 then
+            local swapRow = nil
+            for r = i + 1, n do
+                if math.abs(augment[r][i]) > 1e-12 then
+                    swapRow = r
+                    break
+                end
+            end
+            assert(swapRow, "Matrix is singular (zero pivot encountered).")
+            augment[i], augment[swapRow] = augment[swapRow], augment[i]
+        end
+
+        -- Normalize row i so that augment[i][i] == 1
+        local pivot = augment[i][i]
+        for col = 1, 2 * n do
+            augment[i][col] = augment[i][col] / pivot
+        end
+
+        -- Eliminate column i in all other rows
+        for r = 1, n do
+            if r ~= i then
+                local factor = augment[r][i]
+                for col = 1, 2 * n do
+                    augment[r][col] = augment[r][col] - factor * augment[i][col]
+                end
+            end
+        end
+    end
+
+    -- Extract the inverse matrix from the augmented result
+    local inv = {}
+    for i = 1, n do
+        inv[i] = {}
+        for j = 1, n do
+            inv[i][j] = augment[i][n + j]
+        end
+    end
+
+    return inv
+end
+
+function mm.det(matrix)
+    local rows = #matrix
+    local columns = #matrix[1]
+    assert(rows > 0, "Matrix must have at least one row to take determinant.")
+    assert(columns > 0, "Matrix must have at least one column to take determinant.")
+    assert(rows == columns, "You can only take the determinant of a square matrix.")
+    if rows == 1 then
+        return matrix[1][1]
+    elseif rows == 2 then
+        -- return a*d - b*c
+        return matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]
+    end
+    -- We will do a cofactor expansion on the first row.
+    local det = 0
+    local minor
+    local new_row
+    for element = 1, columns, 1 do
+        minor = {}
+        for row = 2, rows, 1 do
+            new_row = {}
+            for column = 1, columns, 1 do
+                if column ~= element then
+                    table.insert(new_row, matrix[row][column])
+                end
+            end
+            table.insert(minor,new_row)
+        end
+        det = det + matrix[1][element] * (-1)^(element+1) * la.det(minor)
+    end
+    return det
+end
 
 function mm.yrotation(angle)
     local c = cos(angle)
@@ -56,6 +217,61 @@ function mm.yrotation(angle)
         ,{0,0,0,1}
     }
 end
+
+function mm.translate(x,y,z)
+    return {
+        {1,0,0,0}
+        ,{0,1,0,0}
+        ,{0,0,1,0}
+        ,{x,y,z,1}
+    }
+end
+
+function mm.xscale(scale)
+    return {
+        {scale,0,0,0}
+        ,{0,1,0,0}
+        ,{0,0,1,0}
+        ,{0,0,0,1}
+    }
+end
+
+function mm.yscale(scale)
+    return {
+        {1,0,0,0}
+        ,{0,scale,0,0}
+        ,{0,0,1,0}
+        ,{0,0,0,1}
+    }
+end
+
+function mm.zscale(scale)
+    return {
+        {1,0,0,0}
+        ,{0,1,0,0}
+        ,{0,0,scale,0}
+        ,{0,0,0,1}
+    }
+end
+
+function mm.scale(scale)
+    return {
+        {scale,0,0,0}
+        ,{0,scale,0,0}
+        ,{0,0,scale,0}
+        ,{0,0,0,1}
+    }
+end
+
+function mm.xrotation(angle)
+    return {
+        {1,0,0,0}
+        ,{0,math.cos(angle),math.sin(angle),0}
+        ,{0,-math.sin(angle),math.cos(angle),0}
+        ,{0,0,0,1}
+    }
+end
+
 
 function mm.zrotation(angle)
     local c = cos(angle)
