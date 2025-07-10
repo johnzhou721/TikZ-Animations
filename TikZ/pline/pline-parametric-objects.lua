@@ -245,7 +245,7 @@ local function compare_triangles(triangle_1,triangle_2)
             mm.matrix_subtract(Q_1,P_1)
             ,mm.matrix_subtract(R_1,P_1)
         )
-        if dot_product(normal_1,observer_dir) < 1 then
+        if mm.dot_product(normal_1,observer_dir) < 1 then
             normal_1 = mm.matrix_scale(-1,normal_1)
         end
         local signed_distance_to_plane

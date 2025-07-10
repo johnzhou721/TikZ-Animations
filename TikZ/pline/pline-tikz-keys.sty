@@ -30,8 +30,15 @@
                 ,b = 1
                 ,c = 1
                 ,d = 1
-                ,draw options = {draw, line cap = round,line join = round}
-                ,fill options = {fill = red, fill opacity = 0.7}
+                ,draw options = {
+                    draw
+                    ,line cap = round
+                    ,line join = round
+                }
+                ,fill options = {
+                    fill = black
+                    ,fill opacity = 0.7
+                }
             ,/pline/clipped-subspace/line/.cd % abbreviated "l"
                 % direction vector
                 ,a/.estore in = \tikz@td@cs@l@a

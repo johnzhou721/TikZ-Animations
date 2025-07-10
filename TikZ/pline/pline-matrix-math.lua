@@ -45,10 +45,10 @@ function mm.matrix_multiply(A, B)
     return product
 end
 
-function mm.reciprocate_by_homogenous(matrix)
+function mm.reciprocate_by_homogenous(vector)
     local result = {}
-    for i = 1, #matrix do
-        local row = matrix[i]
+    for i = 1, #vector do
+        local row = vector[i]
         local w = row[4]
         if w == 0 then
             error("Cannot reciprocate row " .. i .. ": homogeneous coordinate w = 0")
@@ -441,10 +441,10 @@ function mm.project_point_onto_basis(point,basis)
     return result
 end
 
-function mm.stereographic_projection(tbl)
-    local x = tbl[1][1]
-    local y = tbl[1][2]
-    local z = tbl[1][3]
+function mm.stereographic_projection(point)
+    local x = point[1][1]
+    local y = point[1][2]
+    local z = point[1][3]
     return {{x / (1 - z), y / (1 - z), 0, 1}}
 end
 

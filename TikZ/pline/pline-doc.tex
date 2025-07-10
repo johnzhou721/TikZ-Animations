@@ -85,7 +85,14 @@
             tikz-3dplot with faster Lua-based capabilities.
             Soon there will also be proper camera culling for 
             projective scenes; that is, the action of not drawing 
-            segments which are behind the viewing plane.
+            segments which are behind the viewing plane.\par 
+            There iss no way  to store macros in Lua from the \TeX\      
+            end yet, so sometimes there is a problem with 
+            repetition. While the geometric vectors are nice,
+            they are not yet rendered in 3D like the parametric 
+            objects---I want to fix this as well.
+            I will also implement a way for the user to create 
+            their own reusable Lua functions.
     \chapter{Geometric Vectors}
         \section{How are geometric vectors defined in pline?}
             Geometric vectors are defined by two things: a 
@@ -188,6 +195,62 @@
                 \caption{Zero-vector}
                 \label{fig:2-1-3}
             \end{figure}
+ 
+    \chapter{The Math Module}
+        When the user appends a parametric object to the segments 
+        list, they must specify several attributes for the object.
+        In particular, when they specify the parametric equations 
+        for the object, this is done using Lua syntax.
+        Specifically, the user writes Lua code into a tikz key, 
+        and that Lua code is later \mintinline{lua}{load()}ed by 
+        Lua.  A useful feature of the lua function 
+        \mintinline{lua}{load()} is that it allows the user to 
+        input functions without their usual table prefix;
+        this means that the user can write just 
+        \mintinline{lua}{cos()}, instead of 
+        \mintinline{lua}{math.cos()}. pline defines a growing
+        handful of math operations, from elementary linear matrix 
+        transformations to stereographic projections.
+        This list could always be expanded though as needs arise,
+        so to make it robust, I will make a way for the user to 
+        make their own. See Chapter 1.\par 
+        \textbf{pline uses row-vector convention!} This means that 
+        you put the transformation on the right of the matrix 
+        multiplication unlike with column vectors. Additionally,
+        \textbf{pline uses matrix-vector convention!} This means 
+        that vectors are formatted like matrices---meaning that the
+        vector table is nested within a matrix table. This makes it 
+        easier for the tools to communicate, and expains why we 
+        need to index our functions at depth 2 instead of depth 1.
+        \section{The math functions.}
+            In addition to those provided by the math module, 
+            these ones are also added.
+            \begin{itemize}
+                \item \mintinline{lua}{matrix_multiply(A, B)}
+                \item \mintinline{lua}{matrix_scale(factor, A)}
+                \item \mintinline{lua}{reciprocate_by_homogenous(vector)}
+                \item \mintinline{lua}{matrix_add(A, B)}
+                \item \mintinline{lua}{matrix_subtract(A, B)}
+                \item \mintinline{lua}{transpose(A)}
+                \item \mintinline{lua}{inverse(matrix)}
+                \item \mintinline{lua}{det(matrix)}
+                \item \mintinline{lua}{yrotation(angle)}
+                \item \mintinline{lua}{translate(x, y, z)}
+                \item \mintinline{lua}{xscale(scale)}
+                \item \mintinline{lua}{yscale(scale)}
+                \item \mintinline{lua}{zscale(scale)}
+                \item \mintinline{lua}{scale(scale)}
+                \item \mintinline{lua}{xrotation(angle)}
+                \item \mintinline{lua}{zrotation(angle)}
+                \item \mintinline{lua}{euler(alpha, beta, gamma)}
+                \item \mintinline{lua}{sphere(longitude, latitude)}
+                \item \mintinline{lua}{dot_product(u, v)}
+                \item \mintinline{lua}{cross_product(u, v)}
+                \item \mintinline{lua}{norm(u)}
+                \item \mintinline{lua}{normalize(u)}
+                \item \mintinline{lua}{identity_matrix()}
+                \item \mintinline{lua}{stereographic_projection(point)}
+            \end{itemize}
     \chapter{Parametric Objects}
         \section{How is a parametric object defined?}
             Parametric objects are defined using a handful of 
@@ -209,7 +272,7 @@
         ,draw options = {
             purple
             ,ultra thick
-            ,line join = round
+            ,line cap = round
         }
     ]
     \appendsurface[
@@ -227,6 +290,7 @@
             draw
             ,blue,ultra thin
             ,line join = round
+            ,line cap = round
         }
         ,fill options = {
             fill = green
@@ -270,7 +334,10 @@
                         ,token.get_macro("v")
                     )[1][3]
                 }
-                ,draw options = {-{Stealth[round]}}
+                ,draw options = {
+                    -{Stealth[round]}
+                    ,line cap = round
+                }
             ]
         } 
     }
@@ -291,7 +358,7 @@
                         ,draw options = {
                             purple
                             ,ultra thick
-                            ,line join = round
+                            ,line cap = round
                         }
                     ]
                     \appendsurface[
@@ -309,6 +376,7 @@
                             draw
                             ,blue,ultra thin
                             ,line join = round
+                            ,line cap = round
                         }
                         ,fill options = {
                             fill = green
@@ -353,7 +421,10 @@
                                         ,token.get_macro("v")
                                     )[1][3]
                                 }
-                                ,draw options = {-{Stealth[round]}}
+                                ,draw options = {
+                                    -{Stealth[round]}
+                                    ,line cap = round
+                                }
                             ]
                         } 
                     }
@@ -564,6 +635,9 @@
                             ,u max = {pi}
                             ,u samples = 4*45
                             ,transformation = {euler(pi/2,pi/3,pi/6)}
+                            ,draw options = {
+                                line cap = round
+                            }
                             ,x = {
                                 stereographic_projection(
                                     matrix_multiply(
@@ -620,6 +694,9 @@
                                     ,euler(pi/2,pi/3,pi/6)
                                 )
                             }
+                            ,draw options = {
+                                line cap = round
+                            }
                             ,x = {
                                 sphere(
                                     tau * 
@@ -653,6 +730,9 @@
                             ,u max = {2*pi}
                             ,u samples = 4*45
                             ,transformation = {euler(pi/2,pi/3,pi/6)}
+                            ,draw options = {
+                                line cap = round
+                            }
                             ,x = {
                                 stereographic_projection(
                                     matrix_multiply(
@@ -709,6 +789,9 @@
                                     ,euler(pi/2,pi/3,pi/6)
                                 )
                             }
+                            ,draw options = {
+                                line cap = round
+                            }
                             ,x = {
                                 sphere(
                                     u
@@ -758,7 +841,11 @@
             ,v max = tau
             ,v samples = 36
             ,transformation = {euler(pi/2,pi/3,pi/6+pi)}
-            ,draw options = {draw = black}
+            ,draw options = {
+                draw = black
+                ,line cap = round
+                ,line join = round
+            }
             ,fill options = {
                 \ifnum\c=1
                     fill = red
@@ -829,7 +916,11 @@
                             ,v max = tau
                             ,v samples = 36
                             ,transformation = {euler(pi/2,pi/3,pi/6+pi)}
-                            ,draw options = {draw = black}
+                            ,draw options = {
+                                draw = black
+                                ,line cap = round
+                                ,line join = round
+                            }
                             ,fill options = {
                                 \ifnum\c=1
                                     fill = red
