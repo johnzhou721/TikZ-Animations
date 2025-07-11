@@ -1,5 +1,5 @@
-% pline-latex2e-command-definitions.tex
-\ProvidesFile{pline-latex2e-command-definitions}
+% tikz-matrixmath-latex2e-command-definitions.tex
+\ProvidesFile{tikz-matrixmath-latex2e-command-definitions}
 \newcommand{\drawpoint}[2][]{
     \begingroup 
         \coordinate (@) at (#2);
@@ -9,8 +9,8 @@
             ,inner sep = 0pt
             ,outer sep = 0pt
             ,fill
-            ,/pline/geometric-vector/.search also = {/tikz}
-            ,/pline/geometric-vector/.cd
+            ,/tikz-matrixmath/geometric-vector/.search also = {/tikz}
+            ,/tikz-matrixmath/geometric-vector/.cd
             ,#1
         ] {};
     \endgroup
@@ -19,8 +19,8 @@
     \begingroup
         \pgfmathsetmacro{\tikz@td@gm@halfmarklength}{\tikz@td@gm@marklength/2}
         \draw[
-            /pline/geometric-vector/.search also = {/tikz}
-            ,/pline/geometric-vector/.cd
+            /tikz-matrixmath/geometric-vector/.search also = {/tikz}
+            ,/tikz-matrixmath/geometric-vector/.cd
             ,#1
         ] (0,-\tikz@td@gm@halfmarklength pt) -- (0,\tikz@td@gm@halfmarklength pt);
     \endgroup
@@ -28,8 +28,8 @@
 \newcommand{\drawvector}[3][]{
     \begingroup
         \tikzset{
-            /pline/geometric-vector/.search also = {/tikz},
-            /pline/geometric-vector/.cd,
+            /tikz-matrixmath/geometric-vector/.search also = {/tikz},
+            /tikz-matrixmath/geometric-vector/.cd,
             #1
         }
         \coordinate (@start) at (#2);
@@ -40,8 +40,8 @@
                     very thick
                     ,{-Stealth[round]}
                     ,shorten < = \tikz@td@gm@pointradius cm
-                    ,/pline/geometric-vector/.search also = {/tikz}
-                    ,/pline/geometric-vector/.cd
+                    ,/tikz-matrixmath/geometric-vector/.search also = {/tikz}
+                    ,/tikz-matrixmath/geometric-vector/.cd
                     ,#1
                 ] (@start) -- ++(#3);
         \fi
@@ -53,8 +53,8 @@
                     ,{-Stealth[round]}
                     ,shorten < = \tikz@td@gm@pointradius cm
                     ,shorten > = \tikz@td@gm@pointradius cm
-                    ,/pline/geometric-vector/.search also = {/tikz}
-                    ,/pline/geometric-vector/.cd
+                    ,/tikz-matrixmath/geometric-vector/.search also = {/tikz}
+                    ,/tikz-matrixmath/geometric-vector/.cd
                     ,#1
                 ] (@start) -- ++(#3) coordinate (@end);
             \drawpoint[#1]{@end}
@@ -64,8 +64,8 @@
                 [
                     very thick
                     ,{-Stealth[round]}
-                    ,/pline/geometric-vector/.search also = {/tikz}
-                    ,/pline/geometric-vector/.cd
+                    ,/tikz-matrixmath/geometric-vector/.search also = {/tikz}
+                    ,/tikz-matrixmath/geometric-vector/.cd
                     ,#1
                 ] (@start) -- ++(#3);
         \fi
@@ -74,8 +74,8 @@
                 [
                     very thick
                     ,{-Stealth[round]}
-                    ,/pline/geometric-vector/.search also = {/tikz}
-                    ,/pline/geometric-vector/.cd
+                    ,/tikz-matrixmath/geometric-vector/.search also = {/tikz}
+                    ,/tikz-matrixmath/geometric-vector/.cd
                     ,#1
                 ] (@start) -- ++(#3) coordinate (@end);
             \drawpoint[#1]{@end}
@@ -130,8 +130,8 @@
 \newcommand{\appendprism}[1][]{
     \begingroup
     \tikzset{
-        /pline/clipped-subspace/plane/.search also = {/pline/clipped-subspace},
-        /pline/clipped-subspace/plane/.cd,
+        /tikz-matrixmath/clipped-subspace/plane/.search also = {/tikz-matrixmath/clipped-subspace},
+        /tikz-matrixmath/clipped-subspace/plane/.cd,
         #1
     }
     % For brevity, assign keys to macros

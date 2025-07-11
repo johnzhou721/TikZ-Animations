@@ -1,9 +1,9 @@
-% pline-tikz-keys.tex
-\ProvidesFile{pline-tikz-keys}
+% tikz-matrixmath-tikz-keys.tex
+\ProvidesFile{tikz-matrixmath-tikz-keys}
 \tikzset{
-    /pline/.is family % abbreviated "td"
-    ,/pline/.cd 
-        ,/pline/clipped-subspace/.cd % abbreviated "cs"
+    /tikz-matrixmath/.is family % abbreviated "td"
+    ,/tikz-matrixmath/.cd 
+        ,/tikz-matrixmath/clipped-subspace/.cd % abbreviated "cs"
             ,x min/.estore in = \tikz@td@cs@xmin
             ,x max/.estore in = \tikz@td@cs@xmax
             ,y min/.estore in = \tikz@td@cs@ymin
@@ -18,7 +18,7 @@
             ,z min = -5
             ,z max = 5
             ,transformation = {identity_matrix()}
-            ,/pline/clipped-subspace/plane/.cd % abbreviated "p"
+            ,/tikz-matrixmath/clipped-subspace/plane/.cd % abbreviated "p"
                 % normal equation ax + by + cz + d = 0
                 ,a/.estore in = \tikz@td@cs@p@a
                 ,b/.estore in = \tikz@td@cs@p@b
@@ -39,7 +39,7 @@
                     fill = black
                     ,fill opacity = 0.7
                 }
-            ,/pline/clipped-subspace/line/.cd % abbreviated "l"
+            ,/tikz-matrixmath/clipped-subspace/line/.cd % abbreviated "l"
                 % direction vector
                 ,a/.estore in = \tikz@td@cs@l@a
                 ,b/.estore in = \tikz@td@cs@l@b
@@ -48,9 +48,9 @@
                 ,x/.estore in = \tikz@td@cs@l@x
                 ,y/.estore in = \tikz@td@cs@l@y
                 ,z/.estore in = \tikz@td@cs@l@z
-            ,/pline/clipped-subspace/point/.cd % abbreviated "pt"
-        ,/pline/parametric/.cd % abbreviated "p"
-            ,/pline/parametric/curve/.cd % abbreviated "c"
+            ,/tikz-matrixmath/clipped-subspace/point/.cd % abbreviated "pt"
+        ,/tikz-matrixmath/parametric/.cd % abbreviated "p"
+            ,/tikz-matrixmath/parametric/curve/.cd % abbreviated "c"
                 ,u min/.estore in = \tikz@td@p@c@umin
                 ,u max/.estore in = \tikz@td@p@c@umax
                 ,u samples/.estore in = \tikz@td@p@c@usamples
@@ -69,7 +69,7 @@
                 ,draw options = {line cap = round}
                 ,name = George
                 ,transformation = {identity_matrix()}
-            ,/pline/parametric/surface/.cd % abbreviated "surf"
+            ,/tikz-matrixmath/parametric/surface/.cd % abbreviated "surf"
                 ,u min/.estore in = \tikz@td@p@surf@umin
                 ,u max/.estore in = \tikz@td@p@surf@umax
                 ,u samples/.estore in = \tikz@td@p@surf@usamples
@@ -96,7 +96,7 @@
                 ,fill options = {fill = red, fill opacity = 0.7}
                 ,name = Bob
                 ,transformation = {identity_matrix()}
-            ,/pline/parametric/solid/.cd % abbreviated "s"
+            ,/tikz-matrixmath/parametric/solid/.cd % abbreviated "s"
                 ,u min/.estore in = \tikz@td@p@s@umin
                 ,u max/.estore in = \tikz@td@p@s@umax
                 ,u samples/.estore in = \tikz@td@p@s@usamples
@@ -106,8 +106,8 @@
                 ,w min/.estore in = \tikz@td@p@s@wmin
                 ,w max/.estore in = \tikz@td@p@s@wmax
                 ,w samples/.estore in = \tikz@td@p@s@wsamples
-        ,/pline/ode/.cd % abbreviated "ode"
-        ,/pline/geometric-vector/.cd % abbreviated "gm"
+        ,/tikz-matrixmath/ode/.cd % abbreviated "ode"
+        ,/tikz-matrixmath/geometric-vector/.cd % abbreviated "gm"
             ,point radius/.estore in = \tikz@td@gm@pointradius
             ,mark length/.estore in = \tikz@td@gm@marklength
             ,mark/.is choice 

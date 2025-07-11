@@ -1,6 +1,6 @@
--- pline-parametric-objects.lua
-local mm = require "pline-matrix-math"
-local rtc = require "pline-register-tex-cmd"
+-- tikz-matrixmath-parametric-objects.lua
+local mm = require "tikz-matrixmath-matrix-math"
+local rtc = require "tikz-matrixmath-register-tex-cmd"
 local ENV_ = {}
 for k, v in pairs(_G) do ENV_[k] = v end
 for k, v in pairs(mm) do ENV_[k] = v end

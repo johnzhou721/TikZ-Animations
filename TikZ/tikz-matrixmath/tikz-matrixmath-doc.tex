@@ -1,4 +1,4 @@
-% pline-doc.tex
+% tikz-matrixmath-doc.tex
 % arara: lualatex: { options: ["-shell-escape"] }
 % arara: lualatex: { options: ["-shell-escape"] }
 \PassOptionsToPackage{english}{babel}
@@ -7,7 +7,7 @@
 \PassOptionsToPackage{depth = 4}{bookmark}
 \documentclass[12pt]{report}
 \usepackage{
-    pline
+    tikz-matrixmath
     ,microtype
     ,babel
     ,fontspec
@@ -23,19 +23,19 @@
 \setmathfont{IBMPlexMath-Regular}
 \counterwithin{figure}{section}
 \counterwithin{table}{section}
-\DeclareCaptionFormat{pline}{#1#2\par\noindent#3}
+\DeclareCaptionFormat{tikz-matrixmath}{#1#2\par\noindent#3}
 \captionsetup{
     justification = raggedright
     ,singlelinecheck = false
-    ,format = pline
+    ,format = tikz-matrixmath
 }
 \captionsetup[subfigure]{format=hang}
 \setcounter{tocdepth}{3}
 \setmainfont{Carlito}
 \title{
-    The pline Package,\\
+    The tikz-matrixmath Package,\\
     Version 0.01\\
-    {\small https://github.com/Pseudonym321/TikZ-Animations/tree/master1/TikZ/pline}
+    {\small https://github.com/Pseudonym321/TikZ-Animations/tree/master1/TikZ/tikz-matrixmath}
 }
 \author{Jasper}
 \date{\today}
@@ -43,10 +43,10 @@
     \maketitle 
     \tableofcontents
     \chapter{Introduction}
-        pline is a Lua-based 3D graphics package for 
+        tikz-matrixmath is a Lua-based 3D graphics package for 
         Ti\textit{k}Z.
-        \section{What are the current capabilities of pline?}
-            pline can render multiple non-intersecting 
+        \section{What are the current capabilities of tikz-matrixmath?}
+            tikz-matrixmath can render multiple non-intersecting 
             triangulated mesh surfaces at once. It is also possible 
             to draw a plane which has been clipped by a rectangular
             prism.
@@ -54,7 +54,7 @@
             vectors too. Curves and surfaces can be defined using 
             matrix transformations.
         \section{
-            How does pline improve on existing packages?
+            How does tikz-matrixmath improve on existing packages?
         }
             There are two significant packages for 3D artwork in 
             Ti\textit{k}Z: pgfplots and tikz-3dplot.
@@ -67,17 +67,17 @@
             vertical. tikz-3dplot offers useful pgfmath capabilities 
             for doing vector operations.
             Neither pgfplots nor tikz-3dplot enable 
-            matrix transformations. pline is built to render 
+            matrix transformations. tikz-matrixmath is built to render 
             multiple parametric objects at once, enable arbitrary
             object orientations in non-orthographic projections, 
             and enable matrix transformations.
         \section{Where is the package at, and where it is heading?}
-            The vision of the package pline is to one 
+            The vision of the package tikz-matrixmath is to one 
             day be able to render arbitrary numbers of intersecting 
             polygons, by clipping them with each other; this would 
             enable arbitrary surface intersections, without 
             visual artefacts. A more near term goal of 
-            pline is to also implement an ODE 
+            tikz-matrixmath is to also implement an ODE 
             solving tool which approximates trajectories in 
             vector fields. I also want to add capabilities for 
             doing programming in Lua, instead of in pgf,
@@ -94,7 +94,7 @@
             I will also implement a way for the user to create 
             their own reusable Lua functions.
     \chapter{Geometric Vectors}
-        \section{How are geometric vectors defined in pline?}
+        \section{How are geometric vectors defined in tikz-matrixmath?}
             Geometric vectors are defined by two things: a 
             start-coordinate, and a relative displacement.
             There are two classifications of geometric vectors;
@@ -208,16 +208,16 @@
         input functions without their usual table prefix;
         this means that the user can write just 
         \mintinline{lua}{cos()}, instead of 
-        \mintinline{lua}{math.cos()}. pline defines a growing
+        \mintinline{lua}{math.cos()}. tikz-matrixmath defines a growing
         handful of math operations, from elementary linear matrix 
         transformations to stereographic projections.
         This list could always be expanded though as needs arise,
         so to make it robust, I will make a way for the user to 
         make their own. See Chapter 1.\par 
-        \textbf{pline uses row-vector convention!} This means that 
+        \textbf{tikz-matrixmath uses row-vector convention!} This means that 
         you put the transformation on the right of the matrix 
         multiplication unlike with column vectors. Additionally,
-        \textbf{pline uses matrix-vector convention!} This means 
+        \textbf{tikz-matrixmath uses matrix-vector convention!} This means 
         that vectors are formatted like matrices---meaning that the
         vector table is nested within a matrix table. This makes it 
         easier for the tools to communicate, and expains why we 
@@ -433,7 +433,7 @@
                 \caption{A triangulated mesh surface and a curve.}
                 \label{fig:3-1-1}
             \end{figure}
-            pline is also capable of handling division by zero
+            tikz-matrixmath is also capable of handling division by zero
             without erroring. This is because the math is handled in
             Lua, where division by zero doesn't error. We clip our 
             results to be well within the scope of the Ti\textit{z}Z
@@ -817,9 +817,9 @@
                 \caption{Automatic division by zero handling.}
                 \label{fig:3-1-2}
             \end{figure}
-            pline is meant to be compatible with Ti\textit{k}Z, and
+            tikz-matrixmath is meant to be compatible with Ti\textit{k}Z, and
             they are meant to be used together---at least for now.
-            Maybe one day pline will have enough capabilities to 
+            Maybe one day tikz-matrixmath will have enough capabilities to 
             do things like for loops and conditionals---\textit{at 
             home}. The code for Figure \ref{fig:3-1-3}, which 
             illustrates the use of a conditional, is given.
