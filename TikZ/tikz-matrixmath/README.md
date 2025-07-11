@@ -1,5 +1,5 @@
 Package Name:  tikz-mathrixmath \
-Package Version: v0.01, 2025/07/10ß \
+Package Version: v0.01, 2025/07/10 \
 GitHub: https://github.com/Pseudonym321/TikZ-Animations/tree/master1/TikZ/pline \
 Author Name:  Jasper Nice
 
