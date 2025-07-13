@@ -64,38 +64,6 @@ function mm.reciprocate_by_homogenous(vector)
     return result
 end
 
-function mm.add(A, B)
-    local rows_A = #A
-    local columns_A = #A[1]
-    local rows_B = #B
-    local columns_B = #B[1]
-    assert(rows_A == rows_B and columns_A == columns_B, "Wrong size matrices for addition.")
-    local sum = {}
-    for row = 1, rows_A, 1 do
-        sum[row] = {}
-        for column = 1, columns_A, 1 do
-            sum[row][column] = A[row][column] + B[row][column]
-        end
-    end
-    return sum
-end
-
-function mm.sub(A,B)
-    local rows_A = #A
-    local columns_A = #A[1]
-    local rows_B = #B
-    local columns_B = #B[1]
-    assert(rows_A == rows_B and columns_A == columns_B, "Wrong size matrices for subtraction.")
-    local sum = {}
-    for row = 1, rows_A, 1 do
-        sum[row] = {}
-        for column = 1, columns_A, 1 do
-            sum[row][column] = A[row][column] - B[row][column]
-        end
-    end
-    return sum
-end
-
 function  mm.transpose(A)
     local rows_A = #A
     local columns_A = #A[1]
@@ -448,6 +416,139 @@ function mm.stereographic_projection(point)
     return {{x / (1 - z), y / (1 - z), 0, 1}}
 end
 
+function mm.clip_triangle_against_line(triangle, line)
+    -- triangle: array of 3 points {{x,y,z}, {x,y,z}, {x,y,z}}
+    -- line: two points defining a 3D line {{x,y,z}, {x,y,z}}
+
+    local function point_on_side(p, line)
+        -- Determine signed distance of point p to the infinite line
+        -- using vector cross product magnitude with line direction vector
+
+        local function vector_sub(a,b)
+            return {a[1]-b[1], a[2]-b[2], a[3]-b[3]}
+        end
+
+        local function cross(u,v)
+            return {
+                u[2]*v[3] - u[3]*v[2],
+                u[3]*v[1] - u[1]*v[3],
+                u[1]*v[2] - u[2]*v[1],
+            }
+        end
+
+        local function dot(u,v)
+            return u[1]*v[1] + u[2]*v[2] + u[3]*v[3]
+        end
+
+        local function norm(v)
+            return math.sqrt(dot(v,v))
+        end
+
+        local A = line[1]
+        local B = line[2]
+        local AB = vector_sub(B,A)
+        local AP = vector_sub(p,A)
+
+        local cross_vec = cross(AB, AP)
+        local dist = norm(cross_vec) / norm(AB)
+
+        -- Also need sign: find projection of AP onto AB perpendicular to AB
+        -- sign = dot(cross(AB, AP), some reference vector). 
+        -- Here we pick a consistent reference: AB cross with vector perpendicular to AB and in plane of triangle
+        -- But simpler: pick sign by dot product with cross(AB, AP) and cross(AB, normal)
+
+        -- For simplicity here, let's get the sign by dot product of vector from point projected to line
+
+        -- We'll just use a rough approach: calculate vector perpendicular to AB in triangle plane
+        -- Triangle normal
+        local normal = cross(
+            vector_sub(triangle[2], triangle[1]),
+            vector_sub(triangle[3], triangle[1])
+        )
+        -- Sign based on dot product of cross_vec and normal
+        local sign_val = dot(cross_vec, normal)
+        if sign_val >= 0 then
+            return dist
+        else
+            return -dist
+        end
+    end
+
+    -- Compute distances of each vertex to the line
+    local d = {}
+    for i=1,3 do
+        d[i] = point_on_side(triangle[i], line)
+    end
+
+    -- Classify vertices by sign
+    local positive = {}
+    local negative = {}
+    for i=1,3 do
+        if d[i] >= 0 then
+            table.insert(positive, i)
+        else
+            table.insert(negative, i)
+        end
+    end
+
+    -- If all on one side, return original triangle
+    if #positive == 0 or #negative == 0 then
+        return {triangle}
+    end
+
+    -- Helper to interpolate between two points by ratio t
+    local function interp(p1, p2, t)
+        return {
+            p1[1] + t*(p2[1] - p1[1]),
+            p1[2] + t*(p2[2] - p1[2]),
+            p1[3] + t*(p2[3] - p1[3]),
+        }
+    end
+
+    -- Find intersection points on edges crossing the line (zero crossing of distance)
+    local function intersect(i1, i2)
+        local p1, p2 = triangle[i1], triangle[i2]
+        local dist1, dist2 = d[i1], d[i2]
+        local t = dist1 / (dist1 - dist2)
+        return interp(p1, p2, t)
+    end
+
+    local new_triangles = {}
+
+    if #positive == 2 and #negative == 1 then
+        -- Two positive, one negative
+        -- Split into two triangles
+        local i_neg = negative[1]
+        local i_pos1 = positive[1]
+        local i_pos2 = positive[2]
+
+        local p_int1 = intersect(i_neg, i_pos1)
+        local p_int2 = intersect(i_neg, i_pos2)
+
+        -- Triangle 1: positive1, positive2, p_int1
+        table.insert(new_triangles, {triangle[i_pos1], triangle[i_pos2], p_int1})
+        -- Triangle 2: positive2, p_int1, p_int2
+        table.insert(new_triangles, {triangle[i_pos2], p_int1, p_int2})
+
+    elseif #negative == 2 and #positive == 1 then
+        -- Two negative, one positive
+        -- Split into one smaller triangle
+        local i_pos = positive[1]
+        local i_neg1 = negative[1]
+        local i_neg2 = negative[2]
+
+        local p_int1 = intersect(i_pos, i_neg1)
+        local p_int2 = intersect(i_pos, i_neg2)
+
+        -- Triangle: positive, p_int1, p_int2
+        table.insert(new_triangles, {triangle[i_pos], p_int1, p_int2})
+    else
+        -- Should not happen for triangles but just in case
+        return {triangle}
+    end
+
+    return new_triangles
+end
 
 
 

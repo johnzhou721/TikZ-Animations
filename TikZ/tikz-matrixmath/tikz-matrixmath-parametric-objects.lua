@@ -316,6 +316,515 @@ local function compare_triangles(triangle_1,triangle_2)
     return false -- test
 end
 
+local function get_line(hash)
+    local a1   = hash.a1
+    local b1   = hash.b1 
+    local c1   = hash.c1 
+    local d1   = hash.d1
+    local a2   = hash.a2
+    local b2   = hash.b2
+    local c2   = hash.c2
+    local d2   = hash.d2
+    local xmin = hash.xmin
+    local xmax = hash.xmax
+    local ymin = hash.ymin 
+    local ymax = hash.ymax 
+    local zmin = hash.zmin 
+    local zmax = hash.zmax
+
+    local function Lyofx(x)
+        return (
+            (
+                (
+                    d2 - 
+                    c2 * d1 / c1
+                ) - (
+                    a2 -
+                    c2 * a1 / c1
+                ) * x
+            ) / (
+                b2 -
+                c2 * b1 / c1
+            )
+        )
+    end
+    local function Lzofx(x)
+        return (
+            (
+                (
+                    d2 - 
+                    b2 * d1 / b1
+                ) - (
+                    a2 -
+                    b2 * a1 / b1
+                ) * x
+            ) / (
+                c2 -
+                b2 * c1 / b1
+            )
+        )
+    end
+    local function Lzofy(y)
+        return (
+            (
+                (
+                    d2 - 
+                    a2 * d1 / a1
+                ) - (
+                    b2 -
+                    a2 * b1 / a1
+                ) * y
+            ) / (
+                c2 -
+                a2 * c1 / a1
+            )
+        )
+    end
+    local function Lxofy(y)
+        return (
+            (
+                (
+                    d2 - 
+                    c2 * d1 / c1
+                ) - (
+                    b2 -
+                    c2 * b1 / c1
+                ) * y
+            ) / (
+                a2 -
+                c2 * a1 / c1
+            )
+        )
+    end
+    local function Lyofz(z)
+        return (
+            (
+                (
+                    d2 - 
+                    a2 * d1 / a1
+                ) - (
+                    c2 -
+                    a2 * c1 / a1
+                ) * z
+            ) / (
+                b2 -
+                a2 * b1 / a1
+            )
+        )
+    end
+    local function Lxofz(z)
+        return (
+            (
+                (
+                    d2 - 
+                    b2 * d1 / b1
+                ) - (
+                    c2 -
+                    b2 * c1 / b1
+                ) * z
+            ) / (
+                a2 -
+                b2 * a1 / b1
+            )
+        )
+    end
+
+    local startx, starty, startz 
+    local endx, endy, endz
+
+    if not (
+        math.abs(b2-c2*b1/c1)<0.0001 or
+        math.abs(c2-b2*c1/b1)<0.0001
+    ) then
+        startx = xmin
+        starty = Lyofx(xmin)
+        startz = Lzofx(xmin)
+        endx = xmax
+        endy = Lyofx(xmax)
+        endz = Lzofx(xmax)
+         -- y coord
+        if endy>ymax then
+            endx = Lxofy(ymax)
+            endy = Lyofx(Lxofy(ymax))
+            endz = Lzofx(Lxofy(ymax))
+        end
+
+        if endy<ymin then
+            endx = Lxofy(ymin)
+            endy = Lyofx(Lxofy(ymin))
+            endz = Lzofx(Lxofy(ymin))
+        end
+
+        if starty>ymax then
+            startx = Lxofy(ymax)
+            starty = Lyofx(Lxofy(ymax))
+            startz = Lzofx(Lxofy(ymax))
+        end
+        
+        if starty<ymin then
+            startx = Lxofy(ymin)
+            starty = Lyofx(Lxofy(ymin))
+            startz = Lzofx(Lxofy(ymin))
+        end
+
+         -- z coord
+        if endz>zmax then
+            endx = Lxofz(zmax)
+            endy = Lyofx(Lxofz(zmax))
+            endz = Lzofx(Lxofz(zmax))
+        end
+        if endz<zmin then
+            endx = Lxofz(zmin)
+            endy = Lyofx(Lxofz(zmin))
+            endz = Lzofx(Lxofz(zmin))
+        end
+        if startz>zmax then
+            startx = Lxofz(zmax)
+            starty = Lyofx(Lxofz(zmax))
+            startz = Lzofx(Lxofz(zmax))
+        end
+        if startz<zmin then
+            startx = Lxofz(zmin)
+            starty = Lyofx(Lxofz(zmin))
+            startz = Lzofx(Lxofz(zmin))
+        end
+    else
+        if not (
+            math.abs(c2-a2*c1/a1)<0.001 or
+            math.abs(a2-c2*a1/c1)<0.001
+        ) then
+            startx = Lxofy(ymin)
+            starty = ymin
+            startz = Lzofy(ymin)
+            endx = Lxofy(ymax)
+            endy = ymax
+            endz = Lzofy(ymax)
+
+            if endx>xmax then
+                endx = Lxofy(Lyofx(xmax))
+                endy = Lyofx(xmax) 
+                endz = Lzofy(Lyofx(xmax))
+            end
+
+            if endx<xmin then
+                endx = Lxofy(Lyofx(xmin))
+                endy = Lyofx(xmin) 
+                endz = Lzofy(Lyofx(xmin))
+            end
+
+            if startx>xmax then
+                startx = Lxofy(Lyofx(xmax))
+                starty = Lyofx(xmax) 
+                startz = Lzofy(Lyofx(xmax))
+            end
+
+            if startx<xmin then
+                startx = Lxofy(Lyofx(xmin))
+                starty = Lyofx(xmin) 
+                startz = Lzofy(Lyofx(xmin))
+            end
+
+            if endz>zmax then
+                endx = Lxofy(Lyofz(zmax))
+                endy = Lyofz(zmax)
+                endz = Lzofy(Lyofz(zmax))
+            end
+
+            if endz<zmin then
+                endx = Lxofy(Lyofz(zmin))
+                endy = Lyofz(zmin)
+                endz = Lzofy(Lyofz(zmin))
+            end
+
+            if startz>zmax then
+                startx = Lxofy(Lyofz(zmax))
+                starty = Lyofz(zmax)
+                startz = Lzofy(Lyofz(zmax))
+            end
+
+            if startz<zmin then
+                startx = Lxofy(Lyofz(zmin))
+                starty = Lyofz(zmin)
+                startz = Lzofy(Lyofz(zmin))
+            end
+        else
+            if not (
+            math.abs(b2-a2*b1/a1)<0.001 or
+            math.abs(a2-b2*a1/b1)<0.001 
+            ) then
+                startx = Lxofz(zmin)
+                starty = Lyofz(zmin)
+                startz = zmin
+                endx = Lxofz(zmax)
+                endy = Lyofz(zmax)
+                endz = zmax
+
+                if endx>xmax then
+                    endx = Lxofz(Lzofx(xmax))
+                    endy = Lyofz(Lzofx(xmax))
+                    endz = Lzofx(xmax)
+                end
+
+                if endx<xmin then
+                    endx = Lxofz(Lzofx(xmin))
+                    endy = Lyofz(Lzofx(xmin))
+                    endz = Lzofx(xmin)
+                end
+
+                if endy>ymax then
+                    endx = Lxofz(Lzofy(ymax))
+                    endy = Lyofz(Lzofy(ymax))
+                    endz = Lzofy(ymax)
+                end
+                if endy<ymin then
+                    endx = Lxofz(Lzofy(ymin))
+                    endy = Lyofz(Lzofy(ymin))
+                    endz = Lzofy(ymin)
+                end
+                
+                
+                if startx>xmax then
+                    startx = Lxofz(Lzofx(xmax))
+                    starty = Lyofz(Lzofx(xmax))
+                    startz = Lzofx(xmax)
+                end
+
+                if startx<xmin then
+                    startx = Lxofz(Lzofx(xmin))
+                    starty = Lyofz(Lzofx(xmin))
+                    startz = Lzofx(xmin)
+                end
+
+                if starty>ymax then
+                    startx = Lxofz(Lzofy(ymax))
+                    starty = Lyofz(Lzofy(ymax))
+                    startz = Lzofy(ymax)
+                end
+                if starty<ymin then
+                    startx = Lxofz(Lzofy(ymin))
+                    starty = Lyofz(Lzofy(ymin))
+                    startz = Lzofy(ymin)
+                end
+            end
+        end
+    end
+    return {
+        {startx,starty,startz}
+        ,{endx,endy,endz}
+    }
+end
+
+local function get_bounding_box(T)
+    local tri = T.segment 
+    local P = tri[1]
+    local Q = tri[2]
+    local R = tri[3]
+
+    local xmin = math.min(P[1], Q[1], R[1])
+    local xmax = math.max(P[1], Q[1], R[1])
+    local ymin = math.min(P[2], Q[2], R[2])
+    local ymax = math.max(P[2], Q[2], R[2])
+    local zmin = math.min(P[3], Q[3], R[3])
+    local zmax = math.max(P[3], Q[3], R[3])
+
+    return {
+        xmin = xmin 
+        ,xmax = xmax 
+        ,ymin = ymin 
+        ,ymax = ymax
+        ,zmin = zmin 
+        ,zmax = zmax
+    }
+end
+
+local function combine_bounding_boxes(bb1, bb1)
+    local xmin1 = bb1.xmin 
+    local xmax1 = bb1.xmax
+    local ymin1 = bb1.ymin 
+    local ymax1 = bb1.ymax
+    local zmin1 = bb1.zmin 
+    local zmax1 = bb1.zmax
+
+    local xmin2 = bb2.xmin 
+    local xmax2 = bb2.xmax
+    local ymin2 = bb2.ymin 
+    local ymax2 = bb2.ymax
+    local zmin2 = bb2.zmin 
+    local zmax2 = bb2.zmax
+
+    local xmin = math.min(xmin1, xmin2)
+    local xmax = math.max(xmax1, xmax2)
+    local ymin = math.min(ymin1, ymin2)
+    local ymax = math.max(ymax1, ymax2)
+    local zmin = math.min(zmin1, zmin2)
+    local zmax = math.max(zmax1, zmax2)
+
+    return {
+        xmin = xmin 
+        ,xmax = xmax 
+        ,ymin = ymin 
+        ,ymax = ymax
+        ,zmin = zmin 
+        ,zmax = zmax
+    }
+end
+
+local function is_overlapping(bb1, bb2)
+    local xmin1 = bb1.xmin 
+    local xmax1 = bb1.xmax
+    local ymin1 = bb1.ymin 
+    local ymax1 = bb1.ymax
+    local zmin1 = bb1.zmin 
+    local zmax1 = bb1.zmax
+
+    local xmin2 = bb2.xmin 
+    local xmax2 = bb2.xmax
+    local ymin2 = bb2.ymin 
+    local ymax2 = bb2.ymax
+    local zmin2 = bb2.zmin 
+    local zmax2 = bb2.zmax
+
+    return (
+        xmin1 < xmax2 and xmax1 > xmin2 and
+        ymin1 < ymax2 and ymax1 > ymin2
+    )
+
+end
+
+local function point_in_basis(point, basis)
+    local origin = basis.origin[1]         -- {x, y, z, 1}
+    local u = basis.basis[1]               -- {x, y, z, 1}
+    local v = basis.basis[2]               -- {x, y, z, 1}
+
+    -- Extract direction vectors u and v (subtract origin)
+    local u_vec = {{
+        u[1] - origin[1],
+        u[2] - origin[2],
+        u[3] - origin[3]
+    }}
+    local v_vec = {{
+        v[1] - origin[1],
+        v[2] - origin[2],
+        v[3] - origin[3]
+    }}
+
+    -- Compute w = point - origin
+    local w = {{
+        point[1][1] - origin[1],
+        point[1][2] - origin[2],
+        point[1][3] - origin[3]
+    }}
+
+    -- Matrix A = [u_vec; v_vec] as 3×2
+    local A = {
+        {u_vec[1][1], v_vec[1][1]},
+        {u_vec[1][2], v_vec[1][2]},
+        {u_vec[1][3], v_vec[1][3]}
+    }
+
+    -- Aᵀ A
+    local AT = mm.transpose(A)
+    local ATA = mm.matrix_multiply(AT, A)
+
+    -- Inverse of Aᵀ A
+    local ATA_inv = mm.inverse(ATA)
+
+    -- Aᵀ w
+    local w_matrix = {
+        {w[1][1]},
+        {w[1][2]},
+        {w[1][3]}
+    }
+    local ATw = mm.matrix_multiply(AT, w_matrix)
+
+    -- Solve [α; β] = (Aᵀ A)^−1 · Aᵀ w
+    local result = mm.matrix_multiply(ATA_inv, ATw)
+    local alpha = result[1][1]
+    local beta  = result[2][1]
+
+    return {{alpha, beta, 0, 1}}
+end
+
+
+
+local function is_intersecting(triangle, line)
+    local T = triangle  
+    local P = {T[1]}
+    local Q = {T[2]}
+    local R = {T[3]}
+    local PQ = matrix_subtract(Q,P)
+    local PR = matrix_subtract(R,P)
+    local O = P
+    local basis = {
+        origin = O,
+        u      = PQ,
+        v      = PR
+    }
+
+    local L = line
+    local S = {L[1]}
+    local E = {L[2]}
+    local d = matrix_subtract(E,S)
+end
+
+local function clip_triangles()
+    local broken_segs = {}
+    local used_i = {}
+    for i, seg in ipairs(segments) do
+        table.insert(used_i, i)
+        for j, seg2 in ipairs(segments) do
+            if not used_i[j] then
+                local bb1 = get_bounding_box(seg)
+                local bb2 = get_bounding_box(seg2)
+                local T1 = seg.segment 
+                local T2 = seg2.segment
+                if is_overlapping(bb1, bb2) then 
+                    local bb = combine_bounding_boxes(bb1, bb2)
+
+                    local u1 = mm.matrix_subtract(
+                        {T1[2]}
+                        ,{T1[1]}
+                    )
+                    local v1 = mm.matrix_subtract(
+                        {T1[3]}
+                        ,{T1[1]}
+                    )
+                    local n1 = mm.cross_product(u1, v1)
+                    local d1 = mm.dot_product(n1, {T1[1]})
+
+                    local u2 = mm.matrix_subtract(
+                        {T2[2]}
+                        ,{T2[1]}
+                    )
+                    local v2 = mm.matrix_subtract(
+                        {T2[3]}
+                        ,{T2[1]}
+                    )
+                    local n2 = mm.cross_product(u2, v2)
+                    local d2 = mm.dot_product(n2, {T2[1]})
+
+                    local clipping_line = get_line{
+                        xmin  = bb.xmin 
+                        ,xmax = bb.xmax 
+                        ,ymin = bb.ymin
+                        ,ymax = bb.ymax 
+                        ,zmin = bb.zmin
+                        ,zmax = bb.zmax
+                        ,a1   = n1[1][1]
+                        ,b1   = n1[1][2]
+                        ,c1   = n1[1][3]
+                        ,d1   = d1
+                        ,a2   = n2[1][1]
+                        ,b2   = n2[1][2]
+                        ,c2   = n2[1][3]
+                        ,d2   = d2
+                    }
+                end
+            end
+        end
+    end
+end
+
 local function render_segments()
     table.sort(segments, compare_triangles)
 
@@ -548,284 +1057,3 @@ rtc.register_tex_cmd(
     } end,
     { }
 )
-
-local function get_line(normal_equation1,normal_equation2,boundaries)
-    local a1,b1,c1,d1 = table.unpack(normal_equation1)
-    local a2,b2,c2,d2 = table.unpack(normal_equation2)
-    local xmin,xmax,ymin,ymax,zmin,zmax = table.unpack(boundaries)
-    function Lyofx(x)
-        return (
-            (
-                (
-                    d2 - 
-                    c2 * d1 / c1
-                ) - (
-                    a2 -
-                    c2 * a1 / c1
-                ) * x
-            ) / (
-                b2 -
-                c2 * b1 / c1
-            )
-        )
-    end
-    function Lzofx(x)
-        return (
-            (
-                (
-                    d2 - 
-                    b2 * d1 / b1
-                ) - (
-                    a2 -
-                    b2 * a1 / b1
-                ) * x
-            ) / (
-                c2 -
-                b2 * c1 / b1
-            )
-        )
-    end
-    function Lzofy(y)
-        return (
-            (
-                (
-                    d2 - 
-                    a2 * d1 / a1
-                ) - (
-                    b2 -
-                    a2 * b1 / a1
-                ) * y
-            ) / (
-                c2 -
-                a2 * c1 / a1
-            )
-        )
-    end
-    function Lxofy(y)
-        return (
-            (
-                (
-                    d2 - 
-                    c2 * d1 / c1
-                ) - (
-                    b2 -
-                    c2 * b1 / c1
-                ) * y
-            ) / (
-                a2 -
-                c2 * a1 / c1
-            )
-        )
-    end
-    function Lyofz(z)
-        return (
-            (
-                (
-                    d2 - 
-                    a2 * d1 / a1
-                ) - (
-                    c2 -
-                    a2 * c1 / a1
-                ) * z
-            ) / (
-                b2 -
-                a2 * b1 / a1
-            )
-        )
-    end
-    function Lxofz(z)
-        return (
-            (
-                (
-                    d2 - 
-                    b2 * d1 / b1
-                ) - (
-                    c2 -
-                    b2 * c1 / b1
-                ) * z
-            ) / (
-                a2 -
-                b2 * a1 / b1
-            )
-        )
-    end
-
-    if not (
-        math.abs(b2-c2*b1/c1)<0.0001 or
-        math.abs(c2-b2*c1/b1)<0.0001
-    ) then
-        startx = xmin
-        starty = Lyofx(xmin)
-        startz = Lzofx(xmin)
-        endx = xmax
-        endy = Lyofx(xmax)
-        endz = Lzofx(xmax)
-         -- y coord
-        if endy>ymax then
-            endx = Lxofy(ymax)
-            endy = Lyofx(Lxofy(ymax))
-            endz = Lzofx(Lxofy(ymax))
-        end
-
-        if endy<ymin then
-            endx = Lxofy(ymin)
-            endy = Lyofx(Lxofy(ymin))
-            endz = Lzofx(Lxofy(ymin))
-        end
-
-        if starty>ymax then
-            startx = Lxofy(ymax)
-            starty = Lyofx(Lxofy(ymax))
-            startz = Lzofx(Lxofy(ymax))
-        end
-        
-        if starty<ymin then
-            startx = Lxofy(ymin)
-            starty = Lyofx(Lxofy(ymin))
-            startz = Lzofx(Lxofy(ymin))
-        end
-
-         -- z coord
-        if endz>zmax then
-            endx = Lxofz(zmax)
-            endy = Lyofx(Lxofz(zmax))
-            endz = Lzofx(Lxofz(zmax))
-        end
-        if endz<zmin then
-            endx = Lxofz(zmin)
-            endy = Lyofx(Lxofz(zmin))
-            endz = Lzofx(Lxofz(zmin))
-        end
-        if startz>zmax then
-            startz = Lxofz(zmax)
-            startz = Lyofx(Lxofz(zmax))
-            startz = Lzofx(Lxofz(zmax))
-        end
-        if startz<zmin then
-            startz = Lxofz(zmin)
-            startz = Lyofx(Lxofz(zmin))
-            startz = Lzofx(Lxofz(zmin))
-        end
-    else
-        if not (
-            math.abs(c2-a2*c1/a1)<0.001 or
-            math.abs(a2-c2*a1/c1)<0.001
-        ) then
-            startx = Lxofy(ymin)
-            starty = ymin
-            startz = Lzofy(ymin)
-            endx = Lxofy(ymax)
-            endy = ymax
-            endz = Lzofy(ymax)
-
-            if endx>xmax then
-                endx = Lxofy(Lyofx(xmax))
-                endy = Lyofx(xmax) 
-                endz = Lzofy(Lyofx(xmax))
-            end
-
-            if endx<xmin then
-                endx = Lxofy(Lyofx(xmin))
-                endy = Lyofx(xmin) 
-                endz = Lzofy(Lyofx(xmin))
-            end
-
-            if startx>xmax then
-                startx = Lxofy(Lyofx(xmax))
-                starty = Lyofx(xmax) 
-                startz = Lzofy(Lyofx(xmax))
-            end
-
-            if startx<xmin then
-                startx = Lxofy(Lyofx(xmin))
-                starty = Lyofx(xmin) 
-                startz = Lzofy(Lyofx(xmin))
-            end
-
-            if endz>zmax then
-                endx = Lxofy(Lyofz(zmax))
-                endy = Lyofz(zmax)
-                endz = Lzofy(Lyofz(zmax))
-            end
-
-            if endz<zmin then
-                endx = Lxofy(Lyofz(zmin))
-                endy = Lyofz(zmin)
-                endz = Lzofy(Lyofz(zmin))
-            end
-
-            if startz>zmax then
-                startx = Lxofy(Lyofz(zmax))
-                starty = Lyofz(zmax)
-                startz = Lzofy(Lyofz(zmax))
-            end
-
-            if startz<zmin then
-                startx = Lxofy(Lyofz(zmin))
-                starty = Lyofz(zmin)
-                startz = Lzofy(Lyofz(zmin))
-            end
-        else
-            if not (
-            math.abs(b2-a2*b1/a1)<0.001 or
-            math.abs(a2-b2*a1/b1)<0.001 
-            ) then
-                startx = Lxofz(zmin)
-                starty = Lyofz(zmin)
-                startz = zmin
-                endx = Lxofz(zmax)
-                endy = Lyofz(zmax)
-                endz = zmax
-
-                if endx>xmax then
-                    endx = Lxofz(Lzofx(xmax))
-                    endy = Lyofz(Lzofx(xmax))
-                    endz = Lzofx(xmax)
-                end
-
-                if endx<xmin then
-                    endx = Lxofz(Lzofx(xmin))
-                    endy = Lyofz(Lzofx(xmin))
-                    endz = Lzofx(xmin)
-                end
-
-                if endy>ymax then
-                    endx = Lxofz(Lzofy(ymax))
-                    endy = Lyofz(Lzofy(ymax))
-                    endz = Lzofy(ymax)
-                end
-                if endy<ymin then
-                    endx = Lxofz(Lzofy(ymin))
-                    endy = Lyofz(Lzofy(ymin))
-                    endz = Lzofy(ymin)
-                end
-                
-                
-                if startx>xmax then
-                    startx = Lxofz(Lzofx(xmax))
-                    starty = Lyofz(Lzofx(xmax))
-                    startz = Lzofx(xmax)
-                end
-
-                if startx<xmin then
-                    startx = Lxofz(Lzofx(xmin))
-                    starty = Lyofz(Lzofx(xmin))
-                    startz = Lzofx(xmin)
-                end
-
-                if starty>ymax then
-                    startx = Lxofz(Lzofy(ymax))
-                    starty = Lyofz(Lzofy(ymax))
-                    startz = Lzofy(ymax)
-                end
-                if starty<ymin then
-                    startx = Lxofz(Lzofy(ymin))
-                    starty = Lyofz(Lzofy(ymin))
-                    startz = Lzofy(ymin)
-                end
-            end
-        end
-    end
-    point = {startx,starty,startz}
-    direction_vector = addition({endx,endy,endz},scalar_multiplication(point,-1))
-end
