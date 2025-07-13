@@ -1,0 +1,59 @@
+% tikz-lua3dtools-expl3-command-definitions.sty
+\ProvidesExplFile
+    {tikz-lua3dtools-expl3-command-definitions}
+    {2025/07/08}{1.0.0}{Test file}
+\lua_load_module:n { tikz-lua3dtools-parametric-objects }
+\NewDocumentCommand { \appendlabel } {o} {
+    \group_begin:
+    \tikzset{
+        /tikz-lua3dtools/parametric/label/.search~also = {/tikz}
+        ,/tikz-lua3dtools/parametric/label/.cd
+        ,#1
+    }
+    \__tikz_luatdtools_appendlabel:
+    \group_end:
+}
+\NewDocumentCommand { \appendpoint } {o} {
+    \group_begin:
+    \tikzset{
+        /tikz-lua3dtools/parametric/point/.search~also = {/tikz}
+        ,/tikz-lua3dtools/parametric/point/.cd
+        ,#1
+    }
+    \__tikz_luatdtools_appendpoint:
+    \group_end:
+}
+\NewDocumentCommand { \appendcurve } {o} {
+    \group_begin:
+    \tikzset{
+        /tikz-lua3dtools/parametric/curve/.search~also = {/tikz}
+        ,/tikz-lua3dtools/parametric/curve/.cd
+        ,#1
+    }
+    \__tikz_luatdtools_appendcurve:
+    \group_end:
+}
+\NewDocumentCommand { \appendsurface } {o} {
+    \group_begin:
+    \tikzset{
+        /tikz-lua3dtools/parametric/surface/.search~also = {/tikz}
+        ,/tikz-lua3dtools/parametric/surface/.cd
+        ,#1
+    }
+    \__tikz_luatdtools_appendsurface:
+    \group_end:
+}
+\NewDocumentCommand { \rendersegments } {} {
+    \__tikz_luatdtools_rendersegments:
+}
+\NewDocumentCommand { \appendplane } {o} {
+    \group_begin:
+    \tikzset{
+        /tikz-lua3dtools/clipped-subspace/plane/.search~also = 
+            {/tikz-lua3dtools/clipped-subspace}
+        ,/tikz-lua3dtools/clipped-subspace/plane/.cd
+        ,#1
+    }
+    \__tikz_luatdtools_appendplane:
+    \group_end:
+}

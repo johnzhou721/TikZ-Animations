@@ -1,0 +1,17 @@
+% tikz-lua3dtools.sty
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{tikz-lua3dtools}[
+    2025/07/13 v1.0.0 !!EXPERIMENTAL!! LaTeX package 3D illustrations in 
+    TikZ. Enables the rendering of multiple parametric objects 
+    simultaneously. Also adds some helper functions.
+]
+\RequirePackage{
+    tikz
+    ,tikz-lua3dtools-expl3-command-definitions
+    ,tikz-lua3dtools-tikz-keys
+    ,tikz-lua3dtools-latex2e-command-definitions
+}
+\usetikzlibrary{
+    arrows.meta
+    ,decorations.markings
+}

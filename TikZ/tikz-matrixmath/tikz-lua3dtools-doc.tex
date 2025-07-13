@@ -1,4 +1,4 @@
-% tikz-matrixmath-doc.tex
+% tikz-lua3dtools-doc.tex
 % arara: lualatex: { options: ["-shell-escape"] }
 % arara: lualatex: { options: ["-shell-escape"] }
 \PassOptionsToPackage{english}{babel}
@@ -7,7 +7,7 @@
 \PassOptionsToPackage{depth = 4}{bookmark}
 \documentclass[12pt]{report}
 \usepackage{
-    tikz-matrixmath
+    tikz-lua3dtools
     ,microtype
     ,babel
     ,fontspec
@@ -23,19 +23,19 @@
 \setmathfont{IBMPlexMath-Regular}
 \counterwithin{figure}{section}
 \counterwithin{table}{section}
-\DeclareCaptionFormat{tikz-matrixmath}{#1#2\par\noindent#3}
+\DeclareCaptionFormat{tikz-lua3dtools}{#1#2\par\noindent#3}
 \captionsetup{
     justification = raggedright
     ,singlelinecheck = false
-    ,format = tikz-matrixmath
+    ,format = tikz-lua3dtools
 }
 \captionsetup[subfigure]{format=hang}
 \setcounter{tocdepth}{3}
 \setmainfont{Carlito}
 \title{
-    The tikz-matrixmath Package,\\
+    The tikz-lua3dtools Package,\\
     Version 1.0.0\\
-    {\small https://github.com/Pseudonym321/TikZ-Animations/tree/master1/TikZ/tikz-matrixmath}
+    {\small https://github.com/Pseudonym321/TikZ-Animations/tree/master1/TikZ/tikz-lua3dtools}
 }
 \author{Jasper}
 \date{\today}
@@ -43,10 +43,10 @@
     \maketitle 
     \tableofcontents
     \chapter{Introduction}
-        tikz-matrixmath is a Lua-based 3D graphics package for 
+        tikz-lua3dtools is a Lua-based 3D graphics package for 
         Ti\textit{k}Z.
-        \section{What are the current capabilities of tikz-matrixmath?}
-            tikz-matrixmath can render multiple non-intersecting 
+        \section{What are the current capabilities of tikz-lua3dtools?}
+            tikz-lua3dtools can render multiple non-intersecting 
             triangulated mesh surfaces at once. It is also possible 
             to draw a plane which has been clipped by a rectangular
             prism.
@@ -54,7 +54,7 @@
             vectors too. Curves and surfaces can be defined using 
             matrix transformations.
         \section{
-            How does tikz-matrixmath improve on existing packages?
+            How does tikz-lua3dtools improve on existing packages?
         }
             There are two significant packages for 3D artwork in 
             Ti\textit{k}Z: pgfplots and tikz-3dplot.
@@ -67,17 +67,17 @@
             vertical. tikz-3dplot offers useful pgfmath capabilities 
             for doing vector operations.
             Neither pgfplots nor tikz-3dplot enable 
-            matrix transformations. tikz-matrixmath is built to render 
+            matrix transformations. tikz-lua3dtools is built to render 
             multiple parametric objects at once, enable arbitrary
             object orientations in non-orthographic projections, 
             and enable matrix transformations.
         \section{Where is the package at, and where it is heading?}
-            The vision of the package tikz-matrixmath is to one 
+            The vision of the package tikz-lua3dtools is to one 
             day be able to render arbitrary numbers of intersecting 
             polygons, by clipping them with each other; this would 
             enable arbitrary surface intersections, without 
             visual artefacts. A more near term goal of 
-            tikz-matrixmath is to also implement an ODE 
+            tikz-lua3dtools is to also implement an ODE 
             solving tool which approximates trajectories in 
             vector fields. I also want to add capabilities for 
             doing programming in Lua, instead of in pgf,
@@ -94,7 +94,7 @@
             I will also implement a way for the user to create 
             their own reusable Lua functions.
     \chapter{Geometric Vectors}
-        \section{How are geometric vectors defined in tikz-matrixmath?}
+        \section{How are geometric vectors defined in tikz-lua3dtools?}
             Geometric vectors are defined by two things: a 
             start-coordinate, and a relative displacement.
             There are two classifications of geometric vectors;
@@ -208,16 +208,16 @@
         input functions without their usual table prefix;
         this means that the user can write just 
         \mintinline{lua}{cos()}, instead of 
-        \mintinline{lua}{math.cos()}. tikz-matrixmath defines a growing
+        \mintinline{lua}{math.cos()}. tikz-lua3dtools defines a growing
         handful of math operations, from elementary linear matrix 
         transformations to stereographic projections.
         This list could always be expanded though as needs arise,
         so to make it robust, I will make a way for the user to 
         make their own. See Chapter 1.\par 
-        \textbf{tikz-matrixmath uses row-vector convention!} This means that 
+        \textbf{tikz-lua3dtools uses row-vector convention!} This means that 
         you put the transformation on the right of the matrix 
         multiplication unlike with column vectors. Additionally,
-        \textbf{tikz-matrixmath uses matrix-vector convention!} This means 
+        \textbf{tikz-lua3dtools uses matrix-vector convention!} This means 
         that vectors are formatted like matrices---meaning that the
         vector table is nested within a matrix table. This makes it 
         easier for the tools to communicate, and expains why we 
@@ -270,7 +270,7 @@
         ,y = {2*sin(u)}
         ,z = {u}
         ,draw options = {
-            purple
+            draw =purple
             ,ultra thick
             ,line cap = round
         }
@@ -287,8 +287,8 @@
         ,y = {2*sin(u)+sphere(u,v)[1][2]}
         ,z = {u+sphere(u,v)[1][3]}
         ,draw options = {
-            draw
-            ,blue,ultra thin
+            draw = blue
+            ,ultra thin
             ,line join = round
             ,line cap = round
         }
@@ -307,7 +307,8 @@
                 u min = 0
                 ,u max = 0.3
                 ,u samples = 2
-                ,transformation = {euler(pi/2,pi/3,pi/2)}
+                ,transformation = 
+                    {euler(pi/2,pi/3,pi/2)}
                 ,x = {
                     2 * 
                     cos(token.get_macro("u")) +
@@ -337,6 +338,7 @@
                 ,draw options = {
                     -{Stealth[round]}
                     ,line cap = round
+                    ,draw = black
                 }
             ]
         } 
@@ -356,7 +358,7 @@
                         ,y = {2*sin(u)}
                         ,z = {u}
                         ,draw options = {
-                            purple
+                            draw =purple
                             ,ultra thick
                             ,line cap = round
                         }
@@ -373,8 +375,8 @@
                         ,y = {2*sin(u)+sphere(u,v)[1][2]}
                         ,z = {u+sphere(u,v)[1][3]}
                         ,draw options = {
-                            draw
-                            ,blue,ultra thin
+                            draw = blue
+                            ,ultra thin
                             ,line join = round
                             ,line cap = round
                         }
@@ -424,6 +426,7 @@
                                 ,draw options = {
                                     -{Stealth[round]}
                                     ,line cap = round
+                                    ,draw = black
                                 }
                             ]
                         } 
@@ -433,14 +436,18 @@
                 \caption{A triangulated mesh surface and a curve.}
                 \label{fig:3-1-1}
             \end{figure}
-            tikz-matrixmath is also capable of handling division by zero
+            tikz-lua3dtools is also capable of handling division by zero
             without erroring. This is because the math is handled in
             Lua, where division by zero doesn't error. We clip our 
             results to be well within the scope of the Ti\textit{z}Z
             canvas. The code for Figure \ref{fig:3-1-2} is as follows.
 \begin{minted}{tex}
 \begin{tikzpicture}
-    \clip (-5,-5) rectangle (5,5);
+    \clip 
+        (-\textwidth/2,-5) 
+        rectangle 
+        (\textwidth/2,5)
+    ;
     \pgfmathsetmacro{\angle}{0}
     \let\angle\angle
     \foreach \longitude in {1,...,36}{
@@ -450,6 +457,10 @@
             ,u max = {pi}
             ,u samples = 4*45
             ,transformation = {euler(pi/2,pi/3,pi/6)}
+            ,draw options = {
+                line cap = round
+                ,draw = black
+            }
             ,x = {
                 stereographic_projection(
                     matrix_multiply(
@@ -506,6 +517,10 @@
                     ,euler(pi/2,pi/3,pi/6)
                 )
             }
+            ,draw options = {
+                line cap = round
+                ,draw = black
+            }
             ,x = {
                 sphere(
                     tau * 
@@ -539,6 +554,10 @@
             ,u max = {2*pi}
             ,u samples = 4*45
             ,transformation = {euler(pi/2,pi/3,pi/6)}
+            ,draw options = {
+                line cap = round
+                ,draw = black
+            }
             ,x = {
                 stereographic_projection(
                     matrix_multiply(
@@ -595,6 +614,10 @@
                     ,euler(pi/2,pi/3,pi/6)
                 )
             }
+            ,draw options = {
+                line cap = round
+                ,draw = black
+            }
             ,x = {
                 sphere(
                     u
@@ -637,6 +660,7 @@
                             ,transformation = {euler(pi/2,pi/3,pi/6)}
                             ,draw options = {
                                 line cap = round
+                                ,draw = black
                             }
                             ,x = {
                                 stereographic_projection(
@@ -696,6 +720,7 @@
                             }
                             ,draw options = {
                                 line cap = round
+                                ,draw = black
                             }
                             ,x = {
                                 sphere(
@@ -732,6 +757,7 @@
                             ,transformation = {euler(pi/2,pi/3,pi/6)}
                             ,draw options = {
                                 line cap = round
+                                ,draw = black
                             }
                             ,x = {
                                 stereographic_projection(
@@ -791,6 +817,7 @@
                             }
                             ,draw options = {
                                 line cap = round
+                                ,draw = black
                             }
                             ,x = {
                                 sphere(
@@ -817,9 +844,9 @@
                 \caption{Automatic division by zero handling.}
                 \label{fig:3-1-2}
             \end{figure}
-            tikz-matrixmath is meant to be compatible with Ti\textit{k}Z, and
+            tikz-lua3dtools is meant to be compatible with Ti\textit{k}Z, and
             they are meant to be used together---at least for now.
-            Maybe one day tikz-matrixmath will have enough capabilities to 
+            Maybe one day tikz-lua3dtools will have enough capabilities to 
             do things like for loops and conditionals---\textit{at 
             home}. The code for Figure \ref{fig:3-1-3}, which 
             illustrates the use of a conditional, is given.

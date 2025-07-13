@@ -1,4 +1,4 @@
--- tikz-matrixmath-register-tex-cmd.lua
+-- tikz-lua3dtools-register-tex-cmd.lua
 
 local rtc = {}
 
@@ -13,7 +13,7 @@ local rtc = {}
 function rtc.register_tex_cmd(name, func, args, protected)
     -- The extended version of this function uses `N` and `w` where appropriate,
     -- but only using `n` is good enough for exposition purposes.
-    name = "__tikz_matrixmath_" .. name .. ":" .. ("n"):rep(#args)
+    name = "__tikz_luatdtools_" .. name .. ":" .. ("n"):rep(#args)
 
     -- Push the appropriate scanner functions onto the scanning stack.
     local scanners = {}
