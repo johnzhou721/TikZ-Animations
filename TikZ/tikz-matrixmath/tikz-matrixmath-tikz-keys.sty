@@ -50,6 +50,34 @@
                 ,z/.estore in = \tikz@td@cs@l@z
             ,/tikz-matrixmath/clipped-subspace/point/.cd % abbreviated "pt"
         ,/tikz-matrixmath/parametric/.cd % abbreviated "p"
+            ,/tikz-matrixmath/parametric/label/.cd % abbreviated "l"
+                ,x/.code = {\edef\tikz@td@p@l@x{#1}}
+                ,y/.code = {\edef\tikz@td@p@l@y{#1}}
+                ,z/.code = {\edef\tikz@td@p@l@z{#1}}
+                ,name/.estore in = \tikz@td@p@l@name
+                ,text/.estore in = \tikz@td@p@l@text
+                ,transformation/.code = {\edef\tikz@td@p@l@transformation{#1}}
+                ,x = {1}
+                ,y = {2}
+                ,z = 3
+                ,name = George
+                ,transformation = {identity_matrix()}
+                ,text = {Change Me!}
+            ,/tikz-matrixmath/parametric/point/.cd % abbreviated "p"
+                ,x/.code = {\edef\tikz@td@p@p@x{#1}}
+                ,y/.code = {\edef\tikz@td@p@p@y{#1}}
+                ,z/.code = {\edef\tikz@td@p@p@z{#1}}
+                ,draw options/.estore in = \tikz@td@p@p@drawoptions
+                ,fill options/.estore in = \tikz@td@p@p@filloptions
+                ,name/.estore in = \tikz@td@p@p@name
+                ,transformation/.code = {\edef\tikz@td@p@p@transformation{#1}}
+                ,x = {1}
+                ,y = {2}
+                ,z = 3
+                ,draw options = {draw = red}
+                ,fill options = {fill = blue}
+                ,name = George
+                ,transformation = {identity_matrix()}
             ,/tikz-matrixmath/parametric/curve/.cd % abbreviated "c"
                 ,u min/.estore in = \tikz@td@p@c@umin
                 ,u max/.estore in = \tikz@td@p@c@umax

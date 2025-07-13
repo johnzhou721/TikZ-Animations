@@ -3,6 +3,26 @@
     {tikz-matrixmath-expl3-command-definitions}
     {2025/07/08}{1.0.0}{Test file}
 \lua_load_module:n { tikz-matrixmath-parametric-objects }
+\NewDocumentCommand { \appendlabel } {o} {
+    \group_begin:
+    \tikzset{
+        /tikz-matrixmath/parametric/label/.search~also = {/tikz}
+        ,/tikz-matrixmath/parametric/label/.cd
+        ,#1
+    }
+    \__tikz_matrixmath_appendlabel:
+    \group_end:
+}
+\NewDocumentCommand { \appendpoint } {o} {
+    \group_begin:
+    \tikzset{
+        /tikz-matrixmath/parametric/point/.search~also = {/tikz}
+        ,/tikz-matrixmath/parametric/point/.cd
+        ,#1
+    }
+    \__tikz_matrixmath_appendpoint:
+    \group_end:
+}
 \NewDocumentCommand { \appendcurve } {o} {
     \group_begin:
     \tikzset{

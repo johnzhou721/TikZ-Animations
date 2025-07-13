@@ -22,6 +22,68 @@ local function double_string_function(str)
     return load(("return function(u,v) return %s end"):format(str), "expression", "t", ENV_)()
 end
 
+local function append_label(hash)
+    local x              = hash.x
+    local y              = hash.y
+    local z              = hash.z
+    local text           = hash.text
+    local name           = hash.name
+    local transformation = hash.transformation
+
+    x = single_string_expression(x)
+    y = single_string_expression(y)
+    z = single_string_expression(z)
+    transformation = single_string_expression(transformation)
+
+
+    local function parametric_point()
+        return { { x, y, z, 1 } }
+    end
+
+    local A = parametric_point()
+    local the_segment = mm.matrix_multiply(A, transformation)
+    table.insert(
+        segments, 
+        { 
+            segment = the_segment, 
+            text = text,
+            name = name 
+        }
+    )
+end
+
+local function append_point(hash)
+    local x              = hash.x
+    local y              = hash.y
+    local z              = hash.z
+    local draw_options   = hash.draw_options
+    local fill_options   = hash.fill_options
+    local name           = hash.name
+    local transformation = hash.transformation
+
+    x = single_string_expression(x)
+    y = single_string_expression(y)
+    z = single_string_expression(z)
+    transformation = single_string_expression(transformation)
+
+
+    local function parametric_point()
+        return { { x, y, z, 1 } }
+    end
+
+    local A = parametric_point()
+    local the_segment = mm.matrix_multiply(A, transformation)
+    table.insert(
+        segments, 
+        { 
+            segment = the_segment, 
+            draw_options = draw_options, 
+            fill_options = fill_options, 
+            name = name 
+        }
+    )
+end
+
 local function append_curve(hash)
     local u_start        = hash.u_start
     local u_stop         = hash.u_stop
@@ -58,6 +120,7 @@ local function append_curve(hash)
             { 
                 segment = the_segment, 
                 draw_options = draw_options, 
+                fill_options = fill_options, 
                 name = name 
             }
         )
@@ -166,6 +229,31 @@ local function is_point_in_triangle(point,triangle)
 end
 
 local function compare_triangles(triangle_1,triangle_2)
+    if #triangle_1.segment == 1 or #triangle_2.segment == 1 then
+        local function depth_mid(seg)
+            if #seg == 1 then
+                -- line/curve segment: midpoint of S, E
+                local S = seg[1]
+                local mid = {{
+                    S[1],S[2],S[3],1
+                }}
+                return mm.dot_product(mid, observer_dir)
+            else
+                -- triangle: centroid of P, Q, R
+                local P, Q = seg[1], seg[2]
+                local cent = {{
+                    (P[1] + Q[1]) / 2,
+                    (P[2] + Q[2]) / 2,
+                    (P[3] + Q[3]) / 2,
+                    1
+                }}
+                return mm.dot_product(cent, observer_dir)
+            end
+        end
+        local a = depth_mid(triangle_1.segment)
+        local b = depth_mid(triangle_2.segment)
+        return a > b
+    end
     -- 1) if *either* is a 2‐point line/curve (#==3), depth‐sort by midpoint along observer
     if #triangle_1.segment == 2 or #triangle_2.segment == 2 then
         local function depth_mid(seg)
@@ -845,7 +933,7 @@ local function render_segments()
                 -- draw a line segment
                 local S, E = pts[1], pts[2]
                 tex.sprint(string.format(
-                    "\\draw[%s] (%f,%f) -- (%f,%f);",
+                    "\\path[%s] (%f,%f) -- (%f,%f);",
                     segment.draw_options, S[1], S[2], E[1], E[2]
                 ))
 
@@ -869,6 +957,20 @@ local function render_segments()
                     segment.fill_options or "", segment.draw_options or "",
                     table.concat(path, " -- ")
                 ))
+            elseif #pts == 1 and segment.text then
+                local P = pts[1]
+                tex.sprint(string.format(
+                    "\\node at (%f,%f) {%s};",
+                    P[1], P[2],
+                    segment.text or ""
+                ))
+            elseif #pts == 1 and not segment.text then
+                local P = pts[1]
+                tex.sprint(string.format(
+                    "\\path[preaction={%s},postaction={%s}] (%f,%f) circle[radius = 0.06];",
+                    segment.fill_options or "", segment.draw_options or "",
+                    P[1], P[2]
+                ))
             end
         end
     end
@@ -877,7 +979,36 @@ local function render_segments()
     segments = {}
 end
 
+rtc.register_tex_cmd(
+    "appendlabel",
+    function()
+        append_label{
+            x              = token.get_macro("tikz@td@p@l@x"),
+            y              = token.get_macro("tikz@td@p@l@y"),
+            z              = token.get_macro("tikz@td@p@l@z"),
+            text           = token.get_macro("tikz@td@p@l@text"),
+            name           = token.get_macro("tikz@td@p@l@name"),
+            transformation = token.get_macro("tikz@td@p@l@transformation")
+        } 
+    end,
+    { }
+)
 
+rtc.register_tex_cmd(
+    "appendpoint",
+    function()
+        append_point{
+            x              = token.get_macro("tikz@td@p@p@x"),
+            y              = token.get_macro("tikz@td@p@p@y"),
+            z              = token.get_macro("tikz@td@p@p@z"),
+            draw_options   = token.get_macro("tikz@td@p@p@drawoptions"),
+            fill_options   = token.get_macro("tikz@td@p@p@filloptions"),
+            name           = token.get_macro("tikz@td@p@p@name"),
+            transformation = token.get_macro("tikz@td@p@p@transformation")
+        } 
+    end,
+    { }
+)
 
 rtc.register_tex_cmd(
     "appendcurve",

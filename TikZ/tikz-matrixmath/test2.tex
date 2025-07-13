@@ -38,7 +38,10 @@
             ,x = {1 + u * 3}
             ,y = {2 + u * -1}
             ,z = {3 + u * 4}
-            ,draw options = {-{Stealth[round]}}
+            ,draw options = {
+                -{Stealth[round]}
+                ,draw = black
+            }
         ]
         \appendcurve[%
             u min = 0
@@ -48,32 +51,27 @@
             ,x = {1 + u * -1}
             ,y = {2 + u * 2}
             ,z = {3 + u * 5}
-            ,draw options = {-{Stealth[round]}}
+            ,draw options = {
+                -{Stealth[round]}
+                ,draw = black
+            }
         ]
-        \appendcurve[%
-            u min = 0
-            ,u max = 0.001
-            ,u samples = 2
-            ,transformation = {\transformation}
-            ,x = {1 + 2/1.5 + u}
+        \appendpoint[%
+            transformation = {\transformation}
+            ,x = {1 + 2/1.5}
             ,y = {2 + 1/1.5}
             ,z = {3 + 9/1.5}
-            ,draw options = {
-                Circle-Circle
-            }
         ]
-        \appendcurve[%
-            u min = 0
-            ,u max = 0.001
-            ,u samples = 2
-            ,transformation = {\transformation}
-            ,x = {1 + 2/1.5 + u + 13 / 5}
+        \appendpoint[%
+            transformation = {\transformation}
+            ,x = {1 + 2/1.5 + 13 / 5}
             ,y = {2 + 1/1.5 + 19 / 5}
             ,z = {3 + 9/1.5 + -5 / 5}
-            ,draw options = {
-                red
-                ,Circle-Circle
-            }
+        ]
+        \appendpoint[x=1,y=2,z=3,transformation = {\transformation}]
+        \appendlabel[
+            x=1,y=2,z=3,transformation = {\transformation}
+            ,text = {O}
         ]
         \rendersegments
         \node at (2.5,-2.5) {\(O\)};
