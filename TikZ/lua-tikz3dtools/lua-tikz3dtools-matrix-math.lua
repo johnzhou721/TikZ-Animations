@@ -1,4 +1,4 @@
--- tikz-lua3dtools-matrix-math.lua
+-- lua-tikz3dtools-matrix-math.lua
 
 local mm = {}
 mm.tau = 2*math.pi 

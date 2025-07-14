@@ -1,9 +1,9 @@
-% tikz-lua3dtools-tikz-keys.tex
-\ProvidesFile{tikz-lua3dtools-tikz-keys}
+% lua-tikz3dtools-tikz-keys.tex
+\ProvidesFile{lua-tikz3dtools-tikz-keys}
 \tikzset{
-    /tikz-lua3dtools/.is family % abbreviated "td"
-    ,/tikz-lua3dtools/.cd 
-        ,/tikz-lua3dtools/clipped-subspace/.cd % abbreviated "cs"
+    /lua-tikz3dtools/.is family % abbreviated "td"
+    ,/lua-tikz3dtools/.cd 
+        ,/lua-tikz3dtools/clipped-subspace/.cd % abbreviated "cs"
             ,x min/.estore in = \tikz@td@cs@xmin
             ,x max/.estore in = \tikz@td@cs@xmax
             ,y min/.estore in = \tikz@td@cs@ymin
@@ -18,7 +18,7 @@
             ,z min = -5
             ,z max = 5
             ,transformation = {identity_matrix()}
-            ,/tikz-lua3dtools/clipped-subspace/plane/.cd % abbreviated "p"
+            ,/lua-tikz3dtools/clipped-subspace/plane/.cd % abbreviated "p"
                 % normal equation ax + by + cz + d = 0
                 ,a/.estore in = \tikz@td@cs@p@a
                 ,b/.estore in = \tikz@td@cs@p@b
@@ -39,7 +39,7 @@
                     fill = black
                     ,fill opacity = 0.7
                 }
-            ,/tikz-lua3dtools/clipped-subspace/line/.cd % abbreviated "l"
+            ,/lua-tikz3dtools/clipped-subspace/line/.cd % abbreviated "l"
                 % direction vector
                 ,a/.estore in = \tikz@td@cs@l@a
                 ,b/.estore in = \tikz@td@cs@l@b
@@ -48,9 +48,9 @@
                 ,x/.estore in = \tikz@td@cs@l@x
                 ,y/.estore in = \tikz@td@cs@l@y
                 ,z/.estore in = \tikz@td@cs@l@z
-            ,/tikz-lua3dtools/clipped-subspace/point/.cd % abbreviated "pt"
-        ,/tikz-lua3dtools/parametric/.cd % abbreviated "p"
-            ,/tikz-lua3dtools/parametric/label/.cd % abbreviated "l"
+            ,/lua-tikz3dtools/clipped-subspace/point/.cd % abbreviated "pt"
+        ,/lua-tikz3dtools/parametric/.cd % abbreviated "p"
+            ,/lua-tikz3dtools/parametric/label/.cd % abbreviated "l"
                 ,x/.code = {\edef\tikz@td@p@l@x{#1}}
                 ,y/.code = {\edef\tikz@td@p@l@y{#1}}
                 ,z/.code = {\edef\tikz@td@p@l@z{#1}}
@@ -63,7 +63,7 @@
                 ,name = George
                 ,transformation = {identity_matrix()}
                 ,text = {Change Me!}
-            ,/tikz-lua3dtools/parametric/point/.cd % abbreviated "p"
+            ,/lua-tikz3dtools/parametric/point/.cd % abbreviated "p"
                 ,x/.code = {\edef\tikz@td@p@p@x{#1}}
                 ,y/.code = {\edef\tikz@td@p@p@y{#1}}
                 ,z/.code = {\edef\tikz@td@p@p@z{#1}}
@@ -78,7 +78,7 @@
                 ,fill options = {fill = blue}
                 ,name = George
                 ,transformation = {identity_matrix()}
-            ,/tikz-lua3dtools/parametric/curve/.cd % abbreviated "c"
+            ,/lua-tikz3dtools/parametric/curve/.cd % abbreviated "c"
                 ,u min/.estore in = \tikz@td@p@c@umin
                 ,u max/.estore in = \tikz@td@p@c@umax
                 ,u samples/.estore in = \tikz@td@p@c@usamples
@@ -97,7 +97,7 @@
                 ,draw options = {line cap = round}
                 ,name = George
                 ,transformation = {identity_matrix()}
-            ,/tikz-lua3dtools/parametric/surface/.cd % abbreviated "surf"
+            ,/lua-tikz3dtools/parametric/surface/.cd % abbreviated "surf"
                 ,u min/.estore in = \tikz@td@p@surf@umin
                 ,u max/.estore in = \tikz@td@p@surf@umax
                 ,u samples/.estore in = \tikz@td@p@surf@usamples
@@ -124,7 +124,7 @@
                 ,fill options = {fill = red, fill opacity = 0.7}
                 ,name = Bob
                 ,transformation = {identity_matrix()}
-            ,/tikz-lua3dtools/parametric/solid/.cd % abbreviated "s"
+            ,/lua-tikz3dtools/parametric/solid/.cd % abbreviated "s"
                 ,u min/.estore in = \tikz@td@p@s@umin
                 ,u max/.estore in = \tikz@td@p@s@umax
                 ,u samples/.estore in = \tikz@td@p@s@usamples
@@ -134,8 +134,8 @@
                 ,w min/.estore in = \tikz@td@p@s@wmin
                 ,w max/.estore in = \tikz@td@p@s@wmax
                 ,w samples/.estore in = \tikz@td@p@s@wsamples
-        ,/tikz-lua3dtools/ode/.cd % abbreviated "ode"
-        ,/tikz-lua3dtools/geometric-vector/.cd % abbreviated "gm"
+        ,/lua-tikz3dtools/ode/.cd % abbreviated "ode"
+        ,/lua-tikz3dtools/geometric-vector/.cd % abbreviated "gm"
             ,point radius/.estore in = \tikz@td@gm@pointradius
             ,mark length/.estore in = \tikz@td@gm@marklength
             ,mark/.is choice 

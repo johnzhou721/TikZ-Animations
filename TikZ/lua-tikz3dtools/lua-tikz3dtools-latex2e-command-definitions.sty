@@ -1,5 +1,5 @@
-% tikz-lua3dtools-latex2e-command-definitions.tex
-\ProvidesFile{tikz-lua3dtools-latex2e-command-definitions}
+% lua-tikz3dtools-latex2e-command-definitions.tex
+\ProvidesFile{lua-tikz3dtools-latex2e-command-definitions}
 \newcommand{\drawpoint}[2][]{
     \begingroup 
         \coordinate (@) at (#2);
@@ -9,8 +9,8 @@
             ,inner sep = 0pt
             ,outer sep = 0pt
             ,fill
-            ,/tikz-lua3dtools/geometric-vector/.search also = {/tikz}
-            ,/tikz-lua3dtools/geometric-vector/.cd
+            ,/lua-tikz3dtools/geometric-vector/.search also = {/tikz}
+            ,/lua-tikz3dtools/geometric-vector/.cd
             ,#1
         ] {};
     \endgroup
@@ -19,8 +19,8 @@
     \begingroup
         \pgfmathsetmacro{\tikz@td@gm@halfmarklength}{\tikz@td@gm@marklength/2}
         \draw[
-            /tikz-lua3dtools/geometric-vector/.search also = {/tikz}
-            ,/tikz-lua3dtools/geometric-vector/.cd
+            /lua-tikz3dtools/geometric-vector/.search also = {/tikz}
+            ,/lua-tikz3dtools/geometric-vector/.cd
             ,#1
         ] (0,-\tikz@td@gm@halfmarklength pt) -- (0,\tikz@td@gm@halfmarklength pt);
     \endgroup
@@ -28,8 +28,8 @@
 \newcommand{\drawvector}[3][]{
     \begingroup
         \tikzset{
-            /tikz-lua3dtools/geometric-vector/.search also = {/tikz},
-            /tikz-lua3dtools/geometric-vector/.cd,
+            /lua-tikz3dtools/geometric-vector/.search also = {/tikz},
+            /lua-tikz3dtools/geometric-vector/.cd,
             #1
         }
         \coordinate (@start) at (#2);
@@ -40,8 +40,8 @@
                     very thick
                     ,{-Stealth[round]}
                     ,shorten < = \tikz@td@gm@pointradius cm
-                    ,/tikz-lua3dtools/geometric-vector/.search also = {/tikz}
-                    ,/tikz-lua3dtools/geometric-vector/.cd
+                    ,/lua-tikz3dtools/geometric-vector/.search also = {/tikz}
+                    ,/lua-tikz3dtools/geometric-vector/.cd
                     ,#1
                 ] (@start) -- ++(#3);
         \fi
@@ -53,8 +53,8 @@
                     ,{-Stealth[round]}
                     ,shorten < = \tikz@td@gm@pointradius cm
                     ,shorten > = \tikz@td@gm@pointradius cm
-                    ,/tikz-lua3dtools/geometric-vector/.search also = {/tikz}
-                    ,/tikz-lua3dtools/geometric-vector/.cd
+                    ,/lua-tikz3dtools/geometric-vector/.search also = {/tikz}
+                    ,/lua-tikz3dtools/geometric-vector/.cd
                     ,#1
                 ] (@start) -- ++(#3) coordinate (@end);
             \drawpoint[#1]{@end}
@@ -64,8 +64,8 @@
                 [
                     very thick
                     ,{-Stealth[round]}
-                    ,/tikz-lua3dtools/geometric-vector/.search also = {/tikz}
-                    ,/tikz-lua3dtools/geometric-vector/.cd
+                    ,/lua-tikz3dtools/geometric-vector/.search also = {/tikz}
+                    ,/lua-tikz3dtools/geometric-vector/.cd
                     ,#1
                 ] (@start) -- ++(#3);
         \fi
@@ -74,8 +74,8 @@
                 [
                     very thick
                     ,{-Stealth[round]}
-                    ,/tikz-lua3dtools/geometric-vector/.search also = {/tikz}
-                    ,/tikz-lua3dtools/geometric-vector/.cd
+                    ,/lua-tikz3dtools/geometric-vector/.search also = {/tikz}
+                    ,/lua-tikz3dtools/geometric-vector/.cd
                     ,#1
                 ] (@start) -- ++(#3) coordinate (@end);
             \drawpoint[#1]{@end}
@@ -130,8 +130,8 @@
 \newcommand{\appendprism}[1][]{
     \begingroup
     \tikzset{
-        /tikz-lua3dtools/clipped-subspace/plane/.search also = {/tikz-lua3dtools/clipped-subspace},
-        /tikz-lua3dtools/clipped-subspace/plane/.cd,
+        /lua-tikz3dtools/clipped-subspace/plane/.search also = {/lua-tikz3dtools/clipped-subspace},
+        /lua-tikz3dtools/clipped-subspace/plane/.cd,
         #1
     }
     % For brevity, assign keys to macros

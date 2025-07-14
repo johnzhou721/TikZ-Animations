@@ -1,4 +1,4 @@
--- tikz-lua3dtools-register-tex-cmd.lua
+-- lua-tikz3dtools-register-tex-cmd.lua
 
 local rtc = {}
 

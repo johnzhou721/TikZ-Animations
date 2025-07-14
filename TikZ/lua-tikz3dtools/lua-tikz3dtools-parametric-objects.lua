@@ -1,6 +1,6 @@
--- tikz-lua3dtools-parametric-objects.lua
-local mm = require "tikz-lua3dtools-matrix-math"
-local rtc = require "tikz-lua3dtools-register-tex-cmd"
+-- lua-tikz3dtools-parametric-objects.lua
+local mm = require "lua-tikz3dtools-matrix-math"
+local rtc = require "lua-tikz3dtools-register-tex-cmd"
 local ENV_ = {}
 for k, v in pairs(_G) do ENV_[k] = v end
 for k, v in pairs(mm) do ENV_[k] = v end
