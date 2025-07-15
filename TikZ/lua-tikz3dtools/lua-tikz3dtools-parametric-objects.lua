@@ -405,20 +405,22 @@ local function compare_triangles(triangle_1,triangle_2)
 end
 
 local function get_line(hash)
-    local a1   = hash.a1
-    local b1   = hash.b1 
-    local c1   = hash.c1 
-    local d1   = hash.d1
-    local a2   = hash.a2
-    local b2   = hash.b2
-    local c2   = hash.c2
-    local d2   = hash.d2
-    local xmin = hash.xmin
-    local xmax = hash.xmax
-    local ymin = hash.ymin 
-    local ymax = hash.ymax 
-    local zmin = hash.zmin 
-    local zmax = hash.zmax
+    local a1   = single_string_expression(hash.a1)
+    local b1   = single_string_expression(hash.b1)
+    local c1   = single_string_expression(hash.c1)
+    local d1   = single_string_expression(hash.d1)
+    local a2   = single_string_expression(hash.a2)
+    local b2   = single_string_expression(hash.b2)
+    local c2   = single_string_expression(hash.c2)
+    local d2   = single_string_expression(hash.d2)
+    local xmin = single_string_expression(hash.xmin)
+    local xmax = single_string_expression(hash.xmax)
+    local ymin = single_string_expression(hash.ymin) 
+    local ymax = single_string_expression(hash.ymax)
+    local zmin = single_string_expression(hash.zmin)
+    local zmax = single_string_expression(hash.zmax)
+    local transformation = single_string_expression(hash.transformation)
+    local draw_options = hash.draw_options
 
     local function Lyofx(x)
         return (
@@ -696,11 +698,38 @@ local function get_line(hash)
             end
         end
     end
-    return {
-        {startx,starty,startz}
-        ,{endx,endy,endz}
+    local result =  {
+        {startx,starty,startz,1}
+        ,{endx,endy,endz,1}
     }
+    local R =  mm.matrix_multiply(result,transformation)
+    tex.sprint(
+        ("\\path[%s] (%f,%f) -- (%f,%f);"):format(draw_options,R[1][1],R[1][2],R[2][1],R[2][2])
+    )
 end
+
+rtc.register_tex_cmd(
+    "appendplaneintersection", function()
+    get_line{
+        a1              =  token.get_macro("tikz@td@cs@pi@aa"),
+        b1              = token.get_macro("tikz@td@cs@pi@ab"),
+        c1              = token.get_macro("tikz@td@cs@pi@ac"),
+        d1              = token.get_macro("tikz@td@cs@pi@ad"),
+        a2              =  token.get_macro("tikz@td@cs@pi@ba"),
+        b2              = token.get_macro("tikz@td@cs@pi@bb"),
+        c2             = token.get_macro("tikz@td@cs@pi@bc"),
+        d2              = token.get_macro("tikz@td@cs@pi@bd"),
+        xmin           = token.get_macro("tikz@td@cs@xmin"),
+        xmax           = token.get_macro("tikz@td@cs@xmax"),
+        ymin           = token.get_macro("tikz@td@cs@ymin"),
+        ymax           = token.get_macro("tikz@td@cs@ymax"),
+        zmin           = token.get_macro("tikz@td@cs@zmin"),
+        zmax           = token.get_macro("tikz@td@cs@zmax"),
+        draw_options   = token.get_macro("tikz@td@cs@pi@drawoptions"),
+        transformation = token.get_macro("tikz@td@cs@transformation")
+    } end,
+    { }
+)
 
 local function get_bounding_box(T)
     local tri = T.segment 
@@ -1009,6 +1038,8 @@ rtc.register_tex_cmd(
     end,
     { }
 )
+
+
 
 rtc.register_tex_cmd(
     "appendcurve",

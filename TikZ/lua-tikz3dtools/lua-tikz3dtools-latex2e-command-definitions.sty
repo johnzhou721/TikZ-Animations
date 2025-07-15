@@ -129,10 +129,10 @@
 
 \newcommand{\appendprism}[1][]{
     \begingroup
-    \tikzset{
-        /lua-tikz3dtools/clipped-subspace/plane/.search also = {/lua-tikz3dtools/clipped-subspace},
-        /lua-tikz3dtools/clipped-subspace/plane/.cd,
-        #1
+    \tikzset{%
+        /lua-tikz3dtools/parametric/curve/.search also = {/lua-tikz3dtools/clipped-subspace},
+        /lua-tikz3dtools/parametric/curve/.cd,
+        #1%
     }
     % For brevity, assign keys to macros
     \def\xmin{\tikz@td@cs@xmin}
@@ -148,32 +148,32 @@
         x = (1-u)*\xmin + u*\xmax,
         y = \ymin,
         z = \zmin,
-        draw options = {draw},
-        transformation = \tikz@td@cs@transformation
+        draw options = {\tikz@td@p@c@drawoptions},
+        transformation = {\tikz@td@p@c@transformation}
     ]
     \appendcurve[
         u min=0, u max=1, u samples=20,
         x = \xmax,
         y = (1-u)*\ymin + u*\ymax,
         z = \zmin,
-        draw options = {draw},
-        transformation = \tikz@td@cs@transformation
+        draw options = {\tikz@td@p@c@drawoptions},
+        transformation = {\tikz@td@p@c@transformation}
     ]
     \appendcurve[
         u min=0, u max=1, u samples=20,
         x = (1-u)*\xmax + u*\xmin,
         y = \ymax,
         z = \zmin,
-        draw options = {draw},
-        transformation = \tikz@td@cs@transformation
+        draw options = {\tikz@td@p@c@drawoptions},
+        transformation = {\tikz@td@p@c@transformation}
     ]
     \appendcurve[
         u min=0, u max=1, u samples=20,
         x = \xmin,
         y = (1-u)*\ymax + u*\ymin,
         z = \zmin,
-        draw options = {draw},
-        transformation = \tikz@td@cs@transformation
+        draw options = {\tikz@td@p@c@drawoptions},
+        transformation = {\tikz@td@p@c@transformation}
     ]
 
     % Top square edges
@@ -182,32 +182,32 @@
         x = (1-u)*\xmin + u*\xmax,
         y = \ymin,
         z = \zmax,
-        draw options = {draw},
-        transformation = \tikz@td@cs@transformation
+        draw options = {\tikz@td@p@c@drawoptions},
+        transformation = {\tikz@td@p@c@transformation}
     ]
     \appendcurve[
         u min=0, u max=1, u samples=20,
         x = \xmax,
         y = (1-u)*\ymin + u*\ymax,
         z = \zmax,
-        draw options = {draw},
-        transformation = \tikz@td@cs@transformation
+        draw options = {\tikz@td@p@c@drawoptions},
+        transformation = {\tikz@td@p@c@transformation}
     ]
     \appendcurve[
         u min=0, u max=1, u samples=20,
         x = (1-u)*\xmax + u*\xmin,
         y = \ymax,
         z = \zmax,
-        draw options = {draw},
-        transformation = \tikz@td@cs@transformation
+        draw options = {\tikz@td@p@c@drawoptions},
+        transformation = {\tikz@td@p@c@transformation}
     ]
     \appendcurve[
         u min=0, u max=1, u samples=20,
         x = \xmin,
         y = (1-u)*\ymax + u*\ymin,
         z = \zmax,
-        draw options = {draw},
-        transformation = \tikz@td@cs@transformation
+        draw options = {\tikz@td@p@c@drawoptions},
+        transformation = {\tikz@td@p@c@transformation}
     ]
 
     % Vertical edges (pillars)
@@ -216,32 +216,32 @@
         x = \xmin,
         y = \ymin,
         z = (1-u)*\zmin + u*\zmax,
-        draw options = {draw},
-        transformation = \tikz@td@cs@transformation
+        draw options = {\tikz@td@p@c@drawoptions},
+        transformation = {\tikz@td@p@c@transformation}
     ]
     \appendcurve[
         u min=0, u max=1, u samples=20,
         x = \xmax,
         y = \ymin,
         z = (1-u)*\zmin + u*\zmax,
-        draw options = {draw},
-        transformation = \tikz@td@cs@transformation
+        draw options = {\tikz@td@p@c@drawoptions},
+        transformation = {\tikz@td@p@c@transformation}
     ]
     \appendcurve[
         u min=0, u max=1, u samples=20,
         x = \xmax,
         y = \ymax,
         z = (1-u)*\zmin + u*\zmax,
-        draw options = {draw},
-        transformation = \tikz@td@cs@transformation
+        draw options = {\tikz@td@p@c@drawoptions},
+        transformation = {\tikz@td@p@c@transformation}
     ]
     \appendcurve[
         u min=0, u max=1, u samples=20,
         x = \xmin,
         y = \ymax,
         z = (1-u)*\zmin + u*\zmax,
-        draw options = {draw},
-        transformation = \tikz@td@cs@transformation
+        draw options = {\tikz@td@p@c@drawoptions},
+        transformation = {\tikz@td@p@c@transformation}
     ]
     \endgroup
 }

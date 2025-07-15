@@ -13,7 +13,7 @@ clip planes by rectangular prisms. Eventually, I want to add triangle
 clipping.
 
 Change Log: \
-v0.01:
+v1.0.0:
 - Robust triangle sorting, rudimentary line segment sorting.
 - Division by zero handling.
 - Clipping of individual planes by rectangular prisms.

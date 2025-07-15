@@ -1,7 +1,7 @@
 % lua-tikz3dtools-expl3-command-definitions.sty
 \ProvidesExplFile
     {lua-tikz3dtools-expl3-command-definitions}
-    {2025/07/08}{1.0.0}{Test file}
+    {2025/07/13}{1.0.0}{Test file}
 \lua_load_module:n { lua-tikz3dtools-parametric-objects }
 \NewDocumentCommand { \appendlabel } {o} {
     \group_begin:
@@ -55,5 +55,16 @@
         ,#1
     }
     \__lua_tikztdtools_appendplane:
+    \group_end:
+}
+\NewDocumentCommand { \appendplaneintersection } {o} {
+    \group_begin:
+    \tikzset{
+        /lua-tikz3dtools/clipped-subspace/plane-intersection/.search~also = 
+            {/lua-tikz3dtools/clipped-subspace}
+        ,/lua-tikz3dtools/clipped-subspace/plane-intersection/.cd
+        ,#1
+    }
+    \__lua_tikztdtools_appendplaneintersection:
     \group_end:
 }
