@@ -946,15 +946,17 @@ local function render_segments()
     table.sort(segments, compare_triangles)
 
     for _, segment in ipairs(segments) do
-        local pts = segment.segment
+        local pts = {}
         local skip = false
 
-        -- check bounding box for every point
-        for _, P in ipairs(pts) do
-            if math.abs(P[1]) > 100 or math.abs(P[2]) > 100 then
+        -- Apply reciprocal transform first
+        for _, P in ipairs(segment.segment) do
+            local R = mm.reciprocate_by_homogenous({P})[1]
+            if math.abs(R[1]) > 20 or math.abs(R[2]) > 20 then
                 skip = true
                 break
             end
+            table.insert(pts, R)
         end
 
         if not skip then
@@ -986,13 +988,14 @@ local function render_segments()
                     segment.fill_options or "", segment.draw_options or "",
                     table.concat(path, " -- ")
                 ))
+
             elseif #pts == 1 and segment.text then
                 local P = pts[1]
                 tex.sprint(string.format(
                     "\\node at (%f,%f) {%s};",
-                    P[1], P[2],
-                    segment.text or ""
+                    P[1], P[2], segment.text or ""
                 ))
+
             elseif #pts == 1 and not segment.text then
                 local P = pts[1]
                 tex.sprint(string.format(
@@ -1004,7 +1007,6 @@ local function render_segments()
         end
     end
 
-    -- clear for next frame
     segments = {}
 end
 
