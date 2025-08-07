@@ -4,6 +4,8 @@ Welcome to **Ti*k*Z-Animations** — a personal hobby project where I explore th
 
 This is not a production library (yet), just something I’ve been building and learning from — and I hope you find it interesting or inspiring too.
 
+See also: https://www.youtube.com/@JasperMathIllustrations
+
 ---
 
 ## Project Goals
