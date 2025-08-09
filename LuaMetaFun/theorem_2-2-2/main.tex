@@ -1,0 +1,1819 @@
+% main.tex
+% gs -dNOPAUSE -dBATCH -sDEVICE=png16m -sOutputFile=out%03d.png -r1000x1000 main.pdf
+% ffmpeg -framerate 30 -i out%03d.png out.mp4
+% https://tex.stackexchange.com/a/748667
+\unprotect
+    %%% Defined similarly to \obeyMPboxdepth, \ignoreMPboxdepth,
+    %%% \obeyMPboxorigin, and \normalMPboxdepth
+    \permanent\protected\def\strutMPboxdepth{%
+        \let\meta_relocate_box\meta_strut_box_depth%
+    }
+
+    \protected\def\meta_strut_box_depth{%
+        \setbox\b_meta_graphic\vpack{%
+            \box\b_meta_graphic%
+            %%% Add some depth to the box without affecting its size
+            \nohrule height-\openstrutdepth width 0pt depth \openstrutdepth\relax%
+        }
+    }
+
+    %%% The pagecolumns output routine alredy adds a \vfil elsewhere, so the one
+    %%% here isn't needed and disrupts the depth added by \strutMPboxdepth.
+    \let\page_otr_fill_page_unchecked\relax
+\protect
+
+%%% Comment the line below to confirm that an overfull vbox is generated;
+%%% uncomment it to confirm that the overfull vbox message goes away.
+\strutMPboxdepth
+\setupbodyfont[pagella]
+
+
+\definepapersize
+  [youtubeHD]
+  [width=1920bp,height=1080bp]
+\setuppapersize[youtubeHD][youtubeHD]
+\setuplayout[
+    location=middle,
+    width=middle,
+    height=middle,
+    topspace=0pt,
+    backspace=0pt,
+    header=0pt,
+    footer=0pt
+]
+\defineframed[myframed][
+    width=800pt,
+    align=normal,
+    offset=1cm,
+    frame=off
+]
+\setupbodyfont[modern,24pt]
+\ctxloadluafile{parametric.lua}
+\processMPfigurefile{register_mp_cmd.mp}
+
+\startMPinclusions
+def render_theorem_box =
+numeric w, h;
+w := CurrentWidth;
+h := CurrentHeight;
+
+path p;
+p := (-w/2, -h/2) -- (w/2, -h/2) -- (w/2, h/2) -- (-w/2, h/2) -- cycle;
+setbounds currentpicture to p;
+
+picture theorem;
+theorem := textext("\getbuffer[BufA]");
+
+pair center_anchor, topleft_anchor;
+center_anchor := center theorem;
+topleft_anchor := ulcorner theorem;
+
+enddef;
+
+
+def jasper_thin =
+    withpen pencircle scaled .1cm
+enddef ;
+
+def jasper_thick =
+    withpen pencircle scaled .2cm
+enddef ;
+
+def jasper_lightgray =
+    withcolor (0.6)
+enddef ;
+
+def jasper_lightgraypenthin =
+    jasper_lightgray withpen pencircle scaled .1cm
+enddef ;
+
+def jasper_lightgraypenthick =
+    jasper_lightgray withpen pencircle scaled .2cm
+enddef ;
+
+
+def jasper_darkgray =
+    withcolor (0.4)
+enddef ;
+
+def jasper_darkgraypenthin =
+    jasper_darkgray withpen pencircle scaled .15cm
+enddef ;
+
+def jasper_darkgraypenthick =
+    jasper_darkgray withpen pencircle scaled .3cm
+enddef ;
+\stopMPinclusions
+
+
+\starttext
+
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par \color[white]{{\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % initial theorem
+    \dorecurse{7*30}{%
+        \startMPpage
+            render_theorem_box ; 
+            numeric t;
+            t := 0;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    % Translate the theorem to the top right corner.
+    \dorecurse{2*30+1}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := (#1-1)/60;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    % Pause once the theorem is in place.
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1; 
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    % Pause once the theorem is in place.
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1; 
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} \color[white]{Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Proof.
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1; 
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. \color[white]{Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Let us suggest that the conclusion 
+    % of the theorem is false; in particular that a circle has 
+    % two or more centres.
+    \dorecurse{8*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1; 
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }%
+    \startMPinclusions
+        def cx = -15 enddef ;
+        def cy = 5 enddef ;
+        def R = 7 enddef ;
+        def circle_centre =
+            jasper_point[% origin
+                fx = "cx"
+                ,fy = "cy"
+            ] ;
+            jasper_append_label[% origin label
+                px="cx+cos(5*pi/4)"
+                ,py="cy+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+        enddef ;
+    \stopMPinclusions%
+    % draw circle's centre
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_centre ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % extend radius from circle's center
+    \dorecurse{2*30+1}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_centre ;
+            jasper_curve[% radius
+                ustart="0"
+                ,ustop="1"
+                ,usamples="200"
+                ,fx="cx+R*u*(#1-1)/60"
+                ,fy = cy
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% terminal
+                fx = "cx + R*(#1-1)/60"
+                ,fy = "cy"
+                ,fz="1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause after extending radius
+    \dorecurse{2*30+1}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_centre ;
+            jasper_curve[% radius
+                ustart="0"
+                ,ustop="1"
+                ,usamples="200"
+                ,fx="cx+R*u"
+                ,fy = cy
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% terminal
+                fx = "cx + R"
+                ,fy = "cy"
+                ,fz="1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % draw the circle
+    \dorecurse{4*30+1}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_centre ;
+            jasper_curve[% radius
+                ustart="0",
+                ustop="1",
+                usamples="20",
+                fx="cx + R*u*cos(tau*(#1-1)/120)",
+                fy="cy + R*u*sin(tau*(#1-1)/120)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% terminal
+                fx = "cx + R*cos(tau*(#1-1)/120)"
+                ,fy = "cy + R*sin(tau*(#1-1)/120)"
+                ,fz = "1"
+            ] ;
+            jasper_curve[% arc
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="cx + R*cos(u*tau*(#1-1)/120)",
+                fy="cy + R*sin(u*tau*(#1-1)/120)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startMPinclusions
+        def full_circle =
+            circle_centre ;
+            jasper_curve[% circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="cx + R*cos(u*tau)",
+                fy="cy + R*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+        enddef ;
+    \stopMPinclusions%
+    % pause after drawing circle
+    \dorecurse{4*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            full_circle ;
+            jasper_curve[% radius
+                ustart="0",
+                ustop="1",
+                usamples="20",
+                fx="cx + R*u*cos(tau)",
+                fy="cy + R*u*sin(tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% terminal of radius
+                fx = "cx + R*cos(tau)"
+                ,fy = "cy + R*sin(tau)"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % removed constructions, pause
+    \dorecurse{4*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            full_circle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par \color[white]{According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Let us denote just two of these centres
+    % \im{O} and \im{P}.
+    \dorecurse{7*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            full_circle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % move P into position
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            full_circle ;
+            jasper_point[
+                fx="cx+2*#1/60"
+                ,fy="cy"
+            ] ;
+            jasper_append_label[
+                px="cx + 2*#1/60 + cos(5*pi/4)"
+                ,py="cy + sin(5*pi/4)"
+                ,text="\im{P}"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startMPinclusions
+        def circle_OP =
+            full_circle ;
+            jasper_point[
+                fx="cx+2"
+                ,fy="cy"
+            ] ;
+            jasper_append_label[
+                px="cx + 2 + cos(5*pi/4)"
+                ,py="cy + sin(5*pi/4)"
+                ,text="\im{P}"
+            ] ;
+        enddef ;
+    \stopMPinclusions%
+    % pause after moving P into position
+    \dorecurse{4*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_OP ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. \color[white]{Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % According to AXIOM 1, there is 
+    % exactly one line that passes through points \im{O} and 
+    % \im{P}.
+    \dorecurse{8*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_OP ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startMPinclusions
+        def line_circle =
+            jasper_curve[
+                ustart="-R-3"
+                ,ustop="R+3"
+                ,usamples="20"
+                ,fx="cx+u"
+                ,fy="cy"
+                ,fz="-1"
+                ,drawcommands="jasper_thin"
+            ] ;
+            circle_OP ;
+        enddef ;
+    \stopMPinclusions
+    % draw the line
+    \dorecurse{6*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            line_circle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par \color[white]{Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Let \im{M} and \im{N} be the points of intersection 
+    % of this line with the circle.
+    \dorecurse{10*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            line_circle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startMPinclusions
+        def circle_NM =
+            line_circle ;
+            jasper_point[
+                fx="cx-R"
+                ,fy="cy"
+                ,fz="2"
+            ] ;
+            jasper_point[
+                fx="cx+R"
+                ,fy="cy"
+                ,fz="2"
+            ] ;
+            jasper_append_label[
+                px="cx-R+cos(5*pi/4)"
+                ,py="cy+sin(5*pi/4)"
+                ,text="\im{N}"
+            ] ;
+            jasper_append_label[
+                px="cx+R+cos(5*pi/4)"
+                ,py="cy+sin(5*pi/4)"
+                ,text="\im{M}"
+            ] ;
+        enddef ;
+    \stopMPinclusions%
+    % add labels
+    \dorecurse{7*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. \color[white]{Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Since we have suggested
+    % that \im{O} is a centre of the circle, the segments 
+    % \im{NO} and \im{OM} are congruent as two radii of the 
+    % circle centred at \im{O}: \im{NO=OM}.
+    \dorecurse{11*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % line NO
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx-R"
+                ,ustop="cx"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx-R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % shift to OM
+    \dorecurse{1*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx-R+R*#1/30"
+                ,ustop="cx+R*#1/30"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx-R+R*#1/30"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+R*#1/30"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % line OM
+    \dorecurse{4*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx+R"
+                ,ustop="cx"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx+R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause with neither segment (second iteration)
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par \color[white]{Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Similarly,
+    % \im{NP=PM} as two radii of the circle centred at 
+    % \im{P}.
+    \dorecurse{8*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % line NP
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx-R"
+                ,ustop="cx+2"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx-R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+2"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % interpolate
+    \dorecurse{1*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx-R+(R+2)*#1/30"
+                ,ustop="cx+2+(R-2)*#1/30"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx-R+(R+2)*#1/30"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+2+(R-2)*#1/30"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % line PM
+    \dorecurse{4*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx+R"
+                ,ustop="cx+2"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx+R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+2"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause with neither segment (second iteration)
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; \color[white]{similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Point \im{O} lies in the interior of 
+    % \im{NP}, hence \im{NO<NP};
+    \dorecurse{6*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % NP
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx-R"
+                ,ustop="cx+2"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx-R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+2"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % NO<NP
+    \dorecurse{1*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx-R"
+                ,ustop="cx+2-2*#1/30"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx-R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+2-2*#1/30"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+     % NO
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx-R"
+                ,ustop="cx"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx-R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause (no lines)
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            \color[white]{Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % similarly, \im{PM<OM}.
+    \dorecurse{4*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % OM
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx"
+                ,ustop="cx+R"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % PM<OM
+    \dorecurse{1*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx+2*#1/30"
+                ,ustop="cx+R"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx+2*#1/30"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % PM
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx+2"
+                ,ustop="cx+R"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx+2"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, \color[white]{which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Then we can write: \dm{NO<NP=PM<OM=NO},
+    \dorecurse{10*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % NP
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx-R"
+                ,ustop="cx+2"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx-R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+2"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % NO<NP
+    \dorecurse{1*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx-R"
+                ,ustop="cx+2-2*#1/30"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx-R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+2-2*#1/30"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % NO
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx-R"
+                ,ustop="cx"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx-R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % NO=OM
+    \dorecurse{1*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx-R+7*#1/30"
+                ,ustop="cx+7*#1/30"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx-R+7*#1/30"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+7*#1/30"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % OM
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx"
+                ,ustop="cx+R"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % PM<OM
+    \dorecurse{1*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx+2*#1/30"
+                ,ustop="cx+R"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx+2*#1/30"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % PM
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx+2"
+                ,ustop="cx+R"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx+2"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    % PM<NO and PM=NO???
+    \dorecurse{1*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            circle_NM ;
+            jasper_curve[
+                ustart="cx+2-(R+2)*#1/30"
+                ,ustop="cx+R-(R+2)*#1/30"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx+2-(R+2)*#1/30"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+R-(R+2)*#1/30"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startMPinclusions
+        def labeled_circle =
+            circle_NM ;
+            jasper_curve[
+                ustart="cx-R"
+                ,ustop="cx-2"
+                ,usamples="20"
+                ,fx="u"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx-R"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx-2"
+                ,fy="cy"
+                ,fz="10"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+        enddef ;
+    \stopMPinclusions%
+    % -> NO<NO
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            labeled_circle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. \color[white]{This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % which means 
+    % that \im{NO<NO}.
+    \dorecurse{5*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            labeled_circle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. \color[white]{Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % This result contradicts to the axiom 
+    % of congruence of segments which asserts that each 
+    % segments is congruent to itself.
+    \dorecurse{10*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            labeled_circle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; \color[white]{therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Thus the suggestion 
+    % of the existence of two (\im{P} and \im{O}) or more 
+    % distinct centres is false; 
+    \dorecurse{9*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            labeled_circle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, \color[white]{{\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % therefore a circle cannot 
+    % have more than one centre,
+    \dorecurse{5*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            labeled_circle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.2} A circle cannot have more than one 
+            centre.\par {\it Proof.} Let us suggest that the conclusion 
+            of the theorem is false; in particular that a circle has 
+            two or more centres. Let us denote just two of these centres
+            \im{O} and \im{P}.\par According to AXIOM 1, there is 
+            exactly one line that passes through points \im{O} and 
+            \im{P}. Let \im{M} and \im{N} be the points of intersection 
+            of this line with the circle.\par Since we have suggested
+            that \im{O} is a centre of the circle, the segments 
+            \im{NO} and \im{OM} are congruent as two radii of the 
+            circle centred at \im{O}: \im{NO=OM}. Similarly,
+            \im{NP=PM} as two radii of the circle centred at 
+            \im{P}.\par Point \im{O} lies in the interior of 
+            \im{NP}, hence \im{NO<NP}; similarly, \im{PM<OM}.
+            Then we can write: \dm{NO<NP=PM<OM=NO}, which means 
+            that \im{NO<NO}. This result contradicts to the axiom 
+            of congruence of segments which asserts that each 
+            segments is congruent to itself. Thus the suggestion 
+            of the existence of two (\im{P} and \im{O}) or more 
+            distinct centres is false; therefore a circle cannot 
+            have more than one centre, {\bf Q.E.D.}
+        \stopframed
+    \stopbuffer
+    % {\bf Q.E.D.}
+    \dorecurse{15*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            labeled_circle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+\stoptext
