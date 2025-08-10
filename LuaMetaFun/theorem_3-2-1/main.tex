@@ -1,0 +1,956 @@
+% main.tex
+% gs -dNOPAUSE -dBATCH -sDEVICE=png16m -sOutputFile=out%03d.png -r1000x1000 main.pdf
+% ffmpeg -framerate 30 -i out%03d.png out.mp4
+% https://tex.stackexchange.com/a/748667
+\unprotect
+    %%% Defined similarly to \obeyMPboxdepth, \ignoreMPboxdepth,
+    %%% \obeyMPboxorigin, and \normalMPboxdepth
+    \permanent\protected\def\strutMPboxdepth{%
+        \let\meta_relocate_box\meta_strut_box_depth%
+    }
+
+    \protected\def\meta_strut_box_depth{%
+        \setbox\b_meta_graphic\vpack{%
+            \box\b_meta_graphic%
+            %%% Add some depth to the box without affecting its size
+            \nohrule height-\openstrutdepth width 0pt depth \openstrutdepth\relax%
+        }
+    }
+
+    %%% The pagecolumns output routine alredy adds a \vfil elsewhere, so the one
+    %%% here isn't needed and disrupts the depth added by \strutMPboxdepth.
+    \let\page_otr_fill_page_unchecked\relax
+\protect
+
+%%% Comment the line below to confirm that an overfull vbox is generated;
+%%% uncomment it to confirm that the overfull vbox message goes away.
+\strutMPboxdepth
+\setupbodyfont[pagella]
+
+
+\definepapersize
+  [youtubeHD]
+  [width=1920bp,height=1080bp]
+\setuppapersize[youtubeHD][youtubeHD]
+\setuplayout[
+    location=middle,
+    width=middle,
+    height=middle,
+    topspace=0pt,
+    backspace=0pt,
+    header=0pt,
+    footer=0pt
+]
+\defineframed[myframed][
+    width=800pt,
+    align=normal,
+    offset=1cm,
+    frame=off
+]
+\setupbodyfont[modern,24pt]
+\ctxloadluafile{parametric.lua}
+\processMPfigurefile{register_mp_cmd.mp}
+
+\startMPinclusions
+def render_theorem_box =
+numeric w, h;
+w := CurrentWidth;
+h := CurrentHeight;
+
+path p;
+p := (-w/2, -h/2) -- (w/2, -h/2) -- (w/2, h/2) -- (-w/2, h/2) -- cycle;
+setbounds currentpicture to p;
+
+picture theorem;
+theorem := textext("\getbuffer[BufA]");
+
+pair center_anchor, topleft_anchor;
+center_anchor := center theorem;
+topleft_anchor := ulcorner theorem;
+
+enddef;
+
+
+def jasper_thin =
+    withpen pencircle scaled .1cm
+enddef ;
+
+def jasper_thick =
+    withpen pencircle scaled .2cm
+enddef ;
+
+def jasper_lightgray =
+    withcolor (0.6)
+enddef ;
+
+def jasper_lightgraypenthin =
+    jasper_lightgray withpen pencircle scaled .1cm
+enddef ;
+
+def jasper_lightgraypenthick =
+    jasper_lightgray withpen pencircle scaled .2cm
+enddef ;
+
+
+def jasper_darkgray =
+    withcolor (0.4)
+enddef ;
+
+def jasper_darkgraypenthin =
+    jasper_darkgray withpen pencircle scaled .15cm
+enddef ;
+
+def jasper_darkgraypenthick =
+    jasper_darkgray withpen pencircle scaled .3cm
+enddef ;
+\stopMPinclusions
+
+
+\starttext
+
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            \color[white]{{\it Proof.} Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            Let us join \im{M} with \im{N} by means of a straight 
+            line. This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, which means such angles exist,
+            {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % initial theorem
+    \dorecurse{7*30}{%
+        \startMPpage
+            render_theorem_box ; 
+            numeric t;
+            t := 0;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    % Translate the theorem to the top right corner.
+    \dorecurse{2*30+1}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := (#1-1)/60;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }%
+    \startMPinclusions
+        def my_text =
+            render_theorem_box ;
+            numeric t;
+            t := 1; 
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        enddef ;
+    \stopMPinclusions%
+    % Pause once the theorem is in place.
+    \dorecurse{4*30}{%
+        \startMPpage
+            my_text ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            {\it Proof.} \color[white]{Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            Let us join \im{M} with \im{N} by means of a straight 
+            line. This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, which means such angles exist,
+            {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % {\it Proof.}
+    \dorecurse{3*30}{%
+        \startMPpage
+            my_text ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            {\it Proof.} Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. \color[white]{Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            Let us join \im{M} with \im{N} by means of a straight 
+            line. This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, which means such angles exist,
+            {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Let \im{AB} be a straight line and \im{M}
+    % be a point not lying on \im{AB}.
+    \dorecurse{10*30}{%
+        \startMPpage
+            my_text ;
+        \stopMPpage%
+    }
+    \startMPinclusions
+        def A_B =
+            my_text ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy+7"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy-7"
+            ] ;
+            jasper_append_label[
+                px="cx+cos(5*pi/4)"
+                ,py="cy+7+sin(5*pi/4)"
+                ,text="\im{A}"
+            ] ;
+            jasper_append_label[
+                px="cx+cos(5*pi/4)"
+                ,py="cy-7+sin(5*pi/4)"
+                ,text="\im{B}"
+            ] ;
+        enddef ;
+    \stopMPinclusions
+    % generate points A and B
+    \dorecurse{3*30}{%
+        \startMPpage
+            A_B ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % draw line AB
+    \dorecurse{2*30}{%
+        \startMPpage
+            A_B ;
+            jasper_curve[
+                ustart="-9"
+                ,ustop="9"
+                ,usamples="200"
+                ,fx="cx"
+                ,fy="cy+u*#1/60"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startMPinclusions
+        def lineAB =
+            A_B ;
+            jasper_curve[
+                ustart="-9"
+                ,ustop="9"
+                ,usamples="20"
+                ,fx="cx"
+                ,fy="cy+u"
+                ,drawcommands="jasper_thin"
+            ] ;
+        enddef ;
+    \stopMPinclusions
+    % pause after drawing line AB
+    \dorecurse{2*30}{%
+        \startMPpage
+            lineAB ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startMPinclusions
+        def point_M =
+            lineAB ;
+            jasper_point[
+                fx="cx-10"
+                ,fy="cy-1"
+            ] ;
+            jasper_append_label[
+                px="cx-10+cos(5*pi/4)"
+                ,py="cy-1+sin(5*pi/4)"
+                ,text="\im{M}"
+            ] ;
+        enddef ;
+    \stopMPinclusions%
+    % draw point M, exterior to AB
+    \dorecurse{5*30}{%
+        \startMPpage
+            point_M ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            {\it Proof.} Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            \color[white]{That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            Let us join \im{M} with \im{N} by means of a straight 
+            line. This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, which means such angles exist,
+            {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Let us subject the 
+    % plane to a type (iii) isometry: reflection in \im{AB}.
+    \dorecurse{10*30}{%
+        \startMPpage
+            point_M ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            {\it Proof.} Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            \color[white]{As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            Let us join \im{M} with \im{N} by means of a straight 
+            line. This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, which means such angles exist,
+            {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % That means the isometry will carry every point on one 
+    % side of \im{AB} into a point lying on the other side 
+    % of this line, and every point of \im{AB} will remain 
+    % stationary.
+    \dorecurse{15*30}{%
+        \startMPpage
+            point_M ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            {\it Proof.} Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            \color[white]{Let us join \im{M} with \im{N} by means of a straight 
+            line. This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, which means such angles exist,
+            {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % As a result of this transformation, point \im{M} will 
+    % be carried into some point \im{N} lying on the other 
+    % side of \im{AB}.
+    \dorecurse{13*30}{%
+        \startMPpage
+            point_M ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    % move N into position
+    \dorecurse{3*30}{%
+        \startMPpage
+            point_M ;
+            jasper_point[
+                fx="cx-10+20*#1/90"
+                ,fy="cy-1"
+            ] ;
+            jasper_append_label[
+                px="cx-10+20*#1/90+cos(5*pi/4)"
+                ,py="cy-1+sin(5*pi/4)"
+                ,text="\im{N}"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startMPinclusions
+        def point_N =
+            point_M ;
+            jasper_point[
+                fx="cx-10+20"
+                ,fy="cy-1"
+            ] ;
+            jasper_append_label[
+                px="cx-10+20+cos(5*pi/4)"
+                ,py="cy-1+sin(5*pi/4)"
+                ,text="\im{N}"
+            ] ;
+        enddef ;
+    \stopMPinclusions
+    % point N
+    \dorecurse{5*30}{%
+        \startMPpage
+            point_N ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            {\it Proof.} Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            Let us join \im{M} with \im{N} by means of a straight 
+            line. \color[white]{This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, which means such angles exist,
+            {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Let us join \im{M} with \im{N} by means of a straight 
+    % line.
+    \dorecurse{7*30}{%
+        \startMPpage
+            point_N ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    % draw line MN
+    \dorecurse{3*30}{%
+        \startMPpage
+            point_N ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="20"
+                ,usamples="200"
+                ,fx="cx-10+u*#1/90"
+                ,fy="cy-1"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startMPinclusions
+        def lineMN =
+            point_N ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="20"
+                ,usamples="200"
+                ,fx="cx-10+u"
+                ,fy="cy-1"
+                ,drawcommands="jasper_thin"
+            ] ;
+        enddef ;
+    \stopMPinclusions%
+    % pause after drawing MN
+    \dorecurse{5*30}{%
+        \startMPpage
+            lineMN ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            {\it Proof.} Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            Let us join \im{M} with \im{N} by means of a straight 
+            line. This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            \color[white]{Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, which means such angles exist,
+            {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % This line will intersect \im{AB} at 
+    % some point, which we shall denote \im{C}.
+    \dorecurse{10*30}{%
+        \startMPpage
+            lineMN ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startMPinclusions
+        def pointC =
+            lineMN ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy-1"
+            ] ;
+            jasper_append_label[
+                px="cx+cos(5*pi/4)"
+                ,py="cy-1+sin(5*pi/4)"
+                ,text="\im{C}"
+            ] ;
+        enddef ;
+    \stopMPinclusions%
+    % point C
+    \dorecurse{5*30}{%
+        \startMPpage
+            pointC ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            {\it Proof.} Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            Let us join \im{M} with \im{N} by means of a straight 
+            line. This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, \color[white]{which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, which means such angles exist,
+            {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Since \im{CA} does not move as a result of the isometry
+    % performed, \im{\angle MCA} is transformed into 
+    % \im{\angle NCA},
+    \dorecurse{12*30}{%
+        \startMPpage
+            pointC ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    % build \im{\angle MCA}
+    \dorecurse{4*30}{%
+        \startMPpage
+            pointC ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="pi/2"
+                ,fx="cx+2*cos(pi-u*#1/120)"
+                ,fy="cy-1+2*sin(pi-u*#1/120)"
+                ,fz="1"
+                ,drawcommands="jasper_lightgraypenthin"
+            ] ;
+            jasper_curve[
+                ustart="0.8"
+                ,ustop="1.2"
+                ,fx="cx+u*2*cos(pi-(pi/4)*#1/120)"
+                ,fy="cy-1+u*2*sin(pi-(pi/4)*#1/120)"
+                ,fz="1"
+                ,drawcommands="jasper_lightgraypenthin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    % pause after building angle MCA
+    \dorecurse{4*30}{%
+        \startMPpage
+            pointC ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="pi/2"
+                ,fx="cx+2*cos(pi-u)"
+                ,fy="cy-1+2*sin(pi-u)"
+                ,fz="1"
+                ,drawcommands="jasper_lightgraypenthin"
+            ] ;
+            jasper_curve[
+                ustart="0.8"
+                ,ustop="1.2"
+                ,fx="cx+u*2*cos(pi-(pi/4))"
+                ,fy="cy-1+u*2*sin(pi-(pi/4))"
+                ,fz="1"
+                ,drawcommands="jasper_lightgraypenthin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startMPinclusions
+        def leftangle =
+            pointC ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="pi/2"
+                ,fx="cx+2*cos(pi-u)"
+                ,fy="cy-1+2*sin(pi-u)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_curve[
+                ustart="0.8"
+                ,ustop="1.2"
+                ,fx="cx+u*2*cos(pi-(pi/4))"
+                ,fy="cy-1+u*2*sin(pi-(pi/4))"
+                ,drawcommands="jasper_thin"
+            ] ;
+        enddef ;
+    \stopMPinclusions%
+    % build angle NCA
+    \dorecurse{4*30}{%
+        \startMPpage
+            leftangle ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="pi/2"
+                ,fx="cx+2*cos(pi-u-(pi/2)*#1/120)"
+                ,fy="cy-1+2*sin(pi-u-(pi/2)*#1/120)"
+                ,fz="5"
+                ,drawcommands="jasper_lightgraypenthin"
+            ] ;
+            jasper_curve[
+                ustart="0.8"
+                ,ustop="1.2"
+                ,fx="cx+u*2*cos(pi-(pi/4)-(pi/2)*#1/120)"
+                ,fy="cy-1+u*2*sin(pi-(pi/4)-(pi/2)*#1/120)"
+                ,drawcommands="jasper_lightgraypenthin"
+                ,fz="5"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startMPinclusions
+        def rightangle =
+            leftangle ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="pi/2"
+                ,fx="cx+2*cos(pi-u-(pi/2))"
+                ,fy="cy-1+2*sin(pi-u-(pi/2))"
+                ,fz="1"
+                ,drawcommands="jasper_lightgraypenthin"
+            ] ;
+            jasper_curve[
+                ustart="0.8"
+                ,ustop="1.2"
+                ,fx="cx+u*2*cos(pi-(pi/4)-(pi/2))"
+                ,fy="cy-1+u*2*sin(pi-(pi/4)-(pi/2))"
+                ,drawcommands="jasper_lightgraypenthin"
+                ,fz="1"
+            ] ;
+        enddef ;
+    \stopMPinclusions%
+    % pause after building NCA
+    \dorecurse{4*30}{%
+        \startMPpage
+            rightangle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            {\it Proof.} Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            Let us join \im{M} with \im{N} by means of a straight 
+            line. This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. \color[white]{At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, which means such angles exist,
+            {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % which means that these two angles 
+    % are congruent: \im{\angle MCA = \angle NCA}.\
+    \dorecurse{8*30}{%
+        \startMPpage
+            rightangle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            {\it Proof.} Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            Let us join \im{M} with \im{N} by means of a straight 
+            line. This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. \color[white]{Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, which means such angles exist,
+            {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % At the 
+    % same time, since the two sides (\im{MC} and \im{CN})
+    % of these angles extend each other into a straight line
+    % (\im{MN}), these angles are supplementary.
+    \dorecurse{15*30}{%
+        \startMPpage
+            rightangle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            {\it Proof.} Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            Let us join \im{M} with \im{N} by means of a straight 
+            line. This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, \color[white]{which means such angles exist,
+            {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Therefore
+    % \im{\angle MCA} and \im{\angle NCA} are congruent 
+    % supplementary angles,
+    \dorecurse{10*30}{%
+        \startMPpage
+            rightangle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            {\it Proof.} Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            Let us join \im{M} with \im{N} by means of a straight 
+            line. This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, which means such angles exist,
+            \color[white]{{\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % which means such angles exist,
+    \dorecurse{5*30}{%
+        \startMPpage
+            rightangle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 3.2.1} There exists an angle congruent to
+            its supplement.\par 
+            {\it Proof.} Let \im{AB} be a straight line and \im{M}
+            be a point not lying on \im{AB}. Let us subject the 
+            plane to a type (iii) isometry: reflection in \im{AB}.
+            That means the isometry will carry every point on one 
+            side of \im{AB} into a point lying on the other side 
+            of this line, and every point of \im{AB} will remain 
+            stationary.\par 
+            As a result of this transformation, point \im{M} will 
+            be carried into some point \im{N} lying on the other 
+            side of \im{AB}.\par
+            Let us join \im{M} with \im{N} by means of a straight 
+            line. This line will intersect \im{AB} at 
+            some point, which we shall denote \im{C}.\par 
+            Since \im{CA} does not move as a result of the isometry
+            performed, \im{\angle MCA} is transformed into 
+            \im{\angle NCA}, which means that these two angles 
+            are congruent: \im{\angle MCA = \angle NCA}. At the 
+            same time, since the two sides (\im{MC} and \im{CN})
+            of these angles extend each other into a straight line
+            (\im{MN}), these angles are supplementary. Therefore
+            \im{\angle MCA} and \im{\angle NCA} are congruent 
+            supplementary angles, which means such angles exist,
+            {\bf Q.E.D.}
+        \stopframed
+    \stopbuffer
+    % {\bf Q.E.D.}
+    \dorecurse{10*30}{%
+        \startMPpage
+            rightangle ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }%
+\stoptext

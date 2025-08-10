@@ -1,0 +1,2000 @@
+% main.tex
+% gs -dNOPAUSE -dBATCH -sDEVICE=png16m -sOutputFile=out%03d.png -r1000x1000 main.pdf
+% ffmpeg -framerate 30 -i out%03d.png out.mp4
+% https://tex.stackexchange.com/a/748667
+\unprotect
+    %%% Defined similarly to \obeyMPboxdepth, \ignoreMPboxdepth,
+    %%% \obeyMPboxorigin, and \normalMPboxdepth
+    \permanent\protected\def\strutMPboxdepth{%
+        \let\meta_relocate_box\meta_strut_box_depth%
+    }
+
+    \protected\def\meta_strut_box_depth{%
+        \setbox\b_meta_graphic\vpack{%
+            \box\b_meta_graphic%
+            %%% Add some depth to the box without affecting its size
+            \nohrule height-\openstrutdepth width 0pt depth \openstrutdepth\relax%
+        }
+    }
+
+    %%% The pagecolumns output routine alredy adds a \vfil elsewhere, so the one
+    %%% here isn't needed and disrupts the depth added by \strutMPboxdepth.
+    \let\page_otr_fill_page_unchecked\relax
+\protect
+
+%%% Comment the line below to confirm that an overfull vbox is generated;
+%%% uncomment it to confirm that the overfull vbox message goes away.
+\strutMPboxdepth
+\setupbodyfont[pagella]
+
+
+\definepapersize
+  [youtubeHD]
+  [width=1920bp,height=1080bp]
+\setuppapersize[youtubeHD][youtubeHD]
+\setuplayout[
+    location=middle,
+    width=middle,
+    height=middle,
+    topspace=0pt,
+    backspace=0pt,
+    header=0pt,
+    footer=0pt
+]
+\defineframed[myframed][
+    width=800pt,
+    align=normal,
+    offset=1cm,
+    frame=off
+]
+\setupbodyfont[modern,24pt]
+\ctxloadluafile{parametric.lua}
+\processMPfigurefile{register_mp_cmd.mp}
+
+\startbuffer[BufA]
+    \startframed[myframed]
+        {\bf Theorem 2.2.1} Congruent arcs (of the same circle) are 
+        subtended by congruent chords.
+    \stopframed
+\stopbuffer
+
+\startMPcode
+def render_theorem_box =
+numeric w, h;
+w := CurrentWidth;
+h := CurrentHeight;
+
+path p;
+p := (-w/2, -h/2) -- (w/2, -h/2) -- (w/2, h/2) -- (-w/2, h/2) -- cycle;
+setbounds currentpicture to p;
+
+picture theorem;
+theorem := textext("\getbuffer[BufA]");
+
+pair center_anchor, topleft_anchor;
+center_anchor := center theorem;
+topleft_anchor := ulcorner theorem;
+
+enddef;
+
+
+def jasper_thin =
+    withpen pencircle scaled .1cm
+enddef ;
+
+def jasper_thick =
+    withpen pencircle scaled .2cm
+enddef ;
+
+def jasper_lightgray =
+    withcolor (0.6)
+enddef ;
+
+def jasper_lightgraypenthin =
+    jasper_lightgray withpen pencircle scaled .1cm
+enddef ;
+
+def jasper_lightgraypenthick =
+    jasper_lightgray withpen pencircle scaled .2cm
+enddef ;
+
+
+def jasper_darkgray =
+    withcolor (0.4)
+enddef ;
+
+def jasper_darkgraypenthin =
+    jasper_darkgray withpen pencircle scaled .15cm
+enddef ;
+
+def jasper_darkgraypenthick =
+    jasper_darkgray withpen pencircle scaled .3cm
+enddef ;
+
+
+
+\stopMPcode
+
+\starttext
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.1} Congruent arcs (of the same circle) are 
+            subtended by congruent chords.\color[white]{ That is, if two arcs of a 
+            circle are congruent, then the chords that subtend them are 
+            congruent as well.\par
+            {\it Proof.} Suppose there is a circle, and two arcs in 
+            this circle are congruent: \im{\cup AmB=\cup CnD}.
+            According to the definition of congruence, we can use a 
+            rigid motion (isometry) to superimpose \im{\cup CnD} on 
+            \im{\cup AmB} so that these two arcs will totally coincide.
+            Suppose (for certainty) that point \im{C} coincides with 
+            point \im{A}, and \im{D} coincides with \im{B}.\par
+            Then, by AXIOM 1, there is one and only one straight 
+            segment that connects points \im{A} and \im{B}. Thus,
+            as a result of this isometry, segment \im{CD} will 
+            coincide with \im{AB}, in other words, the two segments
+            are congruent. {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Display the theorem initially, in a prominent location.
+    \dorecurse{7*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 0;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    % Translate the theorem to the top right corner.
+    \dorecurse{2*30+1}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := (#1-1)/60;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    % Pause once the theorem is in place.
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1; 
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.1} Congruent arcs (of the same circle) are 
+            subtended by congruent chords. That is, if two arcs of a 
+            circle are congruent, then the chords that subtend them are 
+            congruent as well.\par
+            \color[white]{{\it Proof.} Suppose there is a circle, and two arcs in 
+            this circle are congruent: \im{\cup AmB=\cup CnD}.
+            According to the definition of congruence, we can use a 
+            rigid motion (isometry) to superimpose \im{\cup CnD} on 
+            \im{\cup AmB} so that these two arcs will totally coincide.
+            Suppose (for certainty) that point \im{C} coincides with 
+            point \im{A}, and \im{D} coincides with \im{B}.\par
+            Then, by AXIOM 1, there is one and only one straight 
+            segment that connects points \im{A} and \im{B}. Thus,
+            as a result of this isometry, segment \im{CD} will 
+            coincide with \im{AB}, in other words, the two segments
+            are congruent. {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % Increase length of text to include an elaboration of the
+    % theorem's meaning.
+    \dorecurse{7*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.1} Congruent arcs (of the same circle) are 
+            subtended by congruent chords. That is, if two arcs of a 
+            circle are congruent, then the chords that subtend them are 
+            congruent as well.\par
+            {\it Proof.} \color[white]{Suppose there is a circle, and two arcs in 
+            this circle are congruent: \im{\cup AmB=\cup CnD}.
+            According to the definition of congruence, we can use a 
+            rigid motion (isometry) to superimpose \im{\cup CnD} on 
+            \im{\cup AmB} so that these two arcs will totally coincide.
+            Suppose (for certainty) that point \im{C} coincides with 
+            point \im{A}, and \im{D} coincides with \im{B}.\par
+            Then, by AXIOM 1, there is one and only one straight 
+            segment that connects points \im{A} and \im{B}. Thus,
+            as a result of this isometry, segment \im{CD} will 
+            coincide with \im{AB}, in other words, the two segments
+            are congruent. {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    % pause for proof.
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.1} Congruent arcs (of the same circle) are 
+            subtended by congruent chords. That is, if two arcs of a 
+            circle are congruent, then the chords that subtend them are 
+            congruent as well.\par
+            {\it Proof.} Suppose there is a circle, and two arcs in 
+            this circle are congruent: \im{\cup AmB=\cup CnD}.
+            \color[white]{According to the definition of congruence, we can use a 
+            rigid motion (isometry) to superimpose \im{\cup CnD} on 
+            \im{\cup AmB} so that these two arcs will totally coincide.
+            Suppose (for certainty) that point \im{C} coincides with 
+            point \im{A}, and \im{D} coincides with \im{B}.\par
+            Then, by AXIOM 1, there is one and only one straight 
+            segment that connects points \im{A} and \im{B}. Thus,
+            as a result of this isometry, segment \im{CD} will 
+            coincide with \im{AB}, in other words, the two segments
+            are congruent. {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+    %  display the assumptions of the proof
+    \dorecurse{7*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    % draw circle's centre
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% origin
+                fx = "-15"
+                ,fy = "5"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % %  extend radius from circle's center
+    \dorecurse{2*30+1}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% radius
+                ustart="0"
+                ,ustop="1"
+                ,usamples="200"
+                ,fx="-15+5*u*(#1-1)/60"
+                ,fy = 5
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% terminal
+                fx = "-15 + 5*(#1-1)/60"
+                ,fy = "5"
+                ,fz="1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+
+    % pause after extending radius
+    \dorecurse{2*30+1}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% radius
+                ustart="0"
+                ,ustop="1"
+                ,usamples="200"
+                ,fx="-15+5*u"
+                ,fy = 5
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% terminal
+                fx = "-15 + 5"
+                ,fy = "5"
+                ,fz="1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % draw the circle
+    \dorecurse{4*30+1}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% centre
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% radius
+                ustart="0",
+                ustop="1",
+                usamples="20",
+                fx="-15 + 5*u*cos(tau*(#1-1)/120)",
+                fy="5 + 5*u*sin(tau*(#1-1)/120)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% terminal
+                fx = "-15 + 5*cos(tau*(#1-1)/120)"
+                ,fy = "5 + 5*sin(tau*(#1-1)/120)"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_curve[% arc
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau*(#1-1)/120)",
+                fy="5 + 5*sin(u*tau*(#1-1)/120)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+
+    % pause after drawing circle
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% radius
+                ustart="0",
+                ustop="1",
+                usamples="20",
+                fx="-15 + 5*u*cos(tau)",
+                fy="5 + 5*u*sin(tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% terminal
+                fx = "-15 + 5*cos(tau)"
+                ,fy = "5 + 5*sin(tau)"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_curve[% circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau)",
+                fy="5 + 5*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % % removed constructions, pause
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% centre
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau)",
+                fy="5 + 5*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % % generate arcs
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% main circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau)",
+                fy="5 + 5*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% first point on top arc
+                fx="-15+5*cos(40*tau/360)"
+                ,fy="5+5*sin(40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(40*tau/360)"
+                ,py="5+6*sin(40*tau/360)"
+                ,text="\im{B}"
+            ] ;
+            jasper_curve[% top arc
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-40)*tau/360*#1/90+40*tau/360)"
+                ,fy="5+5*sin((u-40)*tau/360*#1/90+40*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((150-40)*tau/360*#1/90+40*tau/360)"
+                ,fy="5+5*sin((150-40)*tau/360*#1/90+40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((150-40)*tau/360*#1/90+40*tau/360)"
+                ,py="5+6*sin((150-40)*tau/360*#1/90+40*tau/360)"
+                ,text="\im{A}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((150-40)*tau/360*#1/90+40*tau/360+40*tau/360)/2)"
+                ,py="5+6*sin(((150-40)*tau/360*#1/90+40*tau/360+40*tau/360)/2)"
+                ,text="\im{m}"
+            ] ;
+            jasper_point[% first point on bottom arc
+                fx="-15+5*cos(-10*tau/360)"
+                ,fy="5+5*sin(-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(-10*tau/360)"
+                ,py="5+6*sin(-10*tau/360)"
+                ,text="\im{C}"
+            ] ;
+            jasper_curve[% bottom arc
+                ustart="-10"
+                ,ustop="-120"
+                ,usamples=100
+                ,fx="-15+5*cos((u+10)*tau/360*#1/90-10*tau/360)"
+                ,fy="5+5*sin((u+10)*tau/360*#1/90-10*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((-120+10)*tau/360*#1/90-10*tau/360)"
+                ,fy="5+5*sin((-120+10)*tau/360*#1/90-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((-120+10)*tau/360*#1/90-10*tau/360)"
+                ,py="5+6*sin((-120+10)*tau/360*#1/90-10*tau/360)"
+                ,text="\im{D}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((-120+10)*tau/360*#1/90-10*tau/360-10*tau/360)/2)"
+                ,py="5+6*sin(((-120+10)*tau/360*#1/90-10*tau/360-10*tau/360)/2)"
+                ,text="\im{n}"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % % pause after generating arcs
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% main circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau)",
+                fy="5 + 5*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% first point on top arc
+                fx="-15+5*cos(40*tau/360)"
+                ,fy="5+5*sin(40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(40*tau/360)"
+                ,py="5+6*sin(40*tau/360)"
+                ,text="\im{B}"
+            ] ;
+            jasper_curve[% top arc
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((u-40)*tau/360+40*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((150-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((150-40)*tau/360+40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((150-40)*tau/360+40*tau/360)"
+                ,py="5+6*sin((150-40)*tau/360+40*tau/360)"
+                ,text="\im{A}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,py="5+6*sin(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,text="\im{m}"
+            ] ;
+            jasper_point[% first point on bottom arc
+                fx="-15+5*cos(-10*tau/360)"
+                ,fy="5+5*sin(-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(-10*tau/360)"
+                ,py="5+6*sin(-10*tau/360)"
+                ,text="\im{C}"
+            ] ;
+            jasper_curve[% bottom arc
+                ustart="-10"
+                ,ustop="-120"
+                ,usamples=100
+                ,fx="-15+5*cos((u+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((u+10)*tau/360-10*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((-120+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((-120+10)*tau/360-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((-120+10)*tau/360-10*tau/360)"
+                ,py="5+6*sin((-120+10)*tau/360-10*tau/360)"
+                ,text="\im{D}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,py="5+6*sin(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,text="\im{n}"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.1} Congruent arcs (of the same circle) are 
+            subtended by congruent chords. That is, if two arcs of a 
+            circle are congruent, then the chords that subtend them are 
+            congruent as well.\par
+            {\it Proof.} Suppose there is a circle, and two arcs in 
+            this circle are congruent: \im{\cup AmB=\cup CnD}.
+            According to the definition of congruence, we can use a 
+            rigid motion (isometry) to superimpose \im{\cup CnD} on 
+            \im{\cup AmB} so that these two arcs will totally coincide.
+            \color[white]{Suppose (for certainty) that point \im{C} coincides with 
+            point \im{A}, and \im{D} coincides with \im{B}.\par
+            Then, by AXIOM 1, there is one and only one straight 
+            segment that connects points \im{A} and \im{B}. Thus,
+            as a result of this isometry, segment \im{CD} will 
+            coincide with \im{AB}, in other words, the two segments
+            are congruent. {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+
+    % % add more text
+    \dorecurse{14*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% main circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau)",
+                fy="5 + 5*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% first point on top arc
+                fx="-15+5*cos(40*tau/360)"
+                ,fy="5+5*sin(40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(40*tau/360)"
+                ,py="5+6*sin(40*tau/360)"
+                ,text="\im{B}"
+            ] ;
+            jasper_curve[% top arc
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((u-40)*tau/360+40*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((150-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((150-40)*tau/360+40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((150-40)*tau/360+40*tau/360)"
+                ,py="5+6*sin((150-40)*tau/360+40*tau/360)"
+                ,text="\im{A}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,py="5+6*sin(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,text="\im{m}"
+            ] ;
+            jasper_point[% first point on bottom arc
+                fx="-15+5*cos(-10*tau/360)"
+                ,fy="5+5*sin(-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(-10*tau/360)"
+                ,py="5+6*sin(-10*tau/360)"
+                ,text="\im{C}"
+            ] ;
+            jasper_curve[% bottom arc
+                ustart="-10"
+                ,ustop="-120"
+                ,usamples=100
+                ,fx="-15+5*cos((u+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((u+10)*tau/360-10*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((-120+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((-120+10)*tau/360-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((-120+10)*tau/360-10*tau/360)"
+                ,py="5+6*sin((-120+10)*tau/360-10*tau/360)"
+                ,text="\im{D}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,py="5+6*sin(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,text="\im{n}"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.1} Congruent arcs (of the same circle) are 
+            subtended by congruent chords. That is, if two arcs of a 
+            circle are congruent, then the chords that subtend them are 
+            congruent as well.\par
+            {\it Proof.} Suppose there is a circle, and two arcs in 
+            this circle are congruent: \im{\cup AmB=\cup CnD}.
+            According to the definition of congruence, we can use a 
+            rigid motion (isometry) to superimpose \im{\cup CnD} on 
+            \im{\cup AmB} so that these two arcs will totally coincide.
+            Suppose (for certainty) that point \im{C} coincides with 
+            point \im{A}, and \im{D} coincides with \im{B}.\par
+            \color[white]{Then, by AXIOM 1, there is one and only one straight 
+            segment that connects points \im{A} and \im{B}. Thus,
+            as a result of this isometry, segment \im{CD} will 
+            coincide with \im{AB}, in other words, the two segments
+            are congruent. {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+
+
+    % % add even more text
+    \dorecurse{6*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% main circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau)",
+                fy="5 + 5*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% first point on top arc
+                fx="-15+5*cos(40*tau/360)"
+                ,fy="5+5*sin(40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(40*tau/360)"
+                ,py="5+6*sin(40*tau/360)"
+                ,text="\im{B}"
+            ] ;
+            jasper_curve[% top arc
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((u-40)*tau/360+40*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((150-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((150-40)*tau/360+40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((150-40)*tau/360+40*tau/360)"
+                ,py="5+6*sin((150-40)*tau/360+40*tau/360)"
+                ,text="\im{A}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,py="5+6*sin(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,text="\im{m}"
+            ] ;
+            jasper_point[% first point on bottom arc
+                fx="-15+5*cos(-10*tau/360)"
+                ,fy="5+5*sin(-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(-10*tau/360)"
+                ,py="5+6*sin(-10*tau/360)"
+                ,text="\im{C}"
+            ] ;
+            jasper_curve[% bottom arc
+                ustart="-10"
+                ,ustop="-120"
+                ,usamples=100
+                ,fx="-15+5*cos((u+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((u+10)*tau/360-10*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((-120+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((-120+10)*tau/360-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((-120+10)*tau/360-10*tau/360)"
+                ,py="5+6*sin((-120+10)*tau/360-10*tau/360)"
+                ,text="\im{D}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,py="5+6*sin(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,text="\im{n}"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+
+    % % show an example isometry
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% main circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau)",
+                fy="5 + 5*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% first point on top arc
+                fx="-15+5*cos(40*tau/360)"
+                ,fy="5+5*sin(40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(40*tau/360)"
+                ,py="5+6*sin(40*tau/360)"
+                ,text="\im{B}"
+            ] ;
+            jasper_curve[% top arc
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((u-40)*tau/360+40*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((150-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((150-40)*tau/360+40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((150-40)*tau/360+40*tau/360)"
+                ,py="5+6*sin((150-40)*tau/360+40*tau/360)"
+                ,text="\im{A}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,py="5+6*sin(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,text="\im{m}"
+            ] ;
+            jasper_point[% first point on bottom arc
+                fx="-15+5*cos(-10*tau/360)"
+                ,fy="5+5*sin(-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(-10*tau/360)"
+                ,py="5+6*sin(-10*tau/360)"
+                ,text="\im{C}"
+            ] ;
+            jasper_curve[% bottom arc
+                ustart="-10"
+                ,ustop="-120"
+                ,usamples=100
+                ,fx="-15+5*cos((u+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((u+10)*tau/360-10*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((-120+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((-120+10)*tau/360-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((-120+10)*tau/360-10*tau/360)"
+                ,py="5+6*sin((-120+10)*tau/360-10*tau/360)"
+                ,text="\im{D}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,py="5+6*sin(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,text="\im{n}"
+            ] ;
+            jasper_point[% first point on (red) top arc
+                fx="-15+5*cos((150-160*#1/90)*tau/360)"
+                ,fy="5+5*sin((150-160*#1/90)*tau/360)"
+                ,fz="4"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_append_label[
+                px="-15+4*cos((150-160*#1/90)*tau/360)"
+                ,py="5+4*sin((150-160*#1/90)*tau/360)"
+                ,pz="4"
+                ,text="\im{A'}"
+            ] ;
+            jasper_point[% second point on (red) top arc
+                fx="-15+5*cos((40-160*#1/90)*tau/360)"
+                ,fy="5+5*sin((40-160*#1/90)*tau/360)"
+                ,fz="4"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_append_label[
+                px="-15+4*cos((40-160*#1/90)*tau/360)"
+                ,py="5+4*sin((40-160*#1/90)*tau/360)"
+                ,pz="4"
+                ,text="\im{B'}"
+            ] ;
+            jasper_curve[% top arc (red)
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-160*#1/90)*tau/360)"
+                ,fy="5+5*sin((u-160*#1/90)*tau/360)"
+                ,fz ="3.5"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+
+
+
+    % % pause
+    \dorecurse{5*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% main circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau)",
+                fy="5 + 5*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% first point on top arc
+                fx="-15+5*cos(40*tau/360)"
+                ,fy="5+5*sin(40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(40*tau/360)"
+                ,py="5+6*sin(40*tau/360)"
+                ,text="\im{B}"
+            ] ;
+            jasper_curve[% top arc
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((u-40)*tau/360+40*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((150-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((150-40)*tau/360+40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((150-40)*tau/360+40*tau/360)"
+                ,py="5+6*sin((150-40)*tau/360+40*tau/360)"
+                ,text="\im{A}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,py="5+6*sin(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,text="\im{m}"
+            ] ;
+            jasper_point[% first point on bottom arc
+                fx="-15+5*cos(-10*tau/360)"
+                ,fy="5+5*sin(-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(-10*tau/360)"
+                ,py="5+6*sin(-10*tau/360)"
+                ,text="\im{C}"
+            ] ;
+            jasper_curve[% bottom arc
+                ustart="-10"
+                ,ustop="-120"
+                ,usamples=100
+                ,fx="-15+5*cos((u+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((u+10)*tau/360-10*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((-120+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((-120+10)*tau/360-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((-120+10)*tau/360-10*tau/360)"
+                ,py="5+6*sin((-120+10)*tau/360-10*tau/360)"
+                ,text="\im{D}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,py="5+6*sin(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,text="\im{n}"
+            ] ;
+            jasper_point[% first point on (red) top arc
+                fx="-15+5*cos((150-160)*tau/360)"
+                ,fy="5+5*sin((150-160)*tau/360)"
+                ,fz="4"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_append_label[
+                px="-15+4*cos((150-160)*tau/360)"
+                ,py="5+4*sin((150-160)*tau/360)"
+                ,pz="4"
+                ,text="\im{A'}"
+            ] ;
+            jasper_point[% second point on (red) top arc
+                fx="-15+5*cos((40-160)*tau/360)"
+                ,fy="5+5*sin((40-160)*tau/360)"
+                ,fz="4"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_append_label[
+                px="-15+4*cos((40-160)*tau/360)"
+                ,py="5+4*sin((40-160)*tau/360)"
+                ,pz="4"
+                ,text="\im{B'}"
+            ] ;
+            jasper_curve[% top arc (red)
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-160)*tau/360)"
+                ,fy="5+5*sin((u-160)*tau/360)"
+                ,fz ="3.5"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+
+    % remove grey arc for next highlight to take precedent.
+    \dorecurse{2*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% main circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau)",
+                fy="5 + 5*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% first point on top arc
+                fx="-15+5*cos(40*tau/360)"
+                ,fy="5+5*sin(40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(40*tau/360)"
+                ,py="5+6*sin(40*tau/360)"
+                ,text="\im{B}"
+            ] ;
+            jasper_curve[% top arc
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((u-40)*tau/360+40*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((150-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((150-40)*tau/360+40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((150-40)*tau/360+40*tau/360)"
+                ,py="5+6*sin((150-40)*tau/360+40*tau/360)"
+                ,text="\im{A}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,py="5+6*sin(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,text="\im{m}"
+            ] ;
+            jasper_point[% first point on bottom arc
+                fx="-15+5*cos(-10*tau/360)"
+                ,fy="5+5*sin(-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(-10*tau/360)"
+                ,py="5+6*sin(-10*tau/360)"
+                ,text="\im{C}"
+            ] ;
+            jasper_curve[% bottom arc
+                ustart="-10"
+                ,ustop="-120"
+                ,usamples=100
+                ,fx="-15+5*cos((u+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((u+10)*tau/360-10*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((-120+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((-120+10)*tau/360-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((-120+10)*tau/360-10*tau/360)"
+                ,py="5+6*sin((-120+10)*tau/360-10*tau/360)"
+                ,text="\im{D}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,py="5+6*sin(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,text="\im{n}"
+            ] ;
+            jasper_append_label[
+                px="-15+4*cos((150-160)*tau/360)"
+                ,py="5+4*sin((150-160)*tau/360)"
+                ,pz="4"
+                ,text="\im{A'}"
+            ] ;
+
+            jasper_append_label[
+                px="-15+4*cos((40-160)*tau/360)"
+                ,py="5+4*sin((40-160)*tau/360)"
+                ,pz="4"
+                ,text="\im{B'}"
+            ] ;
+
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.1} Congruent arcs (of the same circle) are 
+            subtended by congruent chords. That is, if two arcs of a 
+            circle are congruent, then the chords that subtend them are 
+            congruent as well.\par
+            {\it Proof.} Suppose there is a circle, and two arcs in 
+            this circle are congruent: \im{\cup AmB=\cup CnD}.
+            According to the definition of congruence, we can use a 
+            rigid motion (isometry) to superimpose \im{\cup CnD} on 
+            \im{\cup AmB} so that these two arcs will totally coincide.
+            Suppose (for certainty) that point \im{C} coincides with 
+            point \im{A}, and \im{D} coincides with \im{B}.\par
+            Then, by AXIOM 1, there is one and only one straight 
+            segment that connects points \im{A} and \im{B}. \color[white]{Thus,
+            as a result of this isometry, segment \im{CD} will 
+            coincide with \im{AB}, in other words, the two segments
+            are congruent. {\bf Q.E.D.}}
+        \stopframed
+    \stopbuffer
+
+    % pause with new text
+    \dorecurse{8*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% main circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau)",
+                fy="5 + 5*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% first point on top arc
+                fx="-15+5*cos(40*tau/360)"
+                ,fy="5+5*sin(40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(40*tau/360)"
+                ,py="5+6*sin(40*tau/360)"
+                ,text="\im{B}"
+            ] ;
+            jasper_curve[% top arc
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((u-40)*tau/360+40*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((150-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((150-40)*tau/360+40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((150-40)*tau/360+40*tau/360)"
+                ,py="5+6*sin((150-40)*tau/360+40*tau/360)"
+                ,text="\im{A}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,py="5+6*sin(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,text="\im{m}"
+            ] ;
+            jasper_point[% first point on bottom arc
+                fx="-15+5*cos(-10*tau/360)"
+                ,fy="5+5*sin(-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(-10*tau/360)"
+                ,py="5+6*sin(-10*tau/360)"
+                ,text="\im{C}"
+            ] ;
+            jasper_curve[% bottom arc
+                ustart="-10"
+                ,ustop="-120"
+                ,usamples=100
+                ,fx="-15+5*cos((u+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((u+10)*tau/360-10*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((-120+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((-120+10)*tau/360-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((-120+10)*tau/360-10*tau/360)"
+                ,py="5+6*sin((-120+10)*tau/360-10*tau/360)"
+                ,text="\im{D}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,py="5+6*sin(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,text="\im{n}"
+            ] ;
+            jasper_point[% first point on (red) top arc
+                fx="-15+5*cos((150-160)*tau/360)"
+                ,fy="5+5*sin((150-160)*tau/360)"
+                ,fz="4"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+4*cos((150-160)*tau/360)"
+                ,py="5+4*sin((150-160)*tau/360)"
+                ,pz="4"
+                ,text="\im{A'}"
+            ] ;
+            jasper_point[% first point on (red) top arc
+                fx="-15+5*cos((40-160)*tau/360)"
+                ,fy="5+5*sin((40-160)*tau/360)"
+                ,fz="4"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+4*cos((40-160)*tau/360)"
+                ,py="5+4*sin((40-160)*tau/360)"
+                ,pz="4"
+                ,text="\im{B'}"
+            ] ;
+            jasper_curve[% top arc (red)
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-160)*tau/360)"
+                ,fy="5+5*sin((u-160)*tau/360)"
+                ,fz ="3.5"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+
+    % % draw straightedge
+    \dorecurse{7*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% main circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau)",
+                fy="5 + 5*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% first point on top arc
+                fx="-15+5*cos(40*tau/360)"
+                ,fy="5+5*sin(40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(40*tau/360)"
+                ,py="5+6*sin(40*tau/360)"
+                ,text="\im{B}"
+            ] ;
+            jasper_curve[% top arc
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((u-40)*tau/360+40*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((150-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((150-40)*tau/360+40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((150-40)*tau/360+40*tau/360)"
+                ,py="5+6*sin((150-40)*tau/360+40*tau/360)"
+                ,text="\im{A}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,py="5+6*sin(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,text="\im{m}"
+            ] ;
+            jasper_point[% first point on bottom arc
+                fx="-15+5*cos(-10*tau/360)"
+                ,fy="5+5*sin(-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(-10*tau/360)"
+                ,py="5+6*sin(-10*tau/360)"
+                ,text="\im{C}"
+            ] ;
+            jasper_curve[% bottom arc
+                ustart="-10"
+                ,ustop="-120"
+                ,usamples=100
+                ,fx="-15+5*cos((u+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((u+10)*tau/360-10*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((-120+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((-120+10)*tau/360-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((-120+10)*tau/360-10*tau/360)"
+                ,py="5+6*sin((-120+10)*tau/360-10*tau/360)"
+                ,text="\im{D}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,py="5+6*sin(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,text="\im{n}"
+            ] ;
+            jasper_point[% first point on (red) top arc
+                fx="-15+5*cos((150-160)*tau/360)"
+                ,fy="5+5*sin((150-160)*tau/360)"
+                ,fz="4"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_append_label[
+                px="-15+4*cos((150-160)*tau/360)"
+                ,py="5+4*sin((150-160)*tau/360)"
+                ,pz="4"
+                ,text="\im{A'}"
+            ] ;
+            jasper_point[% second point on (red) top arc
+                fx="-15+5*cos((40-160)*tau/360)"
+                ,fy="5+5*sin((40-160)*tau/360)"
+                ,fz="4"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_append_label[
+                px="-15+4*cos((40-160)*tau/360)"
+                ,py="5+4*sin((40-160)*tau/360)"
+                ,pz="4"
+                ,text="\im{B'}"
+            ] ;
+            jasper_curve[% straight segment A'B' with more samples
+                ustart="0",
+                ustop="1",
+                usamples=100,
+                fx="(1 - u) * (-15 + 5*cos(-10*tau/360)) + u * (-15 + 5*cos(-120*tau/360))",
+                fy="(1 - u) * (5 + 5*sin(-10*tau/360)) + u * (5 + 5*sin(-120*tau/360))",
+                fz="4",
+                drawcommands="jasper_lightgraypenthick"
+            ];
+
+
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+
+
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.1} Congruent arcs (of the same circle) are 
+            subtended by congruent chords. That is, if two arcs of a 
+            circle are congruent, then the chords that subtend them are 
+            congruent as well.\par
+            {\it Proof.} Suppose there is a circle, and two arcs in 
+            this circle are congruent: \im{\cup AmB=\cup CnD}.
+            According to the definition of congruence, we can use a 
+            rigid motion (isometry) to superimpose \im{\cup CnD} on 
+            \im{\cup AmB} so that these two arcs will totally coincide.
+            Suppose (for certainty) that point \im{C} coincides with 
+            point \im{A}, and \im{D} coincides with \im{B}.\par
+            Then, by AXIOM 1, there is one and only one straight 
+            segment that connects points \im{A} and \im{B}. Thus,
+            as a result of this isometry, segment \im{CD} will 
+            coincide with \im{AB}, in other words, the two segments
+            are congruent. \color[white]{\bf Q.E.D.}
+        \stopframed
+    \stopbuffer
+
+    % finish statement
+    \dorecurse{10*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% main circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau)",
+                fy="5 + 5*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% first point on top arc
+                fx="-15+5*cos(40*tau/360)"
+                ,fy="5+5*sin(40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(40*tau/360)"
+                ,py="5+6*sin(40*tau/360)"
+                ,text="\im{B}"
+            ] ;
+            jasper_curve[% top arc
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((u-40)*tau/360+40*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((150-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((150-40)*tau/360+40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((150-40)*tau/360+40*tau/360)"
+                ,py="5+6*sin((150-40)*tau/360+40*tau/360)"
+                ,text="\im{A}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,py="5+6*sin(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,text="\im{m}"
+            ] ;
+            jasper_point[% first point on bottom arc
+                fx="-15+5*cos(-10*tau/360)"
+                ,fy="5+5*sin(-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(-10*tau/360)"
+                ,py="5+6*sin(-10*tau/360)"
+                ,text="\im{C}"
+            ] ;
+            jasper_curve[% bottom arc
+                ustart="-10"
+                ,ustop="-120"
+                ,usamples=100
+                ,fx="-15+5*cos((u+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((u+10)*tau/360-10*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((-120+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((-120+10)*tau/360-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((-120+10)*tau/360-10*tau/360)"
+                ,py="5+6*sin((-120+10)*tau/360-10*tau/360)"
+                ,text="\im{D}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,py="5+6*sin(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,text="\im{n}"
+            ] ;
+            jasper_point[% first point on (red) top arc
+                fx="-15+5*cos((150-160)*tau/360)"
+                ,fy="5+5*sin((150-160)*tau/360)"
+                ,fz="4"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+4*cos((150-160)*tau/360)"
+                ,py="5+4*sin((150-160)*tau/360)"
+                ,pz="4"
+                ,text="\im{A'}"
+            ] ;
+            jasper_point[% second point on (red) top arc
+                fx="-15+5*cos((40-160)*tau/360)"
+                ,fy="5+5*sin((40-160)*tau/360)"
+                ,fz="4"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+4*cos((40-160)*tau/360)"
+                ,py="5+4*sin((40-160)*tau/360)"
+                ,pz="4"
+                ,text="\im{B'}"
+            ] ;
+            jasper_curve[% top arc (red)
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-160)*tau/360)"
+                ,fy="5+5*sin((u-160)*tau/360)"
+                ,fz ="3.5"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_curve[% straight segment A'B' with more samples
+                ustart="0",
+                ustop="1",
+                usamples=100,
+                fx="(1 - u) * (-15 + 5*cos(-10*tau/360)) + u * (-15 + 5*cos(-120*tau/360))",
+                fy="(1 - u) * (5 + 5*sin(-10*tau/360)) + u * (5 + 5*sin(-120*tau/360))",
+                fz="5",
+                drawcommands="jasper_lightgraypenthick"
+            ];
+
+            jasper_point[% first point on (red) top arc
+                fx="-15+5*cos((150-160)*tau/360)"
+                ,fy="5+5*sin((150-160)*tau/360)"
+                ,fz="6"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[% second point on (red) top arc
+                fx="-15+5*cos((40-160)*tau/360)"
+                ,fy="5+5*sin((40-160)*tau/360)"
+                ,fz="6"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+
+
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+
+
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf Theorem 2.2.1} Congruent arcs (of the same circle) are 
+            subtended by congruent chords. That is, if two arcs of a 
+            circle are congruent, then the chords that subtend them are 
+            congruent as well.\par
+            {\it Proof.} Suppose there is a circle, and two arcs in 
+            this circle are congruent: \im{\cup AmB=\cup CnD}.
+            According to the definition of congruence, we can use a 
+            rigid motion (isometry) to superimpose \im{\cup CnD} on 
+            \im{\cup AmB} so that these two arcs will totally coincide.
+            Suppose (for certainty) that point \im{C} coincides with 
+            point \im{A}, and \im{D} coincides with \im{B}.\par
+            Then, by AXIOM 1, there is one and only one straight 
+            segment that connects points \im{A} and \im{B}. Thus,
+            as a result of this isometry, segment \im{CD} will 
+            coincide with \im{AB}, in other words, the two segments
+            are congruent. {\bf Q.E.D.}
+        \stopframed
+    \stopbuffer
+
+    % Q.E.D.
+    \dorecurse{7*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+            jasper_point[% center
+                fx = "-15"
+                ,fy = "5"
+                ,fz = "1"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+cos(5*pi/4)"
+                ,py="5+sin(5*pi/4)"
+                ,text="\im{O}"
+            ] ;
+            jasper_curve[% main circle
+                ustart="0",
+                ustop="1",
+                usamples="200",
+                fx="-15 + 5*cos(u*tau)",
+                fy="5 + 5*sin(u*tau)"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[% first point on top arc
+                fx="-15+5*cos(40*tau/360)"
+                ,fy="5+5*sin(40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(40*tau/360)"
+                ,py="5+6*sin(40*tau/360)"
+                ,text="\im{B}"
+            ] ;
+            jasper_curve[% top arc
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((u-40)*tau/360+40*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((150-40)*tau/360+40*tau/360)"
+                ,fy="5+5*sin((150-40)*tau/360+40*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((150-40)*tau/360+40*tau/360)"
+                ,py="5+6*sin((150-40)*tau/360+40*tau/360)"
+                ,text="\im{A}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,py="5+6*sin(((150-40)*tau/360+40*tau/360+40*tau/360)/2)"
+                ,text="\im{m}"
+            ] ;
+            jasper_point[% first point on bottom arc
+                fx="-15+5*cos(-10*tau/360)"
+                ,fy="5+5*sin(-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(-10*tau/360)"
+                ,py="5+6*sin(-10*tau/360)"
+                ,text="\im{C}"
+            ] ;
+            jasper_curve[% bottom arc
+                ustart="-10"
+                ,ustop="-120"
+                ,usamples=100
+                ,fx="-15+5*cos((u+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((u+10)*tau/360-10*tau/360)"
+                ,fz ="1"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_point[% second point on top arc
+                ,fx="-15+5*cos((-120+10)*tau/360-10*tau/360)"
+                ,fy="5+5*sin((-120+10)*tau/360-10*tau/360)"
+                ,fz="2"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos((-120+10)*tau/360-10*tau/360)"
+                ,py="5+6*sin((-120+10)*tau/360-10*tau/360)"
+                ,text="\im{D}"
+            ] ;
+            jasper_append_label[
+                px="-15+6*cos(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,py="5+6*sin(((-120+10)*tau/360-10*tau/360-10*tau/360)/2)"
+                ,text="\im{n}"
+            ] ;
+            jasper_point[% first point on (red) top arc
+                fx="-15+5*cos((150-160)*tau/360)"
+                ,fy="5+5*sin((150-160)*tau/360)"
+                ,fz="4"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+4*cos((150-160)*tau/360)"
+                ,py="5+4*sin((150-160)*tau/360)"
+                ,pz="4"
+                ,text="\im{A'}"
+            ] ;
+            jasper_point[% second point on (red) top arc
+                fx="-15+5*cos((40-160)*tau/360)"
+                ,fy="5+5*sin((40-160)*tau/360)"
+                ,fz="4"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_append_label[
+                px="-15+4*cos((40-160)*tau/360)"
+                ,py="5+4*sin((40-160)*tau/360)"
+                ,pz="4"
+                ,text="\im{B'}"
+            ] ;
+            jasper_curve[% top arc (red)
+                ustart="40"
+                ,ustop="150"
+                ,usamples=100
+                ,fx="-15+5*cos((u-160)*tau/360)"
+                ,fy="5+5*sin((u-160)*tau/360)"
+                ,fz ="3.5"
+                ,drawcommands="withcolor black"
+            ] ;
+            jasper_curve[% straight segment A'B' with more samples
+                ustart="0",
+                ustop="1",
+                usamples=100,
+                fx="(1 - u) * (-15 + 5*cos(-10*tau/360)) + u * (-15 + 5*cos(-120*tau/360))",
+                fy="(1 - u) * (5 + 5*sin(-10*tau/360)) + u * (5 + 5*sin(-120*tau/360))",
+                fz="5",
+                drawcommands="jasper_lightgraypenthick"
+            ];
+
+            jasper_point[% first point on segment
+                fx="-15+5*cos((150-160)*tau/360)"
+                ,fy="5+5*sin((150-160)*tau/360)"
+                ,fz="6"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[% second point on segment
+                fx="-15+5*cos((40-160)*tau/360)"
+                ,fy="5+5*sin((40-160)*tau/360)"
+                ,fz="6"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+
+
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+\stoptext
