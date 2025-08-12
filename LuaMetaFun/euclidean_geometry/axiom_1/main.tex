@@ -1,0 +1,727 @@
+% main.tex
+% gs -dNOPAUSE -dBATCH -sDEVICE=png16m -sOutputFile=out%03d.png -r1000x1000 main.pdf
+% ffmpeg -framerate 30 -i out%03d.png out.mp4
+% https://tex.stackexchange.com/a/748667
+\unprotect
+    %%% Defined similarly to \obeyMPboxdepth, \ignoreMPboxdepth,
+    %%% \obeyMPboxorigin, and \normalMPboxdepth
+    \permanent\protected\def\strutMPboxdepth{%
+        \let\meta_relocate_box\meta_strut_box_depth%
+    }
+
+    \protected\def\meta_strut_box_depth{%
+        \setbox\b_meta_graphic\vpack{%
+            \box\b_meta_graphic%
+            %%% Add some depth to the box without affecting its size
+            \nohrule height-\openstrutdepth width 0pt depth \openstrutdepth\relax%
+        }
+    }
+
+    %%% The pagecolumns output routine alredy adds a \vfil elsewhere, so the one
+    %%% here isn't needed and disrupts the depth added by \strutMPboxdepth.
+    \let\page_otr_fill_page_unchecked\relax
+\protect
+
+%%% Comment the line below to confirm that an overfull vbox is generated;
+%%% uncomment it to confirm that the overfull vbox message goes away.
+\strutMPboxdepth
+\setupbodyfont[pagella]
+
+
+\definepapersize
+  [youtubeHD]
+  [width=1920bp,height=1080bp]
+\setuppapersize[youtubeHD][youtubeHD]
+\setuplayout[
+    location=middle,
+    width=middle,
+    height=middle,
+    topspace=0pt,
+    backspace=0pt,
+    header=0pt,
+    footer=0pt
+]
+\defineframed[myframed][
+    width=800pt,
+    align=normal,
+    offset=1cm,
+    frame=off,
+    indenting={yes,medium}
+]
+\setupbodyfont[modern,24pt]
+\ctxloadluafile{parametric.lua}
+\processMPfigurefile{register_mp_cmd.mp}
+
+\startMPinclusions
+def render_theorem_box =
+numeric w, h;
+w := CurrentWidth;
+h := CurrentHeight;
+
+path p;
+p := (-w/2, -h/2) -- (w/2, -h/2) -- (w/2, h/2) -- (-w/2, h/2) -- cycle;
+setbounds currentpicture to p;
+
+picture theorem;
+theorem := textext("\getbuffer[BufA]");
+
+pair center_anchor, topleft_anchor;
+center_anchor := center theorem;
+topleft_anchor := ulcorner theorem;
+
+enddef;
+
+
+def jasper_thin =
+    withpen pencircle scaled .1cm
+enddef ;
+
+def jasper_thick =
+    withpen pencircle scaled .2cm
+enddef ;
+
+def jasper_lightgray =
+    withcolor (0.6)
+enddef ;
+
+def jasper_lightgraypenthin =
+    jasper_lightgray withpen pencircle scaled .1cm
+enddef ;
+
+def jasper_lightgraypenthick =
+    jasper_lightgray withpen pencircle scaled .2cm
+enddef ;
+
+
+def jasper_darkgray =
+    withcolor (0.4)
+enddef ;
+
+def jasper_darkgraypenthin =
+    jasper_darkgray withpen pencircle scaled .15cm
+enddef ;
+
+def jasper_darkgraypenthick =
+    jasper_darkgray withpen pencircle scaled .3cm
+enddef ;
+\stopMPinclusions
+
+
+
+
+\starttext
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 1} Given any two points in space, one and 
+            only one line can be drawn through these points.\par
+            \color[white]{It follows from AXIOM 1 that if any two points of a 
+            line coincide with two points of some other line, 
+            then these lines coincide in all their points.
+            (Otherwise it would be possible to draw two 
+            distinct lines through a given pair of points).\par 
+            Therefore, two distinct lines may intersect only at 
+            one point.\par 
+            Let us emphasize that AXIOM 1 asserts not only the 
+            existence of a line through a pair of points but also 
+            the fact that such a line can be drawn.\par 
+            Thus AXIOM 1 implies the existence of an instrument 
+            that allows us to draw a straight line through any 
+            pair of points. Such an instrument is called a 
+            straightedge.}
+        \stopframed
+    \stopbuffer
+    % Display the theorem initially, in a prominent location.
+    \dorecurse{7*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 0;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    % Translate the theorem to the top right corner.
+    \dorecurse{2*30+1}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := (#1-1)/60;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    % Pause once the theorem is in place.
+    \dorecurse{3*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    \startMPinclusions
+        def mytext =
+            render_theorem_box ;
+            numeric t;
+            t := 1; 
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        enddef ;
+        def points_LO =
+            jasper_point[
+                fx="cx"
+                ,fy="cy+5"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy-5"
+            ] ;
+        enddef ;
+    \stopMPinclusions%
+    % draw two points
+    \dorecurse{4*30}{%
+        \startMPpage
+            mytext ;
+            points_LO ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % draw a line through the points
+    \dorecurse{3*30}{%
+        \startMPpage
+            mytext ;
+            points_LO ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx"
+                ,fy="cy+7-14*u*#1/90"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause after drawing the line
+    \startMPinclusions
+        def lineone =
+            points_LO ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx"
+                ,fy="cy+7-14*u"
+            ] ;
+        enddef ;
+    \stopMPinclusions%
+    \dorecurse{3*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 1} Given any two points in space, one and 
+            only one line can be drawn through these points.\par
+            It follows from AXIOM 1 that if any two points of a 
+            line coincide with two points of some other line, 
+            then these lines coincide in all their points.
+            \color[white]{(Otherwise it would be possible to draw two 
+            distinct lines through a given pair of points).\par 
+            Therefore, two distinct lines may intersect only at 
+            one point.\par 
+            Let us emphasize that AXIOM 1 asserts not only the 
+            existence of a line through a pair of points but also 
+            the fact that such a line can be drawn.\par 
+            Thus AXIOM 1 implies the existence of an instrument 
+            that allows us to draw a straight line through any 
+            pair of points. Such an instrument is called a 
+            straightedge.}
+        \stopframed
+    \stopbuffer
+    % It follows from AXIOM 1 that if any two points of a 
+    % line coincide with two points of some other line, 
+    % then these lines coincide in all their points.
+    \dorecurse{10*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % draw two points of second line
+    \dorecurse{4*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy+5"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-13,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6)
+                            ,translate(cx,cy-13,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy-5"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-13,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6)
+                            ,translate(cx,cy-13,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % draw line through those points
+    \dorecurse{3*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy+5"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-13,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6)
+                            ,translate(cx,cy-13,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy-5"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-13,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6)
+                            ,translate(cx,cy-13,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx"
+                ,fy="cy+7-14*u*#1/90"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-13,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6)
+                            ,translate(cx,cy-13,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause after drawing line through new pair of points
+    \dorecurse{4*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy+5"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-13,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6)
+                            ,translate(cx,cy-13,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy-5"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-13,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6)
+                            ,translate(cx,cy-13,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx"
+                ,fy="cy+7-14*u"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-13,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6)
+                            ,translate(cx,cy-13,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % undo the transformation to coincide the lines
+    \def\myT{
+        matrix_multiply(
+            inverse(translate(cx,cy-13,0))
+            ,matrix_multiply(
+                zrotation(pi/6)
+                ,translate(cx,cy-13,0)
+            )
+        )
+    }%
+    \dorecurse{3*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            
+            jasper_point[
+                fx="cx"
+                ,fy="cy+5"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-13,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6*(1-#1/90))
+                            ,translate(cx,cy-13,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy-5"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-13,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6*(1-#1/90))
+                            ,translate(cx,cy-13,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx"
+                ,fy="cy+7-14*u"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-13,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6*(1-#1/90))
+                            ,translate(cx,cy-13,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause at the first line, after the second one is made to coincide it
+    \dorecurse{3*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            jasper_render_segments ;
+        \stopMPpage
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 1} Given any two points in space, one and 
+            only one line can be drawn through these points.\par
+            It follows from AXIOM 1 that if any two points of a 
+            line coincide with two points of some other line, 
+            then these lines coincide in all their points.
+            (Otherwise it would be possible to draw two 
+            distinct lines through a given pair of points).\par 
+            \color[white]{Therefore, two distinct lines may intersect only at 
+            one point.\par 
+            Let us emphasize that AXIOM 1 asserts not only the 
+            existence of a line through a pair of points but also 
+            the fact that such a line can be drawn.\par 
+            Thus AXIOM 1 implies the existence of an instrument 
+            that allows us to draw a straight line through any 
+            pair of points. Such an instrument is called a 
+            straightedge.}
+        \stopframed
+    \stopbuffer
+    % (Otherwise it would be possible to draw two 
+    % distinct lines through a given pair of points).
+    \dorecurse{10*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            jasper_render_segments ;
+        \stopMPpage
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 1} Given any two points in space, one and 
+            only one line can be drawn through these points.\par
+            It follows from AXIOM 1 that if any two points of a 
+            line coincide with two points of some other line, 
+            then these lines coincide in all their points.
+            (Otherwise it would be possible to draw two 
+            distinct lines through a given pair of points).\par 
+            Therefore, two distinct lines may intersect only at 
+            one point.\par 
+            \color[white]{Let us emphasize that AXIOM 1 asserts not only the 
+            existence of a line through a pair of points but also 
+            the fact that such a line can be drawn.\par 
+            Thus AXIOM 1 implies the existence of an instrument 
+            that allows us to draw a straight line through any 
+            pair of points. Such an instrument is called a 
+            straightedge.}
+        \stopframed
+    \stopbuffer
+    % Therefore, two distinct lines may intersect only at 
+    % one point.
+    \dorecurse{10*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            jasper_render_segments ;
+        \stopMPpage
+    }
+    \def\myT{
+        matrix_multiply(
+            inverse(translate(cx,cy-5,0))
+            ,matrix_multiply(
+                zrotation(pi/6)
+                ,translate(cx,cy-5,0)
+            )
+        )
+    }%
+    % show an example rotation
+    \dorecurse{3*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            
+            jasper_point[
+                fx="cx"
+                ,fy="cy+5"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-5,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6*#1/90)
+                            ,translate(cx,cy-5,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy-5"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-5,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6*#1/90)
+                            ,translate(cx,cy-5,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx"
+                ,fy="cy+7-14*u"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-5,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6*#1/90)
+                            ,translate(cx,cy-5,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % undo the rotation
+    \dorecurse{3*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            
+            jasper_point[
+                fx="cx"
+                ,fy="cy+5"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-5,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6*(1-#1/90))
+                            ,translate(cx,cy-5,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy-5"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-5,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6*(1-#1/90))
+                            ,translate(cx,cy-5,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx"
+                ,fy="cy+7-14*u"
+                ,transformation="
+                    matrix_multiply(
+                        inverse(translate(cx,cy-5,0))
+                        ,matrix_multiply(
+                            zrotation(pi/6*(1-#1/90))
+                            ,translate(cx,cy-5,0)
+                        )
+                    )
+                "
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause after completing both rotations
+    \dorecurse{4*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            jasper_render_segments ;
+        \stopMPpage
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 1} Given any two points in space, one and 
+            only one line can be drawn through these points.\par
+            It follows from AXIOM 1 that if any two points of a 
+            line coincide with two points of some other line, 
+            then these lines coincide in all their points.
+            (Otherwise it would be possible to draw two 
+            distinct lines through a given pair of points).\par 
+            Therefore, two distinct lines may intersect only at 
+            one point.\par 
+            Let us emphasize that AXIOM 1 asserts not only the 
+            existence of a line through a pair of points but also 
+            the fact that such a line can be drawn.\par 
+            \color[white]{Thus AXIOM 1 implies the existence of an instrument 
+            that allows us to draw a straight line through any 
+            pair of points. Such an instrument is called a 
+            straightedge.}
+        \stopframed
+    \stopbuffer
+    % Let us emphasize that AXIOM 1 asserts not only the 
+    % existence of a line through a pair of points but also 
+    % the fact that such a line can be drawn.
+    \dorecurse{10*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            jasper_render_segments ;
+        \stopMPpage
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 1} Given any two points in space, one and 
+            only one line can be drawn through these points.\par
+            It follows from AXIOM 1 that if any two points of a 
+            line coincide with two points of some other line, 
+            then these lines coincide in all their points.
+            (Otherwise it would be possible to draw two 
+            distinct lines through a given pair of points).\par 
+            Therefore, two distinct lines may intersect only at 
+            one point.\par 
+            Let us emphasize that AXIOM 1 asserts not only the 
+            existence of a line through a pair of points but also 
+            the fact that such a line can be drawn.\par 
+            Thus AXIOM 1 implies the existence of an instrument 
+            that allows us to draw a straight line through any 
+            pair of points. \color[white]{Such an instrument is called a 
+            straightedge.}
+        \stopframed
+    \stopbuffer
+    % Thus AXIOM 1 implies the existence of an instrument 
+    % that allows us to draw a straight line through any 
+    % pair of points.
+    \dorecurse{10*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            jasper_render_segments ;
+        \stopMPpage
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 1} Given any two points in space, one and 
+            only one line can be drawn through these points.\par
+            It follows from AXIOM 1 that if any two points of a 
+            line coincide with two points of some other line, 
+            then these lines coincide in all their points.
+            (Otherwise it would be possible to draw two 
+            distinct lines through a given pair of points).\par 
+            Therefore, two distinct lines may intersect only at 
+            one point.\par 
+            Let us emphasize that AXIOM 1 asserts not only the 
+            existence of a line through a pair of points but also 
+            the fact that such a line can be drawn.\par 
+            Thus AXIOM 1 implies the existence of an instrument 
+            that allows us to draw a straight line through any 
+            pair of points. Such an instrument is called a 
+            straightedge.
+        \stopframed
+    \stopbuffer
+    % Such an instrument is called a 
+    % straightedge.
+    \dorecurse{15*30}{%
+        \startMPpage
+            mytext ;
+            lineone ;
+            jasper_render_segments ;
+        \stopMPpage
+    }
+\stoptext
