@@ -1,0 +1,1342 @@
+% main.tex
+
+% https://tex.stackexchange.com/a/748667
+\unprotect
+    %%% Defined similarly to \obeyMPboxdepth, \ignoreMPboxdepth,
+    %%% \obeyMPboxorigin, and \normalMPboxdepth
+    \permanent\protected\def\strutMPboxdepth{%
+        \let\meta_relocate_box\meta_strut_box_depth%
+    }
+
+    \protected\def\meta_strut_box_depth{%
+        \setbox\b_meta_graphic\vpack{%
+            \box\b_meta_graphic%
+            %%% Add some depth to the box without affecting its size
+            \nohrule height-\openstrutdepth width 0pt depth \openstrutdepth\relax%
+        }
+    }
+
+    %%% The pagecolumns output routine alredy adds a \vfil elsewhere, so the one
+    %%% here isn't needed and disrupts the depth added by \strutMPboxdepth.
+    \let\page_otr_fill_page_unchecked\relax
+\protect
+
+%%% Comment the line below to confirm that an overfull vbox is generated;
+%%% uncomment it to confirm that the overfull vbox message goes away.
+\strutMPboxdepth
+\setupbodyfont[pagella]
+
+
+\definepapersize
+  [youtubeHD]
+  [width=1920bp,height=1080bp]
+\setuppapersize[youtubeHD][youtubeHD]
+\setuplayout[
+    location=middle,
+    width=middle,
+    height=middle,
+    topspace=0pt,
+    backspace=0pt,
+    header=0pt,
+    footer=0pt
+]
+\defineframed[myframed][
+    width=800pt,
+    align=normal,
+    offset=1cm,
+    frame=off,
+    indenting={yes,medium}
+]
+\setupbodyfont[modern,24pt]
+\ctxloadluafile{parametric.lua}
+\processMPfigurefile{register_mp_cmd.mp}
+
+\startMPinclusions
+def render_theorem_box =
+numeric w, h;
+w := CurrentWidth;
+h := CurrentHeight;
+
+path p;
+p := (-w/2, -h/2) -- (w/2, -h/2) -- (w/2, h/2) -- (-w/2, h/2) -- cycle;
+setbounds currentpicture to p;
+
+picture theorem;
+theorem := textext("\getbuffer[BufA]");
+
+pair center_anchor, topleft_anchor;
+center_anchor := center theorem;
+topleft_anchor := ulcorner theorem;
+
+enddef;
+
+
+def jasper_thin =
+    withpen pencircle scaled .1cm
+enddef ;
+
+def jasper_thick =
+    withpen pencircle scaled .2cm
+enddef ;
+
+def jasper_lightgray =
+    withcolor (0.6)
+enddef ;
+
+def jasper_lightgraypenthin =
+    jasper_lightgray withpen pencircle scaled .1cm
+enddef ;
+
+def jasper_lightgraypenthick =
+    jasper_lightgray withpen pencircle scaled .2cm
+enddef ;
+
+
+def jasper_darkgray =
+    withcolor (0.4)
+enddef ;
+
+def jasper_darkgraypenthin =
+    jasper_darkgray withpen pencircle scaled .15cm
+enddef ;
+
+def jasper_darkgraypenthick =
+    jasper_darkgray withpen pencircle scaled .3cm
+enddef ;
+\stopMPinclusions
+\starttext
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 2} 
+            \startitemize[r][conversion=romannumerals,stopper=,left=(,right=),distance=1em]
+                \item Each segment is congruent to itself: 
+                \im{a=a} (reflexivity);
+                \item If one segment is congruent to another, then
+                the second segment is congruent to the first one:
+                \im{a=b\implies b=a} (symmetry);
+                \item If each of two segments is congruent to 
+                a third segment, then they are also congruent 
+                to each other:
+                \startformula
+                    \startmathalignment[n=1,align=left,location=packed,fences=sesac]
+                        \NC a=c \NR
+                        \NC b=c \NR
+                    \stopmathalignment
+                    \implies a=b
+                \stopformula
+                (transitivity).
+            \stopitemize
+            \color[white]{Segments are said to be congruent or equal
+            to each other if they do not differ from one another,
+            except by their location and orientation. The relation 
+            of congruence is denoted by the \quotation{\im{=}} sign;
+            for instance, \im{AB=MN} or \im{a=b}. The relation of 
+            congruence of segments is  a fundamental undefined
+            notion that obeys AXIOMS 2 and 3.}
+        \stopframed
+    \stopbuffer
+    % Display the theorem initially, in a prominent location.
+    \dorecurse{7*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 0;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    % Translate the theorem to the top right corner.
+    \dorecurse{2*30+1}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := (#1-1)/60;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    % Pause once the theorem is in place.
+    \dorecurse{4*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    \startMPinclusions
+        def mythm =
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        enddef ;
+        runscript(
+            "
+                jasper.math.cx = -15
+                jasper.math.cy = 5
+            "
+        ) ;
+        def points_A =
+            jasper_point[
+                fx="cx-7"
+                ,fy="cy"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+            ] ;
+        enddef ;
+    \stopMPinclusions
+    \definecolor[gray06][s=0.6]
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 2} 
+            \startitemize[r][conversion=romannumerals,stopper=,left=(,right=),distance=1em]
+                \color[gray06]{\item Each segment is congruent to itself: 
+                \im{a=a} (reflexivity);}
+                \item If one segment is congruent to another, then
+                the second segment is congruent to the first one:
+                \im{a=b\implies b=a} (symmetry);
+                \item If each of two segments is congruent to 
+                a third segment, then they are also congruent 
+                to each other:
+                \startformula
+                    \startmathalignment[n=1,align=left,location=packed,fences=sesac]
+                        \NC a=c \NR
+                        \NC b=c \NR
+                    \stopmathalignment
+                    \implies a=b
+                \stopformula
+                (transitivity).
+            \stopitemize
+            \color[white]{Segments are said to be congruent or equal
+            to each other if they do not differ from one another,
+            except by their location and orientation. The relation 
+            of congruence is denoted by the \quotation{\im{=}} sign;
+            for instance, \im{AB=MN} or \im{a=b}. The relation of 
+            congruence of segments is  a fundamental undefined
+            notion that obeys AXIOMS 2 and 3.}
+        \stopframed
+    \stopbuffer
+    % highlight first item
+    \dorecurse{4*30}{%
+        \startMPpage
+            mythm ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % draw two points
+    \dorecurse{4*30}{%
+        \startMPpage
+            mythm ;
+            points_A ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % connect the points
+    \dorecurse{2*30}{%
+        \startMPpage
+            mythm ;
+            points_A ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx-u*7*#1/60"
+                ,fy="cy"
+                ,fz="0"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause
+    \dorecurse{2*30}{%
+        \startMPpage
+            mythm ;
+            points_A ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx-u*7"
+                ,fy="cy"
+                ,fz="0"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % add gray line on top
+    \dorecurse{2*30}{%
+        \startMPpage
+            mythm ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx-u*7"
+                ,fy="cy"
+                ,fz="0"
+                ,drawcommands="jasper_lightgraypenthin"
+            ] ;
+            jasper_point[
+                fx="cx-7"
+                ,fy="cy"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % rotate it around cx 360 degrees, counterclockwise
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            points_A ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx-u*7"
+                ,fy="cy"
+                ,fz="0"
+                ,drawcommands="jasper_thin"
+            ] ;
+
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+u*7*cos(pi-tau*#1/90)"
+                ,fy="cy+u*7*sin(pi-tau*#1/90)"
+                ,fz="1"
+                ,drawcommands="jasper_lightgraypenthin"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="1"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+7*cos(pi-tau*#1/90)"
+                ,fy="cy+7*sin(pi-tau*#1/90)"
+                ,fz="1"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause
+    \dorecurse{2*30}{%
+        \startMPpage
+            mythm ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx-u*7"
+                ,fy="cy"
+                ,fz="0"
+                ,drawcommands="jasper_lightgraypenthin"
+            ] ;
+            jasper_point[
+                fx="cx-7"
+                ,fy="cy"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause after removing gray line
+    \dorecurse{2*30}{%
+        \startMPpage
+            mythm ;
+            points_A ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx-u*7"
+                ,fy="cy"
+                ,fz="0"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % remove segments
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 2} 
+            \startitemize[r][conversion=romannumerals,stopper=,left=(,right=),distance=1em]
+                \item Each segment is congruent to itself: 
+                \im{a=a} (reflexivity);
+                \color[gray06]{\item If one segment is congruent to another, then
+                the second segment is congruent to the first one:
+                \im{a=b\implies b=a} (symmetry);}
+                \item If each of two segments is congruent to 
+                a third segment, then they are also congruent 
+                to each other:
+                \startformula
+                    \startmathalignment[n=1,align=left,location=packed,fences=sesac]
+                        \NC a=c \NR
+                        \NC b=c \NR
+                    \stopmathalignment
+                    \implies a=b
+                \stopformula
+                (transitivity).
+            \stopitemize
+            \color[white]{Segments are said to be congruent or equal
+            to each other if they do not differ from one another,
+            except by their location and orientation. The relation 
+            of congruence is denoted by the \quotation{\im{=}} sign;
+            for instance, \im{AB=MN} or \im{a=b}. The relation of 
+            congruence of segments is  a fundamental undefined
+            notion that obeys AXIOMS 2 and 3.}
+        \stopframed
+    \stopbuffer
+    % \item If one segment is congruent to another, then
+    % the second segment is congruent to the first one:
+    % \im{a=b\implies b=a} (symmetry);
+    \dorecurse{4*30}{%
+        \startMPpage
+            mythm ;
+        \stopMPpage%
+    }
+    % outline two lines
+    \dorecurse{2*30}{%
+        \startMPpage
+            mythm ;
+            jasper_point[
+                fx="cx-3"
+                ,fy="cy"
+            ] ;
+            jasper_point[
+                fx="cx-3-5"
+                ,fy="cy"
+            ] ;
+
+            jasper_point[
+                fx="cx+3"
+                ,fy="cy"
+            ] ;
+            jasper_point[
+                fx="cx+3+5"
+                ,fy="cy"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % draw them
+    \dorecurse{2*30}{%
+        \startMPpage
+            mythm ;
+            jasper_point[
+                fx="cx-3"
+                ,fy="cy"
+            ] ;
+            jasper_point[
+                fx="cx-3-5"
+                ,fy="cy"
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx-3-5*u*#1/60"
+                ,fy="cy"
+                ,fz="1"
+                ,drawcommands="jasper_thin"
+            ] ;
+
+            jasper_point[
+                fx="cx+3"
+                ,fy="cy"
+            ] ;
+            jasper_point[
+                fx="cx+3+5"
+                ,fy="cy"
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+3+5*u*#1/60"
+                ,fy="cy"
+                ,fz="1"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startMPinclusions
+        def basetwo =
+            jasper_point[
+                fx="cx-3"
+                ,fy="cy"
+            ] ;
+            jasper_point[
+                fx="cx-3-5"
+                ,fy="cy"
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx-3-5*u"
+                ,fy="cy"
+                ,fz="1"
+                ,drawcommands="jasper_thin"
+            ] ;
+
+            jasper_point[
+                fx="cx+3"
+                ,fy="cy"
+            ] ;
+            jasper_point[
+                fx="cx+3+5"
+                ,fy="cy"
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+3+5*u"
+                ,fy="cy"
+                ,fz="1"
+                ,drawcommands="jasper_thin"
+            ] ;
+        enddef ;
+    \stopMPinclusions%
+    % pause
+    \dorecurse{2*30}{%
+        \startMPpage
+            mythm ;
+            basetwo ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % highlight them
+    \dorecurse{2*30}{%
+        \startMPpage
+            mythm ;
+            jasper_point[
+                fx="cx-3"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx-3-5"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx-3-5*u"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgraypenthin"
+            ] ;
+
+            jasper_point[
+                fx="cx+3"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+3+5"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+3+5*u"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgraypenthin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % rotate them
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            basetwo ;
+            jasper_point[
+                fx="cx-3"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+                ,transformation="
+                    matrix_multiply(
+                        matrix_multiply(translate(-cx,-cy,0),zrotation(pi*#1/90))
+                        ,translate(cx,cy,0)
+                    )
+                "
+            ] ;
+            jasper_point[
+                fx="cx-3-5"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+                ,transformation="
+                    matrix_multiply(
+                        matrix_multiply(translate(-cx,-cy,0),zrotation(pi*#1/90))
+                        ,translate(cx,cy,0)
+                    )
+                "
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx-3-5*u"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgraypenthin"
+                ,transformation="
+                    matrix_multiply(
+                        matrix_multiply(translate(-cx,-cy,0),zrotation(pi*#1/90))
+                        ,translate(cx,cy,0)
+                    )
+                "
+            ] ;
+
+            jasper_point[
+                fx="cx+3"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+                ,transformation="
+                    matrix_multiply(
+                        matrix_multiply(translate(-cx,-cy,0),zrotation(pi*#1/90))
+                        ,translate(cx,cy,0)
+                    )
+                "
+            ] ;
+            jasper_point[
+                fx="cx+3+5"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+                ,transformation="
+                    matrix_multiply(
+                        matrix_multiply(translate(-cx,-cy,0),zrotation(pi*#1/90))
+                        ,translate(cx,cy,0)
+                    )
+                "
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+3+5*u"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgraypenthin"
+                ,transformation="
+                    matrix_multiply(
+                        matrix_multiply(translate(-cx,-cy,0),zrotation(pi*#1/90))
+                        ,translate(cx,cy,0)
+                    )
+                "
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            basetwo ;
+            jasper_point[
+                fx="cx-3"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+                ,transformation="
+                    matrix_multiply(
+                        matrix_multiply(translate(-cx,-cy,0),zrotation(pi))
+                        ,translate(cx,cy,0)
+                    )
+                "
+            ] ;
+            jasper_point[
+                fx="cx-3-5"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+                ,transformation="
+                    matrix_multiply(
+                        matrix_multiply(translate(-cx,-cy,0),zrotation(pi))
+                        ,translate(cx,cy,0)
+                    )
+                "
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx-3-5*u"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgraypenthin"
+                ,transformation="
+                    matrix_multiply(
+                        matrix_multiply(translate(-cx,-cy,0),zrotation(pi))
+                        ,translate(cx,cy,0)
+                    )
+                "
+            ] ;
+
+            jasper_point[
+                fx="cx+3"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+                ,transformation="
+                    matrix_multiply(
+                        matrix_multiply(translate(-cx,-cy,0),zrotation(pi))
+                        ,translate(cx,cy,0)
+                    )
+                "
+            ] ;
+            jasper_point[
+                fx="cx+3+5"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+                ,transformation="
+                    matrix_multiply(
+                        matrix_multiply(translate(-cx,-cy,0),zrotation(pi))
+                        ,translate(cx,cy,0)
+                    )
+                "
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+3+5*u"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgraypenthin"
+                ,transformation="
+                    matrix_multiply(
+                        matrix_multiply(translate(-cx,-cy,0),zrotation(pi))
+                        ,translate(cx,cy,0)
+                    )
+                "
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % remove lines, pause
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 2} 
+            \startitemize[r][conversion=romannumerals,stopper=,left=(,right=),distance=1em]
+                \item Each segment is congruent to itself: 
+                \im{a=a} (reflexivity);
+                \item If one segment is congruent to another, then
+                the second segment is congruent to the first one:
+                \im{a=b\implies b=a} (symmetry);
+                \color[gray06]{\item If each of two segments is congruent to 
+                a third segment, then they are also congruent 
+                to each other:
+                \startformula
+                    \startmathalignment[n=1,align=left,location=packed,fences=sesac]
+                        \NC a=c \NR
+                        \NC b=c \NR
+                    \stopmathalignment
+                    \implies a=b
+                \stopformula
+                (transitivity).}
+            \stopitemize
+            \color[white]{Segments are said to be congruent or equal
+            to each other if they do not differ from one another,
+            except by their location and orientation. The relation 
+            of congruence is denoted by the \quotation{\im{=}} sign;
+            for instance, \im{AB=MN} or \im{a=b}. The relation of 
+            congruence of segments is  a fundamental undefined
+            notion that obeys AXIOMS 2 and 3.}
+        \stopframed
+    \stopbuffer
+    % highlight third  item of the axiom
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+        \stopMPpage%
+    }
+    \startMPinclusions
+        numeric ir, our ;
+        ir := 2 ;
+        our := 5 ;
+        runscript("jasper.math.ir = " & decimal(ir)) ;
+        runscript("jasper.math.our = " & decimal(our)) ;
+    \stopMPinclusions%
+    % extend three lines
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            numeric timer ;
+            timer := #1/90 ;
+            runscript("jasper.math.timer = " & decimal(timer)) ;
+            for i=0 upto 2:
+                runscript("jasper.math.i = " & decimal(i)) ;
+                jasper_curve[
+                    ustart="0"
+                    ,ustop="1"
+                    ,usamples="2"
+                    ,fx="cx+(ir+u*our*timer)*cos(i*tau/3)"
+                    ,fy="cy+(ir+u*our*timer)*sin(i*tau/3)"
+                    ,fz="0"
+                    ,drawcommands="jasper_thin"
+                ] ;
+            endfor ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause once extended
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            numeric timer ;
+            timer := 1 ;
+            runscript("jasper.math.timer = " & decimal(timer)) ;
+            for i=0 upto 2:
+                runscript("jasper.math.i = " & decimal(i)) ;
+                jasper_curve[
+                    ustart="0"
+                    ,ustop="1"
+                    ,usamples="2"
+                    ,fx="cx+(ir+u*our*timer)*cos(i*tau/3)"
+                    ,fy="cy+(ir+u*our*timer)*sin(i*tau/3)"
+                    ,fz="0"
+                    ,drawcommands="jasper_thin"
+                ] ;
+            endfor ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % move the i=0 spoke into the i=1 spoke (it will eventuall move backward to the i=2 spoke)
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            numeric timer ;
+            timer := 1 ;
+            runscript("jasper.math.timer = " & decimal(timer)) ;
+            numeric timertwo ;
+            timertwo := #1/90 ;
+            runscript("jasper.math.timertwo = " & decimal(timertwo)) ;
+            for i=0 upto 2:
+                runscript("jasper.math.i = " & decimal(i)) ;
+                if i=0:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos((i+timertwo)*tau/3)"
+                        ,fy="cy+(ir+u*our*timer)*sin((i+timertwo)*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                else:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos(i*tau/3)"
+                        ,fy="cy+(ir+u*our*timer)*sin(i*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                fi ;
+            endfor ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause before going backwards to i=2
+    \dorecurse{1*30}{%
+        \startMPpage
+            mythm ;
+            numeric timer ;
+            timer := 1 ;
+            runscript("jasper.math.timer = " & decimal(timer)) ;
+            numeric timertwo ;
+            timertwo := 1 ;
+            runscript("jasper.math.timertwo = " & decimal(timertwo)) ;
+            for i=0 upto 2:
+                runscript("jasper.math.i = " & decimal(i)) ;
+                if i=0:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos((i+timertwo)*tau/3)"
+                        ,fy="cy+(ir+u*our*timer)*sin((i+timertwo)*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                else:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos(i*tau/3)"
+                        ,fy="cy+(ir+u*our*timer)*sin(i*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                fi ;
+            endfor ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % move backwards to i=2
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            numeric timer ;
+            timer := 1 ;
+            runscript("jasper.math.timer = " & decimal(timer)) ;
+            numeric timertwo ;
+            timertwo := 1 ;
+            runscript("jasper.math.timertwo = " & decimal(timertwo)) ;
+            numeric timerthree ;
+            timerthree := #1/90 ;
+            runscript("jasper.math.timerthree = " & decimal(timerthree)) ;
+            for i=0 upto 2:
+                runscript("jasper.math.i = " & decimal(i)) ;
+                if i=0:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos((i+timertwo-2*timerthree)*tau/3)"
+                        ,fy="cy+(ir+u*our*timer)*sin((i+timertwo-2*timerthree)*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                else:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos(i*tau/3)"
+                        ,fy="cy+(ir+u*our*timer)*sin(i*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                fi ;
+            endfor ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause before returning to original position
+    \dorecurse{1*30}{%
+        \startMPpage
+            mythm ;
+            numeric timer ;
+            timer := 1 ;
+            runscript("jasper.math.timer = " & decimal(timer)) ;
+            numeric timertwo ;
+            timertwo := 1 ;
+            runscript("jasper.math.timertwo = " & decimal(timertwo)) ;
+            numeric timerthree ;
+            timerthree := 1 ;
+            runscript("jasper.math.timerthree = " & decimal(timerthree)) ;
+            for i=0 upto 2:
+                runscript("jasper.math.i = " & decimal(i)) ;
+                if i=0:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos((i+timertwo-2*timerthree)*tau/3)"
+                        ,fy="cy+(ir+u*our*timer)*sin((i+timertwo-2*timerthree)*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                else:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos(i*tau/3)"
+                        ,fy="cy+(ir+u*our*timer)*sin(i*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                fi ;
+            endfor ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % return i=0 to its original position
+    \dorecurse{2*30}{%
+        \startMPpage
+            mythm ;
+            numeric timer ;
+            timer := 1 ;
+            runscript("jasper.math.timer = " & decimal(timer)) ;
+            numeric timertwo ;
+            timertwo := 1 ;
+            runscript("jasper.math.timertwo = " & decimal(timertwo)) ;
+            numeric timerthree ;
+            timerthree := 1 ;
+            runscript("jasper.math.timerthree = " & decimal(timerthree)) ;
+            numeric timerfour ;
+            timerfour := #1/60 ;
+            runscript("jasper.math.timerfour = " & decimal(timerfour)) ;
+            for i=0 upto 2:
+                runscript("jasper.math.i = " & decimal(i)) ;
+                if i=0:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos((i+timertwo-2*timerthree+timerfour)*tau/3)"
+                        ,fy="cy+(ir+u*our*timer)*sin((i+timertwo-2*timerthree+timerfour)*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                else:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos(i*tau/3)"
+                        ,fy="cy+(ir+u*our*timer)*sin(i*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                fi ;
+            endfor ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause after returning to the original  position
+    \dorecurse{2*30}{%
+        \startMPpage
+            mythm ;
+            numeric timer ;
+            timer := 1 ;
+            runscript("jasper.math.timer = " & decimal(timer)) ;
+            numeric timertwo ;
+            timertwo := 1 ;
+            runscript("jasper.math.timertwo = " & decimal(timertwo)) ;
+            numeric timerthree ;
+            timerthree := 1 ;
+            runscript("jasper.math.timerthree = " & decimal(timerthree)) ;
+            numeric timerfour ;
+            timerfour := 1 ;
+            runscript("jasper.math.timerfour = " & decimal(timerfour)) ;
+            for i=0 upto 2:
+                runscript("jasper.math.i = " & decimal(i)) ;
+                if i=0:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos((i+timertwo-2*timerthree+timerfour)*tau/3)"
+                        ,fy="cy+(ir+u*our*timer)*sin((i+timertwo-2*timerthree+timerfour)*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                else:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos(i*tau/3)"
+                        ,fy="cy+(ir+u*our*timer)*sin(i*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                fi ;
+            endfor ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % move i=1 and i=2 together
+    \dorecurse{2*30}{%
+        \startMPpage
+            mythm ;
+            numeric timer ;
+            timer := #1/60 ;
+            runscript("jasper.math.timer = " & decimal(timer)) ;
+            for i=0 upto 2:
+                runscript("jasper.math.i = " & decimal(i)) ;
+                if i=0:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our)*cos(i*tau/3)"
+                        ,fy="cy+(ir+u*our)*sin(i*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                elseif i=1:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our)*cos(i*tau/3+timer*tau/6)"
+                        ,fy="cy+(ir+u*our)*sin(i*tau/3+timer*tau/6)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                elseif i=2 :
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our)*cos(i*tau/3-timer*tau/6)"
+                        ,fy="cy+(ir+u*our)*sin(i*tau/3-timer*tau/6)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                fi ;
+            endfor ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause after showing transitivity
+    \dorecurse{5*30}{%
+        \startMPpage
+            mythm ;
+            numeric timer ;
+            timer := 1 ;
+            runscript("jasper.math.timer = " & decimal(timer)) ;
+            for i=0 upto 2:
+                runscript("jasper.math.i = " & decimal(i)) ;
+                if i=0:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos(i*tau/3)"
+                        ,fy="cy+(ir+u*our*timer)*sin(i*tau/3)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                elseif i=1:
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos(i*tau/3+timer*tau/6)"
+                        ,fy="cy+(ir+u*our*timer)*sin(i*tau/3+timer*tau/6)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                elseif i=2 :
+                    jasper_curve[
+                        ustart="0"
+                        ,ustop="1"
+                        ,usamples="2"
+                        ,fx="cx+(ir+u*our*timer)*cos(i*tau/3-timer*tau/6)"
+                        ,fy="cy+(ir+u*our*timer)*sin(i*tau/3-timer*tau/6)"
+                        ,fz="0"
+                        ,drawcommands="jasper_thin"
+                    ] ;
+                fi ;
+            endfor ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % remove segments
+    \dorecurse{2*30}{%
+        \startMPpage
+            mythm ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 2} 
+            \startitemize[r][conversion=romannumerals,stopper=,left=(,right=),distance=1em]
+                \item Each segment is congruent to itself: 
+                \im{a=a} (reflexivity);
+                \item If one segment is congruent to another, then
+                the second segment is congruent to the first one:
+                \im{a=b\implies b=a} (symmetry);
+                \item If each of two segments is congruent to 
+                a third segment, then they are also congruent 
+                to each other:
+                \startformula
+                    \startmathalignment[n=1,align=left,location=packed,fences=sesac]
+                        \NC a=c \NR
+                        \NC b=c \NR
+                    \stopmathalignment
+                    \implies a=b
+                \stopformula
+                (transitivity).
+            \stopitemize
+            Segments are said to be congruent or equal
+            to each other if they do not differ from one another,
+            except by their location and orientation. \color[white]{The relation 
+            of congruence is denoted by the \quotation{\im{=}} sign;
+            for instance, \im{AB=MN} or \im{a=b}. The relation of 
+            congruence of segments is  a fundamental undefined
+            notion that obeys AXIOMS 2 and 3.}
+        \stopframed
+    \stopbuffer
+    % Segments are said to be congruent or equal
+    % to each other if they do not differ from one another,
+    % except by their location and orientation. 
+    \dorecurse{7*30}{%
+        \startMPpage
+            mythm ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 2} 
+            \startitemize[r][conversion=romannumerals,stopper=,left=(,right=),distance=1em]
+                \item Each segment is congruent to itself: 
+                \im{a=a} (reflexivity);
+                \item If one segment is congruent to another, then
+                the second segment is congruent to the first one:
+                \im{a=b\implies b=a} (symmetry);
+                \item If each of two segments is congruent to 
+                a third segment, then they are also congruent 
+                to each other:
+                \startformula
+                    \startmathalignment[n=1,align=left,location=packed,fences=sesac]
+                        \NC a=c \NR
+                        \NC b=c \NR
+                    \stopmathalignment
+                    \implies a=b
+                \stopformula
+                (transitivity).
+            \stopitemize
+            Segments are said to be congruent or equal
+            to each other if they do not differ from one another,
+            except by their location and orientation. The relation 
+            of congruence is denoted by the \quotation{\im{=}} sign;
+            \color[white]{for instance, \im{AB=MN} or \im{a=b}. The relation of 
+            congruence of segments is  a fundamental undefined
+            notion that obeys AXIOMS 2 and 3.}
+        \stopframed
+    \stopbuffer
+    % The relation 
+    % of congruence is denoted by the \quotation{\im{=}} sign;
+    \dorecurse{4*30}{%
+        \startMPpage
+            mythm ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 2} 
+            \startitemize[r][conversion=romannumerals,stopper=,left=(,right=),distance=1em]
+                \item Each segment is congruent to itself: 
+                \im{a=a} (reflexivity);
+                \item If one segment is congruent to another, then
+                the second segment is congruent to the first one:
+                \im{a=b\implies b=a} (symmetry);
+                \item If each of two segments is congruent to 
+                a third segment, then they are also congruent 
+                to each other:
+                \startformula
+                    \startmathalignment[n=1,align=left,location=packed,fences=sesac]
+                        \NC a=c \NR
+                        \NC b=c \NR
+                    \stopmathalignment
+                    \implies a=b
+                \stopformula
+                (transitivity).
+            \stopitemize
+            Segments are said to be congruent or equal
+            to each other if they do not differ from one another,
+            except by their location and orientation. The relation 
+            of congruence is denoted by the \quotation{\im{=}} sign;
+            for instance, \im{AB=MN} or \im{a=b}. \color[white]{The relation of 
+            congruence of segments is  a fundamental undefined
+            notion that obeys AXIOMS 2 and 3.}
+        \stopframed
+    \stopbuffer
+    % for instance, \im{AB=MN} or \im{a=b}.
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 2} 
+            \startitemize[r][conversion=romannumerals,stopper=,left=(,right=),distance=1em]
+                \item Each segment is congruent to itself: 
+                \im{a=a} (reflexivity);
+                \item If one segment is congruent to another, then
+                the second segment is congruent to the first one:
+                \im{a=b\implies b=a} (symmetry);
+                \item If each of two segments is congruent to 
+                a third segment, then they are also congruent 
+                to each other:
+                \startformula
+                    \startmathalignment[n=1,align=left,location=packed,fences=sesac]
+                        \NC a=c \NR
+                        \NC b=c \NR
+                    \stopmathalignment
+                    \implies a=b
+                \stopformula
+                (transitivity).
+            \stopitemize
+            Segments are said to be congruent or equal
+            to each other if they do not differ from one another,
+            except by their location and orientation. The relation 
+            of congruence is denoted by the \quotation{\im{=}} sign;
+            for instance, \im{AB=MN} or \im{a=b}. The relation of 
+            congruence of segments is  a fundamental undefined
+            notion that obeys AXIOMS 2 and 3.
+        \stopframed
+    \stopbuffer
+    % The relation of 
+    % congruence of segments is  a fundamental undefined
+    % notion that obeys AXIOMS 2 and 3.
+    \dorecurse{15*30}{%
+        \startMPpage
+            mythm ;
+        \stopMPpage%
+    }
+\stoptext 

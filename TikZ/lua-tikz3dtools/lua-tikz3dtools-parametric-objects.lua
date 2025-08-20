@@ -127,6 +127,70 @@ local function append_curve(hash)
     end
 end
 
+local function append_fill(hash)
+    local u_start        = hash.u_start
+    local u_stop         = hash.u_stop
+    local u_samples      = hash.u_samples
+    local x              = hash.x
+    local y              = hash.y
+    local z              = hash.z
+    local points         = single_string_expression(hash.points) 
+    local draw_options   = hash.draw_options or ""
+    local fill_options   = hash.fill_options or ""
+    local transformation = single_string_expression(hash.transformation or mm.identity_matrix())
+
+    -- CASE 1: explicit point list
+    if points then
+
+        local transformed = mm.matrix_multiply(points, transformation)
+
+        -- single polygon/triangle insertion
+        table.insert(segments, {
+            segment      = transformed,
+            draw_options = draw_options,
+            fill_options = fill_options
+        })
+        return
+    else
+
+    -- CASE 2: parametric curve
+    x = single_string_function(x)
+    y = single_string_function(y)
+    z = single_string_function(z)
+
+    u_start   = single_string_expression(u_start)
+    u_stop    = single_string_expression(u_stop)
+    u_samples = single_string_expression(u_samples)
+
+    local u_step = (u_stop - u_start) / (u_samples - 1)
+
+    local function parametric_curve(u)
+        return { { x(u), y(u), z(u), 1 } }
+    end
+
+    local S = {}
+    for i = 0, u_samples - 2 do
+        local u = u_start + i * u_step
+        local A = parametric_curve(u)
+        local the_segment = mm.matrix_multiply(A, transformation)
+
+        table.insert(S,
+            the_segment[1]
+        )
+    end
+    table.insert(
+        segments
+        ,{
+            draw_options = draw_options
+            ,fill_options = fill_options
+            ,segment=S
+        }
+    )
+    end
+end
+
+
+
 local function append_surface(hash)
     local u_start        = hash.u_start
     local u_stop         = hash.u_stop
@@ -958,6 +1022,7 @@ local function render_segments()
             end
             table.insert(pts, R)
         end
+    
 
         if not skip then
             if #pts == 2 then
@@ -1009,6 +1074,27 @@ local function render_segments()
 
     segments = {}
 end
+
+rtc.register_tex_cmd(
+    "appendfill",
+    function()
+        append_fill{
+            x              = token.get_macro("tikz@td@p@c@x"),
+            y              = token.get_macro("tikz@td@p@c@y"),
+            z              = token.get_macro("tikz@td@p@c@z"),
+            u_start        = token.get_macro("tikz@td@p@c@umin"),
+            u_stop         = token.get_macro("tikz@td@p@c@umax"),
+            u_samples      = token.get_macro("tikz@td@p@c@usamples"),
+            points         = token.get_macro("tikz@td@p@c@points"),
+            draw_options   = token.get_macro("tikz@td@p@c@drawoptions"),
+            fill_options   = token.get_macro("tikz@td@p@c@filloptions"),
+            name           = token.get_macro("tikz@td@p@c@name"),
+            transformation = token.get_macro("tikz@td@p@c@transformation"),
+        }
+    end,
+    {}
+)
+
 
 rtc.register_tex_cmd(
     "appendlabel",

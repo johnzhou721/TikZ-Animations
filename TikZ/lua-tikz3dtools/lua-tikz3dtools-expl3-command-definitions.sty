@@ -33,6 +33,16 @@
     \__lua_tikztdtools_appendcurve:
     \group_end:
 }
+\NewDocumentCommand { \appendfill } {o} {
+    \group_begin:
+    \tikzset{
+        /lua-tikz3dtools/parametric/curve/.search~also = {/tikz}
+        ,/lua-tikz3dtools/parametric/curve/.cd
+        ,#1
+    }
+    \__lua_tikztdtools_appendfill:
+    \group_end:
+}
 \NewDocumentCommand { \appendsurface } {o} {
     \group_begin:
     \tikzset{
