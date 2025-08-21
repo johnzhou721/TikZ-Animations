@@ -1,0 +1,477 @@
+% main.tex
+
+% https://tex.stackexchange.com/a/748667
+\unprotect
+    %%% Defined similarly to \obeyMPboxdepth, \ignoreMPboxdepth,
+    %%% \obeyMPboxorigin, and \normalMPboxdepth
+    \permanent\protected\def\strutMPboxdepth{%
+        \let\meta_relocate_box\meta_strut_box_depth%
+    }
+
+    \protected\def\meta_strut_box_depth{%
+        \setbox\b_meta_graphic\vpack{%
+            \box\b_meta_graphic%
+            %%% Add some depth to the box without affecting its size
+            \nohrule height-\openstrutdepth width 0pt depth \openstrutdepth\relax%
+        }
+    }
+
+    %%% The pagecolumns output routine alredy adds a \vfil elsewhere, so the one
+    %%% here isn't needed and disrupts the depth added by \strutMPboxdepth.
+    \let\page_otr_fill_page_unchecked\relax
+\protect
+
+%%% Comment the line below to confirm that an overfull vbox is generated;
+%%% uncomment it to confirm that the overfull vbox message goes away.
+\strutMPboxdepth
+\setupbodyfont[pagella]
+
+
+\definepapersize
+  [youtubeHD]
+  [width=1920bp,height=1080bp]
+\setuppapersize[youtubeHD][youtubeHD]
+\setuplayout[
+    location=middle,
+    width=middle,
+    height=middle,
+    topspace=0pt,
+    backspace=0pt,
+    header=0pt,
+    footer=0pt
+]
+\defineframed[myframed][
+    width=800pt,
+    align=normal,
+    offset=1cm,
+    frame=off,
+    indenting={yes,medium}
+]
+\setupbodyfont[modern,24pt]
+\ctxloadluafile{parametric.lua}
+\processMPfigurefile{register_mp_cmd.mp}
+
+\startMPinclusions
+def render_theorem_box =
+numeric w, h;
+w := CurrentWidth;
+h := CurrentHeight;
+
+path p;
+p := (-w/2, -h/2) -- (w/2, -h/2) -- (w/2, h/2) -- (-w/2, h/2) -- cycle;
+setbounds currentpicture to p;
+
+picture theorem;
+theorem := textext("\getbuffer[BufA]");
+
+pair center_anchor, topleft_anchor;
+center_anchor := center theorem;
+topleft_anchor := ulcorner theorem;
+
+enddef;
+
+
+def jasper_thin =
+    withpen pencircle scaled .1cm
+enddef ;
+
+def jasper_thick =
+    withpen pencircle scaled .2cm
+enddef ;
+
+def jasper_lightgray =
+    withcolor (0.6)
+enddef ;
+
+def jasper_lightgraypenthin =
+    jasper_lightgray withpen pencircle scaled .1cm
+enddef ;
+
+def jasper_lightgraypenthick =
+    jasper_lightgray withpen pencircle scaled .2cm
+enddef ;
+
+
+def jasper_darkgray =
+    withcolor (0.4)
+enddef ;
+
+def jasper_darkgraypenthin =
+    jasper_darkgray withpen pencircle scaled .15cm
+enddef ;
+
+def jasper_darkgraypenthick =
+    jasper_darkgray withpen pencircle scaled .3cm
+enddef ;
+\stopMPinclusions
+\starttext
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 3} One and only one segment congruent to 
+            a given segment can be laid off on a ray starting 
+            from the origin.\par
+            \color[white]{If two segments laid off on a ray from its vertex
+            are non-congruent, their second endpoints do not 
+            coincide, and the segment whose second endpoint 
+            lies within the interior of the other segment is 
+            said to be the least of the two. The other segment 
+            is the greatest of the two.}
+        \stopframed
+    \stopbuffer
+    % Display the theorem initially, in a prominent location.
+    \dorecurse{7*30}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := 0;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    % Translate the theorem to the top right corner.
+    \dorecurse{2*30+1}{%
+        \startMPpage
+            render_theorem_box ;
+            numeric t;
+            t := (#1-1)/60;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        \stopMPpage%
+    }
+    \startMPinclusions
+        def mythm =
+            render_theorem_box ;
+            numeric t;
+            t := 1;
+            pair anchor;
+            anchor := (1 - t) * center_anchor + t * topleft_anchor + t * (-2cm, -9cm);
+            label(theorem, (0,3cm) - anchor);
+        enddef ;
+        runscript(
+            "
+                jasper.math.cx = -15
+                jasper.math.cy = 5
+            "
+        ) ;
+    \stopMPinclusions
+    % Pause once the theorem is in place.
+    \dorecurse{4*30}{%
+        \startMPpage
+            mythm ;
+        \stopMPpage%
+    }
+    % draw the vertex of a ray
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="0"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % extend a ray from the vertex
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="0"
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+13*u*#1/90"
+                ,fy="cy"
+                ,fz="0"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause after extending a ray from the vertex
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="0"
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+13*u"
+                ,fy="cy"
+                ,fz="0"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % extend a thick line segment
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="0"
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+13*u"
+                ,fy="cy"
+                ,fz="0"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[
+                fx="cx+9*#1/90"
+                ,fy="cy"
+                ,fz="0"
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+9*u*#1/90"
+                ,fy="cy"
+                ,fz="0"
+                ,drawcommands="jasper_thick"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startMPinclusions
+        def rayseg =
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="0"
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+13*u"
+                ,fy="cy"
+                ,fz="0"
+                ,drawcommands="jasper_thin"
+            ] ;
+            jasper_point[
+                fx="cx+9"
+                ,fy="cy"
+                ,fz="0"
+            ] ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+9*u"
+                ,fy="cy"
+                ,fz="0"
+                ,drawcommands="jasper_thick"
+            ] ;
+        enddef ;
+    \stopMPinclusions
+    % pause after extending a thick line segment
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            rayseg ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 3} One and only one segment congruent to 
+            a given segment can be laid off on a ray starting 
+            from the origin.\par
+            If two segments laid off on a ray from its vertex
+            are non-congruent, their second endpoints do not 
+            coincide, \color[white]{and the segment whose second endpoint 
+            lies within the interior of the other segment is 
+            said to be the least of the two. The other segment 
+            is the greatest of the two.}
+        \stopframed
+    \stopbuffer
+    % If two segments laid off on a ray from its vertex
+    % are non-congruent, their second endpoints do not 
+    % coincide,
+    \dorecurse{10*30}{%
+        \startMPpage
+            mythm ;
+            rayseg ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 3} One and only one segment congruent to 
+            a given segment can be laid off on a ray starting 
+            from the origin.\par
+            If two segments laid off on a ray from its vertex
+            are non-congruent, their second endpoints do not 
+            coincide, and the segment whose second endpoint 
+            lies within the interior of the other segment is 
+            said to be the least of the two. \color[white]{The other segment 
+            is the greatest of the two.}
+        \stopframed
+    \stopbuffer
+    % and the segment whose second endpoint 
+    % lies within the interior of the other segment is 
+    % said to be the least of the two.
+    \dorecurse{13*30}{%
+        \startMPpage
+            mythm ;
+            rayseg ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \startbuffer[BufA]
+        \startframed[myframed]
+            {\bf AXIOM 3} One and only one segment congruent to 
+            a given segment can be laid off on a ray starting 
+            from the origin.\par
+            If two segments laid off on a ray from its vertex
+            are non-congruent, their second endpoints do not 
+            coincide, and the segment whose second endpoint 
+            lies within the interior of the other segment is 
+            said to be the least of the two. The other segment 
+            is the greatest of the two.
+        \stopframed
+    \stopbuffer
+    % The other segment 
+    % is the greatest of the two.
+    \dorecurse{6*30}{%
+        \startMPpage
+            mythm ;
+            rayseg ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % add interior segment
+    \dorecurse{4*30}{%
+        \startMPpage
+            mythm ;
+            rayseg ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+6*cos(tau/8)*u"
+                ,fy="cy+6*sin(tau/8)*u"
+                ,fz="5"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+6*cos(tau/8)"
+                ,fy="cy+6*sin(tau/8)"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % pause
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            rayseg ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+6*cos(tau/8)*u"
+                ,fy="cy+6*sin(tau/8)*u"
+                ,fz="5"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+6*cos(tau/8)"
+                ,fy="cy+6*sin(tau/8)"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    % lay off on the ray
+    \dorecurse{3*30}{%
+        \startMPpage
+            mythm ;
+            rayseg ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+6*cos(tau/8-((#1/90)*(tau/8)))*u"
+                ,fy="cy+6*sin(tau/8-((#1/90)*(tau/8)))*u"
+                ,fz="5"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+6*cos(tau/8-((#1/90)*(tau/8)))"
+                ,fy="cy+6*sin(tau/8-((#1/90)*(tau/8)))"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+    \dorecurse{15*30}{%
+        \startMPpage
+            mythm ;
+            rayseg ;
+            jasper_curve[
+                ustart="0"
+                ,ustop="1"
+                ,usamples="2"
+                ,fx="cx+6*cos(0)*u"
+                ,fy="cy+6*sin(0)*u"
+                ,fz="5"
+                ,drawcommands="jasper_lightgraypenthick"
+            ] ;
+            jasper_point[
+                fx="cx"
+                ,fy="cy"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_point[
+                fx="cx+6*cos(0)"
+                ,fy="cy+6*sin(0)"
+                ,fz="5"
+                ,drawcommands="jasper_lightgray"
+            ] ;
+            jasper_render_segments ;
+        \stopMPpage%
+    }
+\stoptext 
