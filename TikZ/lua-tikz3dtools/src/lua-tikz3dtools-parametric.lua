@@ -331,7 +331,7 @@ register_tex_cmd(
             drawoptions    = token.get_macro("luatikztdtools@p@c@drawoptions"),
             arrowtip       = token.get_macro("luatikztdtools@p@c@arrowtip"),
             arrowtail      = token.get_macro("luatikztdtools@p@c@arrowtail"),
-            arrowoptions   = token.get_macro("luatikztdtools@p@c@arrowoptions")
+            arrowoptions   = token.get_macro("luatikztdtools@p@c@arrowtipoptions")
         } 
     end,
     { }
@@ -655,7 +655,7 @@ local function display_segments()
         if segment.type == "point" and segment.name then
             local P = segment.segment[1]
             tex.sprint(string.format(
-                "\\node (%f,%f) {%s};",
+                "\\node at (%f,%f) {%s};",
                 P[1], P[2]
                 ,segment.name
             ))
