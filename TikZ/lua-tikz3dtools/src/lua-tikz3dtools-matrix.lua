@@ -1,4 +1,4 @@
--- lua-tikz3dtools-matrix-math.lua
+-- lua-tikz3dtools-matrix.lua
 
 local mm = {}
 mm.tau = 2*math.pi 
@@ -77,7 +77,7 @@ function  mm.transpose(A)
     return result
 end
 
-function mm.inverse(matrix)
+function mm.matrix_inverse(matrix)
     local rows = #matrix
     local columns = #matrix[1]
     assert(rows == columns, "You can only take the inverse of a square matrix.")
@@ -371,7 +371,7 @@ end
 
 function mm.orthogonal_vector(u)
     local v
-    if (u[1][1]~=0 and u[1][2]==0 and u[1][3]==0) then
+    if (math.abs(u[1][1])>0.001 and math.abs(u[1][2])<0.001 and math.abs(u[1][3])<0.001) then
         v = mm.cross_product(u,{{0,1,0,1}})
     else
         v = mm.cross_product(u,{{1,0,0,1}})

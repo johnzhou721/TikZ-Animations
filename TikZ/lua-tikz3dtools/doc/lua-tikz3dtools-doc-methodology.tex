@@ -1,0 +1,415 @@
+\chapter{Methodology}
+
+\section{Detailed Description of the Proposed Approach}
+
+\subsection{Inverse and Basis-Relative Affine Transformations: The Camera}
+
+Camera positioning is to be achieved through inverse affine 
+transformations. In particular, we take the desired camera 
+transformation, and we transform the world by its inverse, 
+leaving the viewing rectangle stationary. The viewing rectangle 
+is in a very literal sense the computer screen. When you're 
+scrolling through an article on your screen, the screen itself
+is not moving up and down, but the article is moving relative 
+to the screen. Transformations within the camera's viewing 
+rectangle are performed using basis-relative affine 
+transformations. These transformations make use of matrix 
+similarity to represent transformations in one affine basis in 
+terms of another affine basis. An affine basis is a set of 
+basis vectors, along with a point of origination; they are a 
+means of navigating and traversing vector space. An affine 
+basis in \(\mathbb{R}^{3}\) may be zero dimensional, all the 
+way up to three dimensional. It's unit-interval vectors are 
+linearly independent, and they form a simplex with the point 
+of origination. A primary feature of the camera view is the 
+culling of primitives which fall behind it. When a person 
+looks forward, they do not see objects behind them---%
+\luatikztdtools{} endeavors to emulate this feature.
+For reasons of speed, primitive culling will eventually be 
+implemented by setting the camera frame explicitly before 
+rendering, so that not only just the primitives behind the 
+camera don't show up, but neither do the ones which fall beyond 
+its scope in general.
+
+\subsection{The Comparator for Geometric Primitive Occlusion}
+
+\luatikztdtools{} introduces a novel comparator for geometric 
+primitive occlusion. Given a set of non-intersecting and 
+non-cyclically overlapping primitives, this algorithm provides 
+a partial transitive ordering of the primitives. This is possible 
+due to the deliberate implementation of inconclusive results.
+That is, the comparator only returns aan ordering for two given 
+primitives if and only if their orthogonal projections on the 
+viewing plane overlap---meaning that there is an orthogonal ray 
+off the plane which intersects both. They are ordered by the points
+of intersection of this exact ray and both primitives. There are 
+three primitives, and each one can be compared to either one 
+of its own, or another. This presents up with six unique 
+possible comparisons:
+\begin{enumerate}
+    \item point versus point,
+    \item point versus line segment,
+    \item point versus triangle,
+    \item line segment versus line segment,
+    \item line segment versus triangle, and
+    \item triangle versus triangle.
+\end{enumerate}
+In Figure \ref{fig:problemstatement-inconclusive}, the comparison 
+between \(A\) and \(C\) is inconclusive, because 
+despite the fact that \(C\) is nearer to the viewing plane than 
+\(A\), they are not in a direct occlusive relationship. As mentioned 
+in the problem statement, introducing definitive results for 
+primitives which are not in a direct occlusive relationship would 
+obliterate the comparator's transitivity, which is absolutely 
+essential for the function which sorts primitives based on the 
+comparator's results.
+
+\subsubsection{Point Versus Point}
+
+For the reason of numerical instability, we have a difference 
+threshold of \(0.001\) centimeters, within which two points 
+are considered identical. This was not an arbitrarily chosen 
+number; it was chosen because illustrations for human eyes 
+do not need to be more precise than one one thousandth of a
+centimeter. Hence, two points within this distance of each 
+other are compared to produce an inconclusive result. Next,
+should they pass the first test, the points are projected onto 
+the viewing plane orthographically. The distance of their 
+projections is subjected to the same litmus test, only this time
+they are occluded based on their depth if and only if their 
+projections overlap, because that means that one occludes the 
+other. If they are not in the immediate vicinity of each other,
+but their projections are, they are occluded based on their depth.
+An interesting note is that we could have used a much, much, 
+smaller difference threshold; even one one millionth would have 
+been usable, but it would be unnecessary. Maybe it is possible 
+that I will make it one ten thousandth---but no less!
+
+\subsubsection{Point Versus Line Segment}
+
+We obtain an affine basis for the line through the line segment 
+by using its start point as the affine origin, and the difference 
+of the second point with the first as the direction vector.
+We then take the difference of the point and the line's affine 
+origin. Here's the secret of the method: The orthogonal projections 
+of the difference of the point and the line's affine 
+origin, and the affine direction vector, is collinear with the 
+viewing axis if and only if it is not impossible that the point 
+and the line occlude each 
+other! Of course, we project the point and its projection on the 
+line onto the viewing plane. If these viewing plane projections 
+are within vicinity of one another, then we proceed with the test.
+There is one final criteria to be tested before we compare depths,
+and that is whether the points projection falls within the line 
+segment, and not beyond it. We divide their lengths to obtain the
+orthogonal vector projection's length relative to the affine basis 
+unit interval. If that relative length is between zero and one,
+then they definitely occlude each other, and we take the inverse
+projection of that viewing plane point onto both primitives, and 
+we sort by the depths of these inverse projections.
+If no such occlusive relation is present, then the result is 
+inconclusive.
+
+\subsubsection{Point Versus Triangle}
+
+The first step of this comparison is to determine if the projection 
+of the point onto the viewing plane falls within the triangle's 
+viewing plane projection. We do this by projecting both primitives 
+onto the viewing plane. We then connect each vertex of the triangles 
+projection by vectors. From the origin of each vector, a second vector 
+is extended to the point. Due to the geometric nature of the cross 
+product, in particular its anticommutativity, if we take the cross 
+products of each pair of vectors originating from the same point,
+if all of them are parallel but not antiparallel, then the point 
+is inside the triangle. Think about what happens to one of the cross 
+products if the point falls beyond the projected triangle---a cross 
+product will flip. If the result of this experiment is a definitive
+result that the point's projection does fall within the triangle's 
+projection, then we take the inverse orthogonal (to the viewing 
+plane) projection onto both primitives, then we sort by the depths 
+of these inverse projections. To calculate the vertical projection
+onto the triangle, we solve for the projected point's coordinates
+in the projected triangle's affine basis (it is a simplex), and 
+then use those coordinates in the affine basis of the non-projected 
+triangle to obtain the inverse projection.
+
+\subsubsection{Line Segment Versus Line Segment}
+
+We project the line segments onto the plane, and obtain an affine 
+basis for both. We then take the length of a cross product of 
+the direction vectors. If this length is nonzero, meaning that 
+the lines are noncollinear, then we solve for the coordinate of 
+the intersection in both affine bases. If both coordinates are 
+between zero and one, then we sort by those coordinates on the 
+lines through the original bases. If the cross product is zero,
+then we perform our comparator for points and line segments 
+on both points of both affine bases on the other affine basis.
+If all of these are inconclusive, then the result is inconclusive.
+
+\subsubsection{Line Segment Versus Triangle}
+
+We perform point versus triangle for both points of the line 
+segment with the triangle. We also perform line segment versus 
+line segment between the line segment and each line segment of 
+the triangle. If any of these are conclusive, then we sort based 
+on that, otherwise it is inconclusive.
+
+\subsubsection{Triangle Versus Triangle}
+
+We check each line segment of one triangle with each line segment 
+of the other. We also check each vertex of both triangles with 
+the other triangle. If any of these are conclusive, then we sort 
+based on that, otherwise the test is inconclusive.
+
+\subsection{The User Interface}
+
+Each user-facing command has a set of parameters to which options 
+can be assigned. Programmers will recognize this as a key-value 
+dictionary. \luatikztdtools{} exposes commands for generating 
+and displaying sets of geometric primitives. The system is 
+geared towared illustration of parametric objects, meaning 
+that they are defined using parametric definitions. Currently,
+\luatikztdtools{} supports the generation of parametric objects 
+of zero to three dimensions (i.e., their input is a \(0\)--\(3\) 
+dimensional rectangle-equivalent). Before we analyze each command 
+in-depth, we will first review projective transformations.
+
+\subsubsection{Review of Projective Transformations}
+
+``The \(4\times4\) homogeneous transformation matrix
+can be partitioned into four separate sections:
+\[
+    \begin{bNiceArray}[margin]{c|c}
+        3\times3 & 3\times1 \\
+        \cline{1-2}
+        1\times3 & 1\times1
+    \end{bNiceArray}.
+\]
+The \(3\times3\) matrix produces a linear 
+transformation
+in the form of scaling, shearing and rotation. The 
+\(1\times3\) row matrix produces translation, and
+the \(3\times1\) column matrix produces perspective
+transformation. The final single element produces 
+overall scaling.'' \cite{rogers1976mathematical}
+
+\luatikztdtools{} exposes the command \verb|\setobject|, which 
+enables the user to create their own lua objects. For example,
+\begin{verbatim}
+\setobject[name = {blah},object = {euler(pi/2,pi/3,7*pi/6)}]
+\end{verbatim}
+sets the variable \verb|blah| to be a classic rotation matrix for
+viewing purposes.
+
+\subsubsection{The Projective Matrix Library}
+
+\luatikztdtools{} is projective-matrix aware. Basic linear algebra---% 
+up to matrix multiplications and transformations---is required as a 
+prerequisite from the user in order to follow this portion of the 
+manual. \luatikztdtools{} exposes the Lua command 
+\verb|matrix_multiply(A, B)| which multiplies two projective matrices,
+\verb|A| and \verb|B|. Additionally, the command \verb|transpose(A)|
+returns the transpose of projective matrix \verb|A|.
+An inportant operation for camera movement is the matrix inverse,
+and it is achieved by the command \verb|matrix_inverse(A)| for a 
+matrix \verb|A|. Axis and Euler rotation matrices are implemented,
+and Rodriguez matrices are planned. The commands are 
+\verb|xrotation(angle)|, \verb|yrotation(angle)|, and 
+\verb|zrotation(angle)|. There is also the command 
+\verb|translate(x,y,z)| which returns a translation matrix for the 
+given displacement. There are also \verb|xscale(scale)|,
+\verb|yscale(scale)|, \verb|zscale(scale)|, and \verb|xcale(scale)|.
+The \(z\) and \(y\) rotation matrices are composed in the function
+\verb|euler(alpha,beta,gamma)| which returns a \(z\)-\(y\)-\(z\) 
+Euler angle rotation matrix. \verb|identity_matrix()| is the 
+projective identity matrix in three dimensions.
+
+In addition to providing projective matrix features, there are also 
+some practical parametric functions. There is the command 
+\verb|sphere(longitude,latitude)|, \verb|dot_product(u,v)|,
+\verb|cross_product(u,v)|, \verb|norm(u)|, \verb|normalize(u)|,
+and even \verb|stereographic_projection(point)|. An important 
+feature of \luatikztdtools{} is that all points are represented 
+in nested-table form in both the Lua implementation, and the 
+user-facing interface. That is, the point \(\lparen0,1,\pi\rparen\)  
+is represented by the Lua matrix \verb|{{0,1,pi,1}}|, where the 
+fourth coordinate is the homogeneous coordinate, and it is always 
+exactly one (\(1\)!), except for transiently when perspective 
+projection is applied. This coordinate is solely responsible for 
+translation and perspective transformations 
+\cite{rogers1976mathematical}.
+
+\subsubsection{The Zero-Dimensional Point}
+
+\luatikztdtools{} exposes the command \verb|\appendpoint| which
+accepts a zero-dimensional parametric definition, along with some 
+options. For example;
+\begin{verbatim}
+\appendpoint[
+    x = {cos(tau/6)}
+    ,y = {tau/6}
+    ,z = {0}
+    ,fill options = {
+        fill = red
+        ,fill opacity = 0.7
+    }
+    ,transformation = {euler(pi/2,pi/3,pi/6)}
+]
+\end{verbatim}
+appends a singular point to the list of geometric primitives to be 
+later sorted and displayed.
+
+\subsubsection{The One-Dimensional Curve}
+
+A curve is generated by a one-dimensional parametric definition,
+along with some options. For example;
+\begin{verbatim}
+\appendcurve[
+    ustart = {0}
+    ,ustop = {1}
+    ,usamples = {360}
+    ,x = {cos(tau*u)}
+    ,y = {sin(tau*u)}
+    ,z = {0}
+    ,draw options = {
+        draw
+        ,red
+    }
+    ,transformation = {euler(pi/2,pi/3,pi/6)}
+    ,arrow tip = {true}
+    ,arrow tip options = {fill = green}
+    ,arrow tail = {true}
+]
+\end{verbatim}
+will generate a circle with an arrow on it.
+
+\subsubsection{The Two-Dimensional Surface}
+
+A surface is generated using a two-dimensional parametric definition.
+For example;
+\begin{verbatim}
+\appendsurface[
+    ustart = {0}
+    ,ustop = {1}
+    ,usamples = {36}
+    ,vstart = {0}
+    ,vstop = {1}
+    ,vsamples = {18}
+    ,x = {sphere(tau*u/36,pi*v/18)[1][1]}
+    ,y = {sphere(tau*u/36,pi*v/18)[1][2]}
+    ,z = {sphere(tau*u/36,pi*v/18)[1][3]}
+    ,fill options = {
+        preaction = {
+            fill = green
+            ,fill opacity = 0.8
+        }
+        ,postaction = {
+            draw
+            ,line join = round
+            ,line cap = round
+        }
+    }
+    ,transformation = {euler(pi/2,pi/3,pi/6)}
+]
+\end{verbatim}
+Will generate a triangulated unit sphere.
+
+\subsubsection{The Three-Dimensional Solid}
+
+A parametric solid takes three-dimensional input, and makes 
+three dimensional output. For example;
+\begin{verbatim}
+\appendsolid[
+    ustart = {0}
+    ,ustop = {1}
+    ,usamples = {36}
+    ,vstart = {0}
+    ,vstop = {1}
+    ,vsamples = {18}
+    ,wstart = {0}
+    ,wstop = {1}
+    ,wsamples = {9}
+    ,x = {(1+w)*sphere(tau*u/36,pi*v/18)[1][1]}
+    ,y = {(1+w)*sphere(tau*u/36,pi*v/18)[1][2]}
+    ,z = {(1+w)*sphere(tau*u/36,pi*v/18)[1][3]}
+    ,fill options = {
+        preaction = {
+            fill = green
+            ,fill opacity = 0.8
+        }
+        ,postaction = {
+            draw
+            ,line join = round
+            ,line cap = round
+        }
+    }
+    ,transformation = {euler(pi/2,pi/3,pi/6)}
+]
+\end{verbatim}
+will generate a solid sphere---mapped from a cube! Of course,
+the domain may also be not a perfect a square; e.g.,
+\verb|ustop = {tau/6}| would be valid too.
+
+\subsubsection{Ordering and Displaying the Generated Primitives}
+
+Sorting and displaying is done automatically by the command 
+\verb|\displaysegments|.
+
+\section{Rationale and Development Process of the Approach}
+
+I started by studying the problem of occlusion of non-intersecting
+and non-cyclically overlapping triangles; this was half a year ago,
+give or take. I asked about it on the Mathematics Stack Exchange,
+and received an insightful comment from user lisyarus which said 
+to sort based on the inverse projections of overlapping points on 
+the viewing plane \cite{5063772}. The idea was in a non-complete 
+form, and its follow through required substantial innovation on my 
+part, but it was the gemstone which inspired me and made all this 
+possible. Of course, this was back when I was still naive on the 
+subject, so there is an accepted answer which I do not agree with 
+in retrospect---please disregard it as it is not helpful.
+
+Armed with the comment by lisyarus, and a lot of time to think, I 
+eventually went about devising methods of determing points of 
+overlap of projected primitives on the viewing plane. It actually
+took me a long time to get here from the comment, but here we are.
+Interestingly, it took many attempts and I made numerous mistakes 
+before a working algorithm was achieved. However, when I analyzed 
+my mistakes, they led me to devise more conclusive tests. Now 
+the software isn't just for triangles. It is for affine simplexes 
+of dimension zero through three. Maybe one day we will take higher 
+dimensional simplex projections---who knows.
+
+\section{Challenges Encountered and Solutions Implemented}
+
+I faced numerous roadblocks along my path to this achievement.
+For instance, I had to rewrite the entire software from scratch
+many times, identifying conceptual mistakes each time, before 
+arriving on a working implementation. For example, using a distance
+threshold for point versus point to only sort them if their 
+projections on the viewing plane are close took me breaking down 
+the problem and thoroughly analyzing it from every perspective that 
+I could. Additionally, while most of the software is self-written,
+I took the shortcut of having ChatGPT implement a Gauss-Jordan 
+column-major augmented matrix solver, which would have taken me 
+some time to learn on my own. Eventually I will, as it is a 
+fundamental computational tool, but for the time being I used a 
+crutch. Additionally, the topological sort function was written 
+entirely by AI. What is does it compare each primitive to each 
+other primitive using my comparator, and it orders them by its 
+output. An interesting feature is that it identifies occlusion 
+cycles, orders them all at the saame level relative to everything
+else, and outputs which exact primitives have cyclic occlusion.
+Of course, this dream of mine really started after learning how 
+to sort points in 3D, and realizing that sorting by centroids of 
+triangles does not work.
+
+\section{Remaining Challenges and Directions for Future Work}
+
+The main two future goals of \luatikztdtools{} are a clipping 
+algorithm to eliminate intersections and cyclic overlaps, and 
+a comprehensive, translucency-aware culling algorithm for 
+primitives which would definitively not show up when the scene 
+is rendered in its totality. Only once these are complete would 
+I consider the \luatikztdtools{} package to be mature. Until then
+the software will remain experimental.

@@ -1,0 +1,58 @@
+\chapter{Literature Review}
+
+\section{Existing Approaches in Practice and Academia}
+
+\(z\)-buffering is a contemporary tool for approximating occlusion 
+of triangles by taking a pixel-level raster of rays from the 
+viewing plane onto what lies before it. The colour of the first 
+triangle in the path of such a ray is assigned to the pixel of the 
+ray. There is also the painter's algorithm in which primitives are 
+layered from back to front, though it is a very general description
+\cite{nyberg2011hidden}. One variant of the painter's algorithm 
+in the context of parametric renderings is the centroid sort, in 
+which geometric primitives are ordered by the depth of the
+average of their vertices \cite{skillmon2025answer3dpointsort}.
+There are two ways to find these depths; one way is to take the 
+dot product with the observer vector \cite{5062592}. Another way 
+is to use an affine transformation to align the \(z\) axis with 
+the observer vector, and then order by just that one component.
+
+Setting the camera position aand orientation is done by determining
+the affine transformation matrix which carries the camera to the 
+desired position, and performing the inverse of that transformation 
+on all of the parametric objects. Perspective is achieved by using 
+a projective transformation after all the affine transformations 
+are done. While this practise is commonplace in 3D graphics, it has 
+yet to be achieved using tools in the \TeX{} ecosystem.
+
+\section{Limitations and Open Challenges in Current Methods}
+
+\(z\)-buffering is fundamentally an approximation. While it is 
+useful for real-time 3D graphics, the author of this book contends
+that aa definitive occlusion sorting of non-intersecting and 
+non-cyclically overlapping primitives should be considered as a 
+fundamental concept in 3D occlusion. The centroid sort on the other 
+hand is prone to non-subtle occlusion errors 
+\cite{jasper2025tikzparametricsurface}. In attempt to resolve this,
+I tried separating the triangles into groups based on the orientation
+of their normal vector with respect to the observer's direction, 
+and then performed a centroid sort on both groups. This method was 
+still insufficient.
+
+\section{Proposed Approach and Its Advantages Over Existing Work}
+
+This package proposes a transitive occlusion comparator for 
+non-intersecting and non-cyclically overlapping geometric primitives.
+This comparator is designed to be used alongside an automatic 
+primitive-primitive clipping algorithm, and with a more sophisticated 
+variant of back-face culling which accounts for translucency.
+The future goal of this package is to introduce the aforementioned 
+geometric primitive clipping software to complement this sorting 
+algorithm. Possibly, another goal is to implement such a back-face 
+culling algorithm as well, though that is secondary to the current 
+goal. The advantage of the occlusion comparator introduced in this 
+package is its clarity. Unlike \(z\)-buffering, this method offers 
+a definitive ordering of non-intersecting and non-cyclically 
+overlapping geometric primitives. It is paired with an artificial
+inteligence-written topological sort function which is capable of 
+ordering the primitives based on the comparator's output.

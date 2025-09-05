@@ -1,0 +1,121 @@
+\chapter{Problem Statement}
+
+\section{The Core Problem being Addressed}
+
+The package \luatikztdtools{} aims to provide 3D illustration 
+capabilities to the \LaTeX{} ecosystem. In particular, there 
+is a focus on both camera movement and perspective, as well as
+on rigorous occlusion. There are already \LaTeX{} packages which 
+provide 3D illustration capabilities. To the author's knowledge,
+there is no current algorithm for taking a set of parametrically
+defined primitive, clipping them in such a way that cyclic
+overlaps and intersections are totally eliminated, and occlusion-%
+sorting the resulting non-intersecting and non-cyclically overlapping 
+primitives. A geometric primitive is a point, a line segment,
+a triangle, a tetrahedron, or any higher dimensional simplex.
+The primary objective of \luatikztdtools{} is to implement
+such a routine, as well as to use known methods to enable
+the feature of arbitrary camera positioning. Currently,
+both arbitrary camera positioning and occlusion of non-intersecting 
+and non-cyclically overlapping primitives up to triangles are 
+implemented. Automatic clipping of primitives which do not fall 
+into this category is still aa planned feature. To the author's 
+knowledge, no such algorithm exists yet.
+
+\section{Importance of the Issue}
+
+Most 3D illustration softwares use a process called 
+\(z\)-buffering, in which a pixel-level resolution is achieved 
+by tracing numerous orthogonal lines off the viewing plane until 
+they reach the first geometric primitive along their trajectory.
+It really only works for triangles, because line segments and points 
+are overly determined and will rarely intersect the orthogonal 
+lines. As such, the visualization of parametric curves 
+and points is neglected. The method described in this book for the 
+occlusion of non-intersecting and non-cyclically overlapping 
+geometric primitives is a transitive comparator which does not always 
+produce true or false. As a matter of fact, occlusion tests are 
+often inconclusive---and they need to be for transitivity to exist!
+For example, consider the extremely simple set of primitives,
+ordered along the \(y\)-axis; the point \(A\lparen0,0.25\rparen\), 
+the line segment \(B\{\lparen0,0\rparen,\lparen1,1\rparen\}\),
+and the point \(C\lparen1,0.75\rparen\) 
+(Figure \ref{fig:problemstatement-inconclusive}).
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        \draw 
+            (-0.5,1.5) 
+            -- 
+            (1.5,1.5)
+            node[
+                pos = 0.5
+                ,above
+            ]{Viewing Plane}
+        ;
+        \foreach \x in {1,...,24} {
+            \pgfmathsetmacro{\x}{-0.5+(\x-1)*(1.5-(-0.5))/23}
+            \draw (\x,1.5) -- ++ (40:0.15);
+        }
+        \fill 
+            (0,0.25) 
+            circle[radius = 0.05]
+            node[above left]{\(A\)}
+        ;
+        \draw 
+            (0,0) 
+            -- 
+            (1,1) 
+            node[pos = 1.2]{\(B\)}
+        ;
+        \fill 
+            (1,0.75) 
+            circle[radius = 0.05]
+            node[below right]{\(C\)}
+        ;
+    \end{tikzpicture}
+    \caption{%
+        Inconclusive results are necessary for the transitivity of 
+        the comparator. We can only definitively compare primitives 
+        which are in a direct occlusive relationship. Even points 
+        must have their occlusive relationship neglected if they do 
+        not directly overlap on the viewing plane.
+        In this figure, \(A\) occludes \(B\) and \(B\) occludes 
+        \(C\), but \(A\) and \(C\) have no occlusive relationship,
+        even though \(C\) is higher than \(A\). If we didn't make
+        this case inconclusive, then the transitivity would be 
+        immediately broken.
+    }
+    \label{fig:problemstatement-inconclusive}
+\end{figure}
+The author has the sincere impression that give a set of 
+non-intersecting and non-cyclically overlapping primitives, there 
+should be a definitive method of deciphering occlusive order among 
+those primitives. The author also sincerely believes that 
+primitives which do intersect and do cyclically overlap can be 
+partitioned such that they no longer do so. The author sincerely 
+believes that such a method should be considered as a fundamental
+concept in 3D graphics, and is sincerely surprised that such a 
+transitive comparator for \(1\)--\(3\) dimensional affine simplexes 
+has never been the subject of serious formal study. Compared to 
+\(z\)-buffering, the proposed algorithm is incredibly slow, but 
+this can be mitigated by culling primitives which are totally 
+occluded by other primitives. In plain language, the proposed 
+comparator is an enormous leap forward for occlusion sorting 
+tessellated parametric objects. Additionally, while camera 
+positioning is well conceived in computer graphics already,
+it has never yet been implemented in an illustration tool from 
+the \TeX{} ecosystem. The package is still under development, 
+and will be no longer experimental when the automatic clipping 
+is both implemented and field tested.
+
+\section{Intended Audience}
+
+This work is intended for mathematics illustrators who want to 
+make 3D illustrating using a \LaTeX{}-cohesive package.
+\luatikztdtools{} is capable of rendering perspective scenes with
+arbitrary camera positioning and rigorous occlusion sorting.
+It is presumed that users will already be aware of how to 
+define parametric objects, as well as with projective transformation
+matrices. The author suggests the first edition of the book by 
+Rogers and Adams for an exemplary introduction to projective matrices.
