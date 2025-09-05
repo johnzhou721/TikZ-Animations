@@ -1,0 +1,83 @@
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{lua-tikz3dtools}
+\begin{document}
+    \foreach \i in {1,...,24} { 
+    \begin{tikzpicture}
+        \useasboundingbox (-2.5,-2.5) rectangle (2.5,2.5);
+        \setobject[
+            name = t 
+            ,transformation = {(tau/12)*\i/24}
+        ]
+        \setobject[
+            name = camera
+            ,transformation = {
+                matrix_inverse(
+                    {
+                        { cos(t+pi/4),  sin(t+pi/4), 0, 0 }
+                        ,{ 0,       0,      1, 0 }
+                        ,{ -cos(t+pi/2+pi/4), -sin(t+pi/2+pi/4), 0, 0 }
+                        ,{ 20*cos(t), 20*sin(t), 0, 1 }
+                    }
+                )
+            }
+        ]
+
+        \setobject[
+            name = perspective 
+            ,transformation = {
+                {
+                    {1,0,0,0}
+                    ,{0,1,0,0}
+                    ,{0,0,1,-1/10}
+                    ,{0,0,0,1}
+                }
+            }
+        ]
+        \appendsurface[
+            ustart = 0
+            ,ustop = 1
+            ,usamples = 12
+            ,vstart = 0
+            ,vstop = 1
+            ,vsamples = 6
+            ,x = {20*cos(u*tau)+15*sphere(u*tau, v*tau)[1][1]}
+            ,y = {20*sin(u*tau)+15*sphere(u*tau, v*tau)[1][2]}
+            ,z = {15*sphere(u*tau, v*tau)[1][3]}
+            ,transformation = {
+                matrix_multiply(
+                    camera
+                    ,perspective
+                )
+            }
+            ,fill options = {
+                preaction = {fill = red,fill opacity = 1}
+                ,postaction = {
+                    draw
+                    ,line join = round
+                    ,line cap = round
+                    ,ultra thin
+                }
+            }
+        ]
+        \appendcurve[
+            ustart = 0
+            ,ustop = 1
+            ,usamples = 300
+            ,x = {20*cos(u*tau)+4*sphere(u*tau, 12*u*tau)[1][1]}
+            ,y = {20*sin(u*tau)+4*sphere(u*tau, 12*u*tau)[1][2]}
+            ,z = {4*sphere(u*tau, 12*u*tau)[1][3]}
+            ,transformation = {
+                matrix_multiply(
+                    camera
+                    ,perspective
+                )
+            }
+            ,draw options = {draw,green}
+        ]
+        \displaysegments
+    \end{tikzpicture}
+    }
+\end{document}
