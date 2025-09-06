@@ -264,7 +264,7 @@ local function point_triangle_occlusion_sort(P, T)
     local sign_T3T1xT3P1 = sign(T3T1xT3P1[1][3])
 
     local tmp = (dist1 > 0.001 and dist2 > 0.001 and dist3 > 0.001)
-
+    --if not tmp then return false end
     if (
         sign_T1T2xT1P1 == sign_T2T3xT2P1 and 
         sign_T2T3xT2P1 == sign_T3T1xT3P1 and tmp
@@ -284,7 +284,7 @@ local function point_triangle_occlusion_sort(P, T)
             s = sol[2]
         end
         if t == nil or s == nil then return nil end
-        if 0<t and t<1 and 0<s and s< 1 then 
+        if 0<=t and t<=1 and 0<=s and s<=1 then 
             local a = vector_addition(o, scalar_multiplication(t, u))
             local b = vector_addition(a, scalar_multiplication(s, v))
             return point_point_occlusion_sort(P, b)
@@ -320,7 +320,7 @@ local function line_segment_line_segment_occlusion_sort(L1, L2)
             s = sol[2]
         end
         if t == nil or s == nil then return nil end
-        if (0 < t and t<1 and 0 < s and s < 1) then
+        if (0 <= t and t<=1 and 0 <= s and s <= 1) then
             local L1_inverse = vector_addition({L1[1]}, scalar_multiplication(t, vector_subtraction({L1[2]}, {L1[1]})))
             local L2_inverse = vector_addition({L2[1]}, scalar_multiplication(s, vector_subtraction({L2[2]}, {L2[1]})))
             return point_point_occlusion_sort(L1_inverse, L2_inverse)

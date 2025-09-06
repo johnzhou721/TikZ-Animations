@@ -388,6 +388,14 @@ function mm.get_observer_plane_basis(observer)
     return {origin,basis_i,basis_j}
 end
 
+
+-- ChatGPT generated:
+function mm.loxodrome(theta0, phi0, alpha, theta1, t)
+    local theta = theta0 + t * (theta1 - theta0)
+    local phi = phi0 + math.tan(alpha) * (theta - theta0)
+    return mm.sphere(theta, phi)
+end
+
 function mm.orthogonal_vector_projection(base_vector,projected_vector)
     local scale = (
         mm.dot_product(base_vector,projected_vector) / 
@@ -413,8 +421,19 @@ function mm.stereographic_projection(point)
     local x = point[1][1]
     local y = point[1][2]
     local z = point[1][3]
-    return {{x / (1 - z), y / (1 - z), 0, 1}}
+
+    -- Avoid division by zero
+    local denom = 1 - z
+    if denom == 0 then
+        -- Option 1: project to a large number along the direction
+        local large = 1e10
+        return {{x * large, y * large, 0, 1}}
+        -- Option 2: or return a defined point, e.g., the origin {{0,0,0,1}}
+    else
+        return {{x / denom, y / denom, 0, 1}}
+    end
 end
+
 
 function mm.clip_triangle_against_line(triangle, line)
     -- triangle: array of 3 points {{x,y,z}, {x,y,z}, {x,y,z}}

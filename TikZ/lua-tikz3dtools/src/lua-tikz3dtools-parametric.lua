@@ -447,48 +447,65 @@ register_tex_cmd(
 
 
 
+local function get_bbox(primitive)
+    local minX, maxX = math.huge, -math.huge
+    local minY, maxY = math.huge, -math.huge
+    for _, P in ipairs(primitive.segment) do
+        local x, y = P[1], P[2]
+        if x < minX then minX = x end
+        if x > maxX then maxX = x end
+        if y < minY then minY = y end
+        if y > maxY then maxY = y end
+    end
+    return minX, maxX, minY, maxY
+end
 
+local function bboxes_overlap(b1, b2)
+    local minX1, maxX1, minY1, maxY1 = table.unpack(b1)
+    local minX2, maxX2, minY2, maxY2 = table.unpack(b2)
+    return not (maxX1 < minX2 or maxX2 < minX1 or maxY1 < minY2 or maxY2 < minY1)
+end
 
 local function topo_sort_with_cycles(items, cmp, max_depth)
-    -- Step 1: Build the graph based on the comparison relation
-    local graph = {}
-    for i = 1, #items do
-        graph[i] = {}
+    -- Step 1: Precompute bounding boxes
+    local bboxes = {}
+    for i, primitive in ipairs(items) do
+        bboxes[i] = { get_bbox(primitive) }
     end
 
-    -- Step 2: Compare every pair once, creating directed edges in the graph
+    -- Step 2: Build graph based on bounding-box overlap + comparison
+    local graph = {}
+    for i = 1, #items do graph[i] = {} end
+
     for i = 1, #items - 1 do
         for j = i + 1, #items do
-            local r = cmp(items[i], items[j])
-            if r == true then
-                table.insert(graph[i], j)  -- a > b, so a comes before b
-            elseif r == false then
-                table.insert(graph[j], i)  -- b > a, so b comes before a
+            if bboxes_overlap(bboxes[i], bboxes[j]) then
+                local r = cmp(items[i], items[j])
+                if r == true then
+                    table.insert(graph[i], j)
+                elseif r == false then
+                    table.insert(graph[j], i)
+                end
             end
+            -- otherwise, boxes don't overlap → skip comparison
         end
     end
 
-    -- Step 3: Tarjan's Algorithm to find SCCs (Strongly Connected Components)
-    local index = 0
-    local stack = {}
-    local indices = {}
-    local lowlink = {}
-    local onstack = {}
+    -- Step 3: Tarjan's SCC algorithm (unchanged)
+    local index, stack = 0, {}
+    local indices, lowlink, onstack = {}, {}, {}
     local sccs = {}
 
     for i = 1, #items do
-        indices[i] = -1  -- unvisited
-        lowlink[i] = -1
+        indices[i], lowlink[i] = -1, -1
     end
 
     local function dfs(v)
-        indices[v] = index
-        lowlink[v] = index
+        indices[v], lowlink[v] = index, index
         index = index + 1
         table.insert(stack, v)
         onstack[v] = true
 
-        -- Explore the neighbors
         for _, w in ipairs(graph[v]) do
             if indices[w] == -1 then
                 dfs(w)
@@ -498,7 +515,6 @@ local function topo_sort_with_cycles(items, cmp, max_depth)
             end
         end
 
-        -- Strongly connected component found
         if lowlink[v] == indices[v] then
             local scc = {}
             while true do
@@ -508,42 +524,23 @@ local function topo_sort_with_cycles(items, cmp, max_depth)
                 if w == v then break end
             end
             table.insert(sccs, scc)
-
-            -- If the SCC contains more than one node, we have a cycle
             if #scc > 1 then
-                -- Print out the triangle pair that caused the cycle
-                print("Cycle detected involving the following triangles:")
-                for _, idx in ipairs(scc) do
-                    print("Triangle " .. idx)
-                end
+                print("Cycle detected involving primitives: ", table.concat(scc, ", "))
             end
         end
     end
 
-    -- Run DFS for all nodes
     for v = 1, #items do
-        if indices[v] == -1 then
-            dfs(v)
-        end
+        if indices[v] == -1 then dfs(v) end
     end
 
-    -- Step 4: Build the SCC graph (dependencies between SCCs)
-    local scc_index = {}
+    -- Step 4: SCC graph and indegree
+    local scc_index, scc_graph, indeg = {}, {}, {}
     for i, comp in ipairs(sccs) do
-        for _, v in ipairs(comp) do
-            scc_index[v] = i
-        end
+        for _, v in ipairs(comp) do scc_index[v] = i end
+        scc_graph[i], indeg[i] = {}, 0
     end
 
-    -- Create the SCC dependency graph
-    local scc_graph = {}
-    local indeg = {}
-    for i = 1, #sccs do
-        scc_graph[i] = {}
-        indeg[i] = 0
-    end
-
-    -- Fill in the SCC graph (dependencies between SCCs)
     for v = 1, #items do
         for _, w in ipairs(graph[v]) do
             local si, sj = scc_index[v], scc_index[w]
@@ -554,34 +551,23 @@ local function topo_sort_with_cycles(items, cmp, max_depth)
         end
     end
 
-    -- Step 5: Topologically sort the SCCs (ignoring internal order within SCCs)
-    local queue = {}
-    for i = 1, #sccs do
-        if indeg[i] == 0 then table.insert(queue, i) end
-    end
+    -- Step 5: Topological sort of SCCs
+    local queue, sorted_sccs = {}, {}
+    for i = 1, #sccs do if indeg[i] == 0 then table.insert(queue, i) end end
 
-    local sorted_sccs = {}
     while #queue > 0 do
         local i = table.remove(queue, 1)
-
-        -- Add all items in the SCC to the sorted list (no removal from original list)
         for _, v in ipairs(sccs[i]) do
             table.insert(sorted_sccs, items[v])
         end
-
-        -- Process SCC dependencies
         for _, j in ipairs(scc_graph[i]) do
             indeg[j] = indeg[j] - 1
-            if indeg[j] == 0 then
-                table.insert(queue, j)
-            end
+            if indeg[j] == 0 then table.insert(queue, j) end
         end
     end
 
     return sorted_sccs
 end
-
-
 
 
 
@@ -635,7 +621,7 @@ local function display_segments()
     end
     
     -- Perform sorting after filtering out skipped segments
-    filtered_segments = topo_sort_with_cycles(filtered_segments, occlusion_sort_segments, 5)
+    filtered_segments = topo_sort_with_cycles(filtered_segments, occlusion_sort_segments, 40)
     
     -- Reverse the order after sorting
     reverse_inplace(filtered_segments)
