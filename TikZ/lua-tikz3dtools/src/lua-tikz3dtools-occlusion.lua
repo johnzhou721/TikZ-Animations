@@ -67,7 +67,7 @@ local function cross_product(u,v)
 end
 
 local function sign(number)
-    if math.abs(number) < 0.001 then return "zero" end
+    if math.abs(number) < 0.000001 then return "zero" end
     if number > 0 then return "positive" end
     return "negative"
 end
@@ -211,8 +211,18 @@ local function point_line_segment_occlusion_sort(P, L)
     local F = {{P[1][1], P[1][2], 0, 1}}
     local G = {{true_projection[1][1], true_projection[1][2], 0, 1}}
     if distance(F, G) < 0.001 then
-        local test = length(projection) / length(line_direction_vector)
-        if (0<test and test<1) then
+        local tmp
+        if (
+            sign(projection[1][1]) == sign(line_direction_vector[1][1]) and
+            sign(projection[1][2]) == sign(line_direction_vector[1][2]) and
+            sign(projection[1][3]) == sign(line_direction_vector[1][3])
+        ) then 
+            tmp = 1
+        else 
+            tmp = -1
+        end
+        local test = tmp * length(projection) / length(line_direction_vector)
+        if (0<=test and test<=1) then
             return point_point_occlusion_sort(P, true_projection)
         end
     end

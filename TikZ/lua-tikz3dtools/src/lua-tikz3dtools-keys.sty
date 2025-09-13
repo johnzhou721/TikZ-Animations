@@ -68,7 +68,7 @@
                 ,y/.code = {\edef\luatikztdtools@p@s@y{#1}}
                 ,z/.code = {\edef\luatikztdtools@p@s@z{#1}}
                 ,transformation/.code = {\edef\luatikztdtools@p@s@transformation{#1}}
-                ,fill options/.estore in = \luatikztdtools@p@s@filloptions
+                ,fill options/.code = {\edef\luatikztdtools@p@s@filloptions{#1}}
                 ,ustart = {0}
                 ,ustop = {1}
                 ,usamples = {10}

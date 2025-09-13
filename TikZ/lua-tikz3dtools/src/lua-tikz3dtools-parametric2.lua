@@ -1,5 +1,8 @@
--- lua-tikz3dtools-parametric.lua
---- The dot product.
+
+--- indiscernable distance
+local eps = 0.0001
+
+--- the dot product
 --- @param u table<table<number>> a vector
 --- @param v table<table<number>> another vector
 --- @return number the dot product
@@ -8,20 +11,38 @@ local function dot_product(u, v)
     return a[1]*b[1] + a[2]*b[2] + a[3]*b[3]
 end
 
---- Scalar multiplication
+--- scalar multiplication
+--- @param a number the scalar coefficient
+--- @param v table<table<number>> the vector
+--- @return table<table<number>> the scaled vector
 local function scalar_multiplication(a, v)
     local tmp = v[1]
     return { {a*tmp[1], a*tmp[2], a*tmp[3], 1} }
 end
 
+--- normalizes a vector
+--- @param v table<table<number>> the vector
+--- @return table<table<number>> the vectors normalization
+local function normalize(v)
+    local u = v[1]
+    local len = math.sqrt(u[1]^2 + u[2]^2 + u[3]^2)
+    return { {u[1]/len, u[2]/len, u[3]/len, 1} }
+end
 
-
+--- sign function
+--- @param number number a number
+--- @return string the sign|zero
 local function sign(number)
-    if math.abs(number) < 0.000001 then return "zero" end
-    if number > 0 then return "positive" end
+    local eps = 0.0000001
+    --if math.abs(number) < eps then return "zero" end
+    if number >= -eps then return "positive" end
     return "negative"
 end
 
+--- distance between two points
+--- @param P1 table<table<number>> a point
+--- @param P2 table<table<number>> another point
+--- @return number their distance
 local function distance(P1, P2)
     local A = P1[1]
     local B = P2[1]
@@ -32,16 +53,22 @@ local function distance(P1, P2)
     )
 end
 
+--- vector subtraction
+--- @param u table<table<number>> the first vector
+--- @param v table<table<number>> the second vector
+--- @return table<table<number>> their difference
 local function vector_subtraction(u, v)
     local U = u[1]
     local V = v[1]
     return { {U[1]-V[1], U[2]-V[2], U[3]-V[3], 1} }
 end
 
-
-
+--- test for indistinguishable points
+--- @param P1 table<table<number>> a point
+--- @param P2 table<table<number>> another point
+--- @return bool whether they intersect
 local function point_point_intersecting(P1, P2)
-    if distance(P1, P2) < 0.001 then 
+    if distance(P1, P2) < eps then 
         return true 
     else 
         return false 
@@ -51,96 +78,114 @@ end
 
 -- Correct column-major Gauss-Jordan solver (drop-in replacement)
 -- M is an array of columns; each column is an array of n rows.
--- Last column is RHS. Returns solution array (1..vars) or nil on failure.
+-- Last column is RHS. Returns:
+--   {solution = {..}, freevars = {..}}  on success
+--   nil on inconsistency
+--- @param M table<table<number>> an augmented matrix
+--- @return table<table<number>> the solution set and free variables
 local function gauss_jordan(M)
-    local eps = 1e-12
 
     -- basic validation
-    local m = #M
+    local m = #M        -- number of columns (vars + RHS)
     if m == 0 then return {} end
-    local n = #M[1]
+    local n = #M[1]     -- number of rows (equations)
     local vars = m - 1
     if vars < 1 then return nil end
-    if m ~= vars + 1 then
-        -- columns count must equal rows+1 (vars + RHS)
-        return nil
-    end
     for c = 1, m do
         if #M[c] ~= n then return nil end
     end
 
-    -- Work on a local copy so callers' arrays aren't mutated
+    -- Work on a local copy
     local cols = {}
     for c = 1, m do
         cols[c] = {}
         for r = 1, n do cols[c][r] = M[c][r] end
     end
 
-    -- Gauss-Jordan elimination (column-major storage)
-    for i = 1, n do
-        -- find pivot row in column i (search rows i..n)
-        local pivot_row = i
-        local maxval = math.abs(cols[i][i])
-        for r = i+1, n do
-            local v = math.abs(cols[i][r])
+    local rank = 0
+    local row = 1
+    local pivot_cols = {}  -- track pivot columns
+
+    -- Gauss–Jordan elimination
+    for col = 1, vars do
+        -- find pivot row in column col, rows row..n
+        local pivot_row = nil
+        local maxval = eps
+        for r = row, n do
+            local v = math.abs(cols[col][r])
             if v > maxval then
                 maxval = v
                 pivot_row = r
             end
         end
 
-        if maxval < eps then
-            return nil -- singular or numerically unstable
-        end
-
-        -- swap rows i and pivot_row across all columns
-        if pivot_row ~= i then
-            for c = 1, m do
-                cols[c][i], cols[c][pivot_row] = cols[c][pivot_row], cols[c][i]
-            end
-        end
-
-        -- normalize pivot row so pivot becomes 1
-        local pivot = cols[i][i]
-        for c = 1, m do
-            cols[c][i] = cols[c][i] / pivot
-        end
-
-        -- eliminate all other rows at column i
-        for r = 1, n do
-            if r ~= i then
-                local factor = cols[i][r]
-                if math.abs(factor) > eps then
-                    for c = 1, m do
-                        cols[c][r] = cols[c][r] - factor * cols[c][i]
-                    end
-                    -- numeric cleanup
-                    cols[i][r] = 0
+        if pivot_row then
+            -- swap pivot_row with current row
+            if pivot_row ~= row then
+                for c = 1, m do
+                    cols[c][row], cols[c][pivot_row] = cols[c][pivot_row], cols[c][row]
                 end
             end
+
+            -- normalize pivot row
+            local pivot = cols[col][row]
+            for c = 1, m do
+                cols[c][row] = cols[c][row] / pivot
+            end
+
+            -- eliminate column in other rows
+            for r = 1, n do
+                if r ~= row then
+                    local factor = cols[col][r]
+                    if math.abs(factor) > eps then
+                        for c = 1, m do
+                            cols[c][r] = cols[c][r] - factor * cols[c][row]
+                        end
+                        cols[col][r] = 0
+                    end
+                end
+            end
+
+            pivot_cols[#pivot_cols+1] = col
+            rank = rank + 1
+            row = row + 1
+            if row > n then break end
         end
     end
 
-    -- consistency check: zero variable-row but nonzero RHS => inconsistent
-    for r = 1, n do
-        local zero_row = true
+    -- check for inconsistency: [0 0 ... | b] with b≠0
+    for r = rank+1, n do
+        local all_zero = true
         for c = 1, vars do
             if math.abs(cols[c][r]) > eps then
-                zero_row = false
+                all_zero = false
                 break
             end
         end
-        if zero_row and math.abs(cols[m][r]) > eps then
-            return nil
+        if all_zero and math.abs(cols[m][r]) > eps then
+            return nil -- inconsistent
         end
     end
 
-    -- solution is last column entries rows 1..vars
-    local sol = {}
-    for i = 1, vars do sol[i] = cols[m][i] end
-    return sol
-end
+    -- Identify free variables
+    local freevars = {}
+    local pivotset = {}
+    for _,c in ipairs(pivot_cols) do pivotset[c] = true end
+    for c = 1, vars do
+        if not pivotset[c] then
+            freevars[#freevars+1] = c
+        end
+    end
 
+    -- Extract one particular solution
+    local sol = {}
+    for i = 1, vars do sol[i] = 0 end
+    for k,pcol in ipairs(pivot_cols) do
+        sol[pcol] = cols[m][k]  -- solution from reduced form
+    end
+
+    return {solution = sol, freevars = freevars}
+end
 
 --- The orthogonal vector projection.
 --- @param u table<table<number>> the vector being projected onto
@@ -153,41 +198,46 @@ local function orthogonal_vector_projection(u, v)
     )
 end
 
--- Solve t in P = LO + t*LU using least squares (robust for underdetermined 3×1 system)
-local function solve_line_parameter(LU, RHS)
-    local ux, uy, uz = LU[1][1], LU[1][2], LU[1][3]
-    local dx, dy, dz = RHS[1][1], RHS[1][2], RHS[1][3]
-    local denom = ux*ux + uy*uy + uz*uz
-    if denom < 1e-12 then return nil end
-    local t = (ux*dx + uy*dy + uz*dz) / denom
-    return t
+--- vector addition
+--- @param u table<table<number>> the first vector
+--- @param v table<table<number>> the second vector
+--- @return table<table<number>> their sum
+local function vector_addition(u, v)
+    local U = u[1]
+    local V = v[1]
+    return { {U[1]+V[1], U[2]+V[2], U[3]+V[3], 1} }
 end
 
--- Fix point_line_segment_intersecting
+--- determined whether a point and a line segment intersect
+--- @param P table<table<number>> the point
+--- @param L table<table<number>> the line segment
+--- @return bool whether the point and line intersect
 local function point_line_segment_intersecting(P, L)
     local LO = {L[1]}
     local LU = vector_subtraction({L[2]}, {L[1]})
     local LOP = vector_subtraction(P, LO)
     -- Check orthogonal projection distance
-    if distance(orthogonal_vector_projection(LU, LOP), P) >= 0.001 then 
+    local orth = orthogonal_vector_projection(LU, LOP)
+    local real_orth = vector_addition(LO, orth)
+    if distance(real_orth, P) >= eps then 
         return false 
     end
-    -- Solve for line parameter
-    local t = solve_line_parameter(LU, LOP)
-    if t ~= nil and 0 <= t and t <= 1 then return true else return false end
+    local rhs = vector_subtraction(real_orth, LO)
+    -- LO + (t) * LU = orth
+    -- (t) * LU = orth - LO
+    local augmented_matrix = {
+        {LU[1][1], LU[1][2], LU[1][3]}
+        ,{rhs[1][1], rhs[1][2], rhs[1][3]}
+    }
+    local sol = gauss_jordan(augmented_matrix)
+    local t = sol.solution[1]
+    return 0-eps<=t and t<=1+eps
 end
 
--- Fix point_on_line_basis
-local function point_on_line_basis(P, L)
-    local LO = {L[1]}
-    local LU = {{L[2][1]-L[1][1], L[2][2]-L[1][2], L[2][3]-L[1][3], 1}}
-    local RHS = vector_subtraction(P, LO)
-    local t = solve_line_parameter(LU, RHS)
-    if t == nil then return nil end
-    return 0 <= t and t <= 1
-end
-
-
+--- the cross product
+--- @param u table<table<number>> the first vector
+--- @param v table<table<number>> the second vector
+--- @return table<table<number>> their cross product
 local function cross_product(u,v)
     local x = u[1][2]*v[1][3]-u[1][3]*v[1][2]
     local y = u[1][3]*v[1][1]-u[1][1]*v[1][3]
@@ -195,15 +245,10 @@ local function cross_product(u,v)
     return { {x, y, z, 1} }
 end
 
-local function vector_addition(u, v)
-    local U = u[1]
-    local V = v[1]
-    return { {U[1]+V[1], U[2]+V[2], U[3]+V[3], 1} }
-end
-
---- Projects a point onto a plane
+--- Projects a point onto a plane (in a given affine basis)
 --- @param P table<table<number>> the point
---- @param T table<table<number>> affine basis of the plane
+--- @param T table<table<number>> the AFFINE basis of the plane NOT ITS TRIANGLE
+--- @return table<table<number>> the literal intersection and not the coordinates
 local function orthogonal_projection_onto_plane(P, T)
     local TO = {T[1]}
     local TU = {T[2]}
@@ -214,14 +259,10 @@ local function orthogonal_projection_onto_plane(P, T)
     return vector_subtraction(P, proj_TW_TOP)
 end
 
-local function point_triangle_intersecting(P, T)
-    local S = orthogonal_projection_onto_plane(P, T)
-    if distance(S, P) < 0.001 then return true else return false end
-end
-
-
-
-
+--- determines if two parallel vectors are parallel or antiparallel
+--- @param V1 table<table<number>> the first collinear vector
+--- @param V2 table<table<number>> the second collinear vector
+--- @return bool whether they are parallel or antiparalled
 local function vector_sign_equality(V1, V2)
     return (
         sign(V1[1][1]) == sign(V2[1][1]) and
@@ -230,7 +271,10 @@ local function vector_sign_equality(V1, V2)
     )
 end
 
-
+--- determines whether a point that is known to be in the triangle's plane intersects it
+--- @param P table<table<number>> the point which is known to be coplannar with the triangle
+--- @param T table<table<number>> the triangle
+--- @return bool whether they intersect
 local function point_in_triangle(P, T)
     local T1 = vector_subtraction({T[2]}, {T[1]})
     local T2 = vector_subtraction({T[3]}, {T[2]})
@@ -241,269 +285,252 @@ local function point_in_triangle(P, T)
     local C1 = cross_product(T1, P1)
     local C2 = cross_product(T2, P2)
     local C3 = cross_product(T3, P3)
-    if (
+    return (
         vector_sign_equality(C1, C2) == true and 
         vector_sign_equality(C2, C3) == true 
-    ) then return true end return false
+    )
 end
 
+--- detects whether a point and a triangle intersect
+--- @param P table<table<number>> the point
+--- @param T table<table<number>> the triangle
+--- @return bool whether they intersect
+local function point_triangle_intersecting(P, T)
+    local TO = {T[1]}
+    local TU = vector_subtraction({T[2]}, TO)
+    local TV = vector_subtraction({T[3]}, TO)
+    local affine_basis = {TO[1], TU[1], TV[1]}
+    local S = orthogonal_projection_onto_plane(P, affine_basis)
+    return distance(S, P) < eps and point_in_triangle(P, T)
+end
 
--- Returns {t, s} such that L1O + t*L1U = L2O + s*L2U
+--- return coordinates and free variables for line-line intersection
+--- @param L1 table<table<number>> affine basis of a line
+--- @param L1 table<table<number>> another 1D affine basis
+--- @return table<table<number>> the solution and free variables
 local function line_line_intersection(L1, L2)
     local L1O = {L1[1]}
-    local L1U = vector_subtraction({L1[2]}, L1O)
+    local L1U = {L1[2]}
     local L2O = {L2[1]}
-    local L2U = vector_subtraction({L2[2]}, L2O)
+    local L2U = {L2[2]}
+    -- L1O + (t) * L1U = L2O + (s) * L2U
+    -- (t) * L1U - (s) * L2U = L1O - L2O
     local rhs = vector_subtraction(L2O, L1O)
     local augmented_matrix = {
         {L1U[1][1], L1U[1][2], L1U[1][3]},
         {-L2U[1][1], -L2U[1][2], -L2U[1][3]},
         {rhs[1][1], rhs[1][2], rhs[1][3]}
     }
-    return gauss_jordan(augmented_matrix)  -- returns {t, s, ?} (coefficients)
+    return gauss_jordan(augmented_matrix)
 end
 
--- Returns {t1, t2} parametric positions on L1, L2 if segments intersect, nil otherwise
+--- determines the solution coefficients and solution set of two line segments, or produces nil
+--- @param L1 table<table<number>> the first line segment
+--- @param L2 table<table<number>> the second line segment
+--- @return table<table<table<number>>,table<table<number>>>|nil the solution coefficients and solution set
 local function line_segment_line_segment_intersection(L1, L2)
-    local coeffs = line_line_intersection(L1, L2)
+    local L1O = {L1[1]}
+    local L1U = vector_subtraction({L1[2]}, L1O)
+    local L1A = {L1O[1], L1U[1]}
+    local L2O = {L2[1]}
+    local L2U = vector_subtraction({L2[2]}, L2O)
+    local L2A = {L2O[1], L2U[1]}
+    local coeffs = line_line_intersection(L1A, L2A)
     if coeffs == nil then return nil end
-    local t, s = coeffs[1], coeffs[2]
-    if 0 <= t and t <= 1 and 0 <= s and s <= 1 then
-        return {t, s}
+    if #coeffs.solution == 0 then return nil end
+    local t, s = coeffs.solution[1], coeffs.solution[2]
+    if 0-eps <= t and t <= 1+eps and 0-eps <= s and s <= 1+eps then
+        return {
+            coefficients = coeffs,
+            intersection = vector_addition(
+                L1O,
+                scalar_multiplication(t, L1U)
+            )
+        }
     end
     return nil
 end
 
--- Returns {t, s, w} such that LO + t*LU = TO + s*TU + w*TV
+--- length of a vector
+--- @param u table<table<number>> the vector to be measured
+--- @return number the vectors length
+local function length(u)
+    local result = math.sqrt((u[1][1])^2 + (u[1][2])^2 + (u[1][3])^2)
+    return result
+end
+
+--- obtains the coordinates and free variables of the intersection 
+--- between a line and a plane, each defined by their affine bases.
+--- @param L table<table<number>> an affine basis of a line
+--- @param T table<table<number>> an affine basis of a plane
+--- @return table<table<number>> the solution and free variables
 local function line_plane_intersection(L, T)
     local LO = {L[1]}
-    local LU = vector_subtraction({L[2]}, LO)
+    local LU = {L[2]}
     local TO = {T[1]}
-    local TU = vector_subtraction({T[2]}, TO)
-    local TV = vector_subtraction({T[3]}, TO)
+    local TU = {T[2]}
+    local TV = {T[3]}
+    --- LO + (t) * LU = TO + (s) * TU + (w) * TV
+    -- (t) * LU - (s) * TU - (w) * TV = TO - LO
     local rhs = vector_subtraction(TO, LO)
+
+
+    local normal = cross_product(TU, TV)
+    local normal_length = length(normal)
+    if normal_length < eps then
+        -- plane basis is degenerate (area ~ 0)
+        return nil
+    end
+    -- Check if line direction is perpendicular to normal (i.e. lies in plane)
+    dot_product(LU, normal)
+    if math.abs(dot_product(LU, normal)) < eps then
+        -- line direction is parallel to the plane. Now check if the line lies in plane:
+        if math.abs(dot_product(rhs, normal)) < eps then
+            -- the line lies in the plane (coplanar)
+            return { solution = {}, freevars = {1}, coplanar = true }
+        else
+            -- line is parallel but not in plane -> no intersection
+            return nil
+        end
+    end
+
+
     local augmented_matrix = {
         {LU[1][1], LU[1][2], LU[1][3]},
         {-TU[1][1], -TU[1][2], -TU[1][3]},
         {-TV[1][1], -TV[1][2], -TV[1][3]},
         {rhs[1][1], rhs[1][2], rhs[1][3]}
     }
-    return gauss_jordan(augmented_matrix) -- returns {t, s, w} coefficients
-end
-
--- Returns {t, s, w} coefficients or nil if no intersection
-local function line_segment_triangle_intersection(L, T)
-    local coeffs = line_plane_intersection(L, T)
-    if coeffs == nil then return nil end
-    local t = coeffs[1]
-    if t < 0 or t > 1 then return nil end  -- segment bound
-    -- check if projected point is inside triangle
-    local LO = {L[1]}
-    local LU = vector_subtraction({L[2]}, LO)
-    local I = vector_addition(LO, scalar_multiplication(t, LU))
-    if point_in_triangle(I, T) then
-        return coeffs
+    local sol = gauss_jordan(augmented_matrix)
+    if not sol then
+        print("No solution: line-plane system inconsistent")
+        return nil
     end
-    return nil
+    if #sol.freevars > 0 then
+        print("Line lies in the plane (coplanar case). Free vars:", #sol.freevars)
+    end
+    return sol
 end
 
+--- determines the intersection coefficients and intersection point of a line segment and triangle, if it exists, or returns nil
+--- @param L table<table<number>> line segment defined by endpoints
+--- @param T table<table<number>> triangle defined by vertices
+--- @return table<table<table<number>>,table<table<number>>>|nil the solution coefficients and literal R3 intersection point
 local function line_segment_triangle_intersection(L, T)
     local LO = {L[1]}
     local LU = vector_subtraction({L[2]}, LO)
+    local LA = {LO[1], LU[1]}
     local TO = {T[1]}
     local TU = vector_subtraction({T[2]}, TO)
     local TV = vector_subtraction({T[3]}, TO)
-
-    -- Solve LO + t*LU = TO + s*TU + w*TV
-    local rhs = vector_subtraction(TO, LO)
-    local augmented = {
-        {LU[1][1], LU[1][2], LU[1][3]},
-        {-TU[1][1], -TU[1][2], -TU[1][3]},
-        {-TV[1][1], -TV[1][2], -TV[1][3]},
-        {rhs[1][1], rhs[1][2], rhs[1][3]}
-    }
-
-    local coeffs = gauss_jordan(augmented)
-    if coeffs == nil then return nil end
-
-    local t = coeffs[1]
-    if t < -1e-6 or t > 1+1e-6 then return nil end  -- segment bound with epsilon
-
-    -- intersection point
-    local I = vector_addition(LO, scalar_multiplication(t, LU))
-
-    -- allow small tolerance inside triangle
-    local eps = 1e-6
-    if point_in_triangle(I, T) then
-        return {t, coeffs[2], coeffs[3]}
+    local TA = {TO[1], TU[1], TV[1]}
+    local coeffs = line_plane_intersection(LA, TA)
+    if coeffs == nil then return nil end 
+    if #coeffs.solution == 0 then return nil end 
+    local t = coeffs.solution[1]
+    if 0-eps<=t and t<=1+eps then
+        local I = vector_addition(
+            LO,
+            scalar_multiplication(t, LU)
+        )
+        if point_in_triangle(I, T) then 
+            return {
+                solution = coeffs,
+                intersection = I
+            }
+        end
     end
-
     return nil
 end
 
-
-
--- Revised triangle-triangle intersection using edge-segment tests
+--- produces exactly zero, or exactly two intersection points between two triangles
+--- @param T1 table<table<number>> a triangle defined by its vertices
+--- @param T2 table<table<number>> another triangle defined by its vertices
+--- @return table<table<number>> a matrix of exactly zero or exactly two points nothing else
 local function triangle_triangle_intersections(T1, T2)
     local edges1 = { {T1[1], T1[2]}, {T1[2], T1[3]}, {T1[3], T1[1]} }
     local edges2 = { {T2[1], T2[2]}, {T2[2], T2[3]}, {T2[3], T2[1]} }
 
     local points = {}
+
+    --- appends a point to a list if it is unique
+    --- @param P table<table<number>> a point
     local function add_unique(P)
-        if not P then return end
+        if not P then return nil end
         for _, Q in ipairs(points) do
-            if distance(P, Q) < 1e-6 then return end
+            if distance(P, Q) < eps then return nil end
         end
         table.insert(points, P)
     end
 
     -- Check all edge pairs
     for _, E1 in ipairs(edges1) do
-        for _, E2 in ipairs(edges2) do
-            local coeffs = line_segment_line_segment_intersection(E1, E2)
-            if coeffs then
-                local t = coeffs[1]
-                local I = vector_addition({E1[1]}, scalar_multiplication(t, vector_subtraction({E1[2]}, {E1[1]})))
-                add_unique(I[1])
-            end
+        local intersect = line_segment_triangle_intersection(E1, T2)
+        if intersect ~= nil then
+            add_unique(intersect.intersection)
+        end
+    end
+    for _, E2 in ipairs(edges2) do
+        local intersect = line_segment_triangle_intersection(E2, T1)
+        if intersect ~= nil then
+            add_unique(intersect.intersection)
         end
     end
 
-    if #points < 2 then return nil end
-    return { points[1], points[#points] }
+    if #points == 0 then return nil end
+    if #points == 1 then return nil end
+    if #points ~= 2 then 
+        assert(false, ("two triangles intersected at %f points"):format(#points)) 
+    end
+    return points
 end
 
--- The rest of the triangle_triangle_clip function can remain the same:
-local function triangle_triangle_clip(T1, T2)
-    local A = triangle_triangle_intersections(T1, T2)
-    if A == nil then return nil end
-    local P1, P2 = A[1], A[2]
-    -- Build a line segment L through the two intersection points
-    local P = { P1, P2 }
-    local LO = P1
-    local LU = vector_subtraction(P2, LO)
-    local L_basis = { LO[1], LU[1] }
+--- returns a table of line segments - the partition of L into two - if L itnersects a point, else returns nil
+--- @param P table<table<number>> the point
+--- @param L table<table<number>> the line segment
+--- @return table<table<table<number>>,table<table<number>>>|nil the intersection points if they exist
+local function point_line_segment_partition(P, L)
+    if point_line_segment_intersecting(P, L) then 
+        return {
+            point1 = {L[1], P[1]}, 
+            point2 = {L[2], P[1]}
+        }
+    end 
+    return nil
+end
 
-    -- Identify which edge of T1 was *not* intersected, then form the quad
-    -- and split into 3 triangles. (Original logic follows.)
-    local T1A = {T1[1], T1[2]}; local T1AU = vector_subtraction({T1A[2]}, {T1A[1]})
-    local T1B = {T1[2], T1[3]}; local T1BU = vector_subtraction({T1B[2]}, {T1B[1]})
-    local T1C = {T1[3], T1[1]}; local T1CU = vector_subtraction({T1C[2]}, {T1C[1]})
-    local T1A_basis = {T1A[1], T1AU[1]}
-    local T1B_basis = {T1B[1], T1BU[1]}
-    local T1C_basis = {T1C[1], T1CU[1]}
-
-    local function get_point(L, T_edge)
-        local coeffs = line_line_intersection(L, T_edge)
-        if coeffs == nil then return nil end
-        local O = {L[1]}
-        local U = vector_subtraction({L[2]}, O)
-        local t = coeffs[1]
-        return vector_addition(O, scalar_multiplication(t, U))
-    end
-
-    local pointsList = {}
-    local PT1A = get_point(P, T1A)
-    if PT1A and point_on_line_basis(PT1A, T1A) then table.insert(pointsList, {line_segment="T1A", point=PT1A}) end
-    local PT1B = get_point(P, T1B)
-    if PT1B and point_on_line_basis(PT1B, T1B) then table.insert(pointsList, {line_segment="T1B", point=PT1B}) end
-    local PT1C = get_point(P, T1C)
-    if PT1C and point_on_line_basis(PT1C, T1C) then table.insert(pointsList, {line_segment="T1C", point=PT1C}) end
-
-    if #pointsList < 2 then return nil end
-    local F1, F2 = pointsList[1], pointsList[2]
-    local test
-    if F1.line_segment ~= "T1A" and F2.line_segment ~= "T1A" then test = "T1A" end
-    if F1.line_segment ~= "T1B" and F2.line_segment ~= "T1B" then test = "T1B" end
-    if F1.line_segment ~= "T1C" and F2.line_segment ~= "T1C" then test = "T1C" end
-
-    local quad = {F1.point[1], F2.point[1]}
-    if test == "T1A" then
-        table.insert(quad, T1A[1]); table.insert(quad, T1A[2])
-    elseif test == "T1B" then
-        table.insert(quad, T1B[1]); table.insert(quad, T1B[2])
-    elseif test == "T1C" then
-        table.insert(quad, T1C[1]); table.insert(quad, T1C[2])
-    end
-
-    quad = centroid_sort(quad)
-    local tri1 = {F1.point[1], T1B[2], F2.point[1]}
-    local tri2 = {quad[1], quad[2], quad[3]}
-    local tri3 = {quad[3], quad[4], quad[1]}
-
+--- if two line segments intersect, returns the pieces of the first 
+--- one, after being partitioned by the intersection with the other
+--- @param L1 table<table<number>> the first line segment
+--- @param L2 table<table<number>> the second line segment
+--- @return table<table<table<number>>,table<table<number>>> the fragmented pieces of the first segment
+local function line_segment_line_segment_partition(L1, L2)
+    local intersect = line_segment_line_segment_intersection(L1, L2)
+    if intersect == nil then return nil end
+    local I = intersect.intersection
     return {
-        { segment = tri1, type = "triangle" },
-        { segment = tri2, type = "triangle" },
-        { segment = tri3, type = "triangle" }
+        line_segment1 = {L1[1], I[1]},
+        line_segment2 = {L1[2], I[1]}
     }
 end
 
-
-
-
-
-
-
-
-local function line_segment_line_segment_clip(L1, L2)
-    local coeffs = line_segment_line_segment_intersection(L1, L2)
-    if not coeffs then return { { segment = L1, type = "line segment" } } end
-    local t = coeffs[1]
-    local I = vector_addition({L1[1]}, scalar_multiplication(t, vector_subtraction({L1[2]}, {L1[1]})))
-    return {
-        { segment = { L1[1], I[1] }, type = "line segment" },
-        { segment = { I[1], L1[2] }, type = "line segment" }
-    }
-end
-
-
-
+--- partitions a line segment by its intersection with a triangle, or returns nil
+--- @param L table<table<number>> the line segment
+--- @param T table<table<number>> the triangle
+--- @return table<table<table<number>>,table<table<number>>>|nil the partitioned line segment or nil
 local function line_segment_triangle_clip(L, T)
-    local coeffs = line_segment_triangle_intersection(L, T)
-    if not coeffs then
-        return { { segment = L, type = "line segment" } }
-    end
-    local t = coeffs[1]
-    local LO = {L[1]}
-    local LU = vector_subtraction({L[2]}, LO)
-    local I = vector_addition(LO, scalar_multiplication(t, LU))
+    local intersect = line_segment_triangle_intersection(L, T)
+    if intersect == nil then return nil end
+    local I = intersect.intersection
     return {
-        { segment = { L[1], I[1] }, type = "line segment" },
-        { segment = { I[1], L[2] }, type = "line segment" }
-    }
-end
-local function line_segment_triangle_clip(L, T)
-    local coeffs = line_segment_triangle_intersection(L, T)
-    if not coeffs then
-        -- no intersection → return the original segment
-        return { { segment = L, type = "line segment" } }
-    end
-
-    -- extract t (parameter along the line segment)
-    local t = coeffs[1]
-
-    -- compute intersection point
-    local LO = {L[1]}
-    local LU = vector_subtraction({L[2]}, LO)
-    local I = vector_addition(LO, scalar_multiplication(t, LU))
-
-    -- split line segment at intersection
-    return {
-        { segment = {L[1], I[1]}, type = "line segment" },
-        { segment = {I[1], L[2]}, type = "line segment" }
+        line_segment1 = {L[1], I[1]},
+        line_segment2 = {L[2], I[1]}
     }
 end
 
-
-
-
--- Normalize helper
-local function normalize(v)
-    local u = v[1]
-    local len = math.sqrt(u[1]^2 + u[2]^2 + u[3]^2)
-    return { {u[1]/len, u[2]/len, u[3]/len, 1} }
-end
-
+--- ChatGPT written centroid sorting function, for the purpose of convex polygon ordering
+--- @param points table<table<number>> the not necessarily convex matrix of polygon points
+--- @return table<table<number>> the definitively convex matrix of polygon points
 local function centroid_sort(points)
     local num = #points
     assert(num >= 3, "Need at least 3 points to sort by centroid.")
@@ -549,18 +576,21 @@ local function centroid_sort(points)
     return sorted
 end
 
-
-
+--- returns the partitio of the first triangle into three subtriangles, 
+--- if it intersects the second, otherwise produces nil
+--- @param T1 table<table<number>> the first triangle
+--- @param T2 table<table<number>> the second triangle
+--- @return table<table<table<number>>,table<table<number>>,table<table<number>>> table of sub triangles
+local function triangle_triangle_partition(T1, T2)
+    local I = triangle_triangle_intersections(T1, T2)
+    if I == nil then return nil end
+    if #I == 0 then return nil end
+    if #I == 1 then return nil end
+    if #I ~= 2 then  assert(false, ("I is not 2, it is instead: %f"):format(#I)) end
     
-
-
-
-
-local function triangle_triangle_clip(T1, T2)
-    local A = triangle_triangle_intersections(T1, T2)
-    if A == nil then return nil end
-    local P1, P2 = A[1], A[2]
-    local P = {P1[1], P2[1]}
+    local IO = I[1]
+    local IU = vector_subtraction(I[2], IO)
+    local I_basis = {IO[1], IU[1]}
     local T1A = {T1[1], T1[2]}
     local T1AU = vector_subtraction({T1A[2]}, {T1A[1]})
     local T1A_basis = {T1A[1], T1AU[1]}
@@ -579,64 +609,117 @@ local function triangle_triangle_clip(T1, T2)
     local T2C = {T2[3], T2[1]}
     local T2CU = vector_subtraction({T2C[2]}, {T2C[1]})
     local T2C_basis = {T2C[1], T2CU[1]}
-    local LO = P1 
-    local LU = vector_subtraction(P2, LO)
-    local L_basis = {LO[1], LU[1]}
 
-    -- We'll only do one triangle; I arbitrarily choose the first.
     local points = {}
-    local function get_point(L, T)
-        local coeffs = line_line_intersection(L, T)
-        if coeffs == nil then return nil end
-        local O = {L[1]}
-        local U = vector_subtraction({L[2]}, O)
-        local t = coeffs[1]
-        return vector_addition(O, scalar_multiplication(t, U))
+    local non_intersecting = nil
+
+    local int1 = line_line_intersection(I_basis, T1A_basis)
+    if int1 == nil then 
+        int1 = {solution = {}}
     end
-    local PT1A = get_point(P, T1A)
-    if PT1A ~= nil and point_on_line_basis(PT1A, T1A) ~= nil then table.insert(points, {line_segment = "T1A", point = PT1A}) end
-    local PT1B = get_point(P, T1B)
-    if PT1B ~= nil and point_on_line_basis(PT1B, T1B) ~= nil then table.insert(points, {line_segment = "T1B", point = PT1B}) end
-    local PT1C = get_point(P, T1C)
-    if PT1C ~= nil and point_on_line_basis(PT1C, T1C) ~= nil then table.insert(points, {line_segment = "T1C", point = PT1C}) end
-    local F1, F2 = points[1], points[2]
-    if F1 == nil or F2 == nil then return nil end
-    local test 
-    if F1.line_segment ~= "T1A" and F2.line_segment ~= "T1A" then test = "T1A" end
-    if F1.line_segment ~= "T1B" and F2.line_segment ~= "T1B" then test = "T1B" end
-    if F1.line_segment ~= "T1C" and F2.line_segment ~= "T1C" then test = "T1C" end
+    if #int1.solution ~= 0 then 
+        local t = int1.solution[1]
+        local intersect = vector_addition(
+            IO,
+            scalar_multiplication(t, IU)
+        )
+        if point_line_segment_intersecting(intersect, T1A) then
+            table.insert(points, intersect)
+        else 
+            non_intersecting = "T1A" 
+        end
+    else 
+        non_intersecting = "T1A"
+    end
+
+    local int2 = line_line_intersection(I_basis, T1B_basis)
+    if int2 == nil then 
+        int2 = {solution = {}}
+    end
+    if #int2.solution ~= 0 then 
+        local t = int2.solution[1]
+        local intersect = vector_addition(
+            IO,
+            scalar_multiplication(t, IU)
+        )
+        if point_line_segment_intersecting(intersect, T1B) then
+            table.insert(points, intersect)
+        else 
+            non_intersecting = "T1B" 
+        end
+    else 
+        non_intersecting = "T1B"
+    end
+
+    local int3 = line_line_intersection(I_basis, T1C_basis)
+    if int3 == nil then 
+        int3 = {solution = {}}
+    end
+    if #int3.solution ~= 0 then 
+        local t = int3.solution[1]
+        local intersect = vector_addition(
+            IO,
+            scalar_multiplication(t, IU)
+        )
+        if point_line_segment_intersecting(intersect, T1C) then
+            table.insert(points, intersect)
+        else 
+            non_intersecting = "T1C" 
+        end
+    else 
+        non_intersecting = "T1C"
+    end
+
+    if #points == 3 then return nil end 
+    if #points == 1 then return nil end 
+    if #points ~= 2 then
+        print("Partition failure: got", #points, "points")
+        print("Triangle 1:", T1)
+        print("Triangle 2:", T2)
+        print("Non-intersecting edge:", non_intersecting)
+        for i, p in ipairs(points) do
+            print("Point", i, p[1][1], p[1][2], p[1][3])
+        end
+        return nil
+        --assert(false, "triangle_triangle_partition doesn't have exactly two points")
+    end
     local quad = {}
-    table.insert(quad, F1.point[1])
-    table.insert(quad, F2.point[1])
-    if test == "T1A" then 
+    local tri1
+    local A, B = points[1], points[2]
+    table.insert(quad, A[1])
+    table.insert(quad, B[1])
+    if non_intersecting == "T1A" then 
         table.insert(quad, T1A[1])
         table.insert(quad, T1A[2])
-    elseif test == "T1B" then 
+        tri1 = {A[1], B[1], T1B[2]}
+    elseif non_intersecting == "T1B" then 
         table.insert(quad, T1B[1])
         table.insert(quad, T1B[2])
-    elseif test == "T1C" then 
+        tri1 = {A[1], B[1], T1C[2]}
+    elseif non_intersecting == "T1C" then
         table.insert(quad, T1C[1])
         table.insert(quad, T1C[2])
+        tri1 = {A[1], B[1], T1A[2]}
     end
-    local tri1 = {F1.point[1], T1B[2], F2.point[1]}
     quad = centroid_sort(quad)
-    local tri2 = {quad[1], quad[2], quad[3]}
-    local tri3 = {quad[3], quad[4], quad[1]}
     return {
-        { segment = tri1, type = "triangle" },
-        { segment = tri2, type = "triangle" },
-        { segment = tri3, type = "triangle" }
+        tri1 = tri1,
+        tri2 = {quad[1], quad[2], quad[3]},
+        tri3 = {quad[3], quad[4], quad[1]}
     }
 end
 
-local function safe_triangle_triangle_clip(T1, T2)
-    local clipped = triangle_triangle_clip(T1, T2)
-    if clipped == nil then
-        -- no intersection → return the original triangle as a "segment"
-        return { { segment = T1, type = "triangle" } }
-    end
-    return clipped
-end
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1093,245 +1176,327 @@ register_tex_cmd(
 
 
 
+
+-- ========================================================================
+-- Canonical fragment signature + helpers
+-- ========================================================================
+
+local function canonicalize_segment(seg, eps)
+  eps = eps or 1e-4
+  local out = {}
+  -- remove near-duplicates
+  for _, P in ipairs(seg) do
+    local x,y,z = P[1] or 0, P[2] or 0, P[3] or 0
+    if #out == 0 then
+      out[#out+1] = {x,y,z}
+    else
+      local q = out[#out]
+      if math.abs(q[1]-x) > eps or math.abs(q[2]-y) > eps or math.abs(q[3]-z) > eps then
+        out[#out+1] = {x,y,z}
+      end
+    end
+  end
+  -- collapse colinear (2D check only)
+  local final = {}
+  for i=1,#out do
+    if i==1 or i==#out then
+      final[#final+1] = out[i]
+    else
+      local a, b, c = out[i-1], out[i], out[i+1]
+      local dx1,dy1 = b[1]-a[1], b[2]-a[2]
+      local dx2,dy2 = c[1]-b[1], c[2]-b[2]
+      if math.abs(dx1*dy2 - dy1*dx2) > eps then
+        final[#final+1] = b
+      end
+    end
+  end
+  return final
+end
+
+local function fragment_signature(f, eps)
+  eps = eps or 1e-4
+  local pts = {}
+  if f.segment then
+    local seg = canonicalize_segment(f.segment, eps)
+    for _, P in ipairs(seg) do
+      local x = math.floor((P[1] or 0)/eps + 0.5)
+      local y = math.floor((P[2] or 0)/eps + 0.5)
+      local z = math.floor((P[3] or 0)/eps + 0.5)
+      pts[#pts+1] = string.format("%d,%d,%d", x, y, z)
+    end
+    table.sort(pts)
+  end
+  local t = f.type or "unknown"
+  if t == "line" then t = "line segment" end -- normalize synonyms
+  return t .. "|" .. table.concat(pts, ";")
+end
+
+-- kept for API compatibility, now unused
+local function reset_global_seen() end
+
+-- ========================================================================
+-- Topological sort with partitioning and cycle handling
+-- ========================================================================
+
 local function topo_sort_with_cycles(items, cmp, max_depth)
-    local eps = 1e-9
-    max_depth = max_depth or 2000
+  max_depth = max_depth or 2000
+  local eps_local = 1e-4   -- less strict tolerance
+  local DEBUG = false
 
-    -- Type helpers
-    local function is_line_segment(p) return p.type == "line segment" or p.type == "line" end
-    local function is_triangle(p) return p.type == "triangle" end
-    local function is_point(p) return p.type == "point" end
+  local global_seen = {}   -- local deduplication per call
 
-    -- Compute axis-aligned bounding box for a primitive
-    local function get_bbox(p)
-        local minX, maxX = math.huge, -math.huge
-        local minY, maxY = math.huge, -math.huge
-        for _, P in ipairs(p.segment) do
-            local x, y = P[1], P[2]
-            minX, maxX = math.min(minX, x), math.max(maxX, x)
-            minY, maxY = math.min(minY, y), math.max(maxY, y)
-        end
-        return minX, maxX, minY, maxY
+  -- ---------------------------------------------------------------
+  -- type checks
+  -- ---------------------------------------------------------------
+  local function is_line_segment(p) return p.type == "line segment" or p.type == "line" end
+  local function is_triangle(p) return p.type == "triangle" end
+  local function is_point(p) return p.type == "point" end
+
+  local function get_bbox(p)
+    local minX, maxX = math.huge, -math.huge
+    local minY, maxY = math.huge, -math.huge
+    for _, P in ipairs(p.segment or {}) do
+      local x, y = P[1] or 0, P[2] or 0
+      minX, maxX = math.min(minX, x), math.max(maxX, x)
+      minY, maxY = math.min(minY, y), math.max(maxY, y)
     end
+    return minX, maxX, minY, maxY
+  end
 
-    local function bboxes_overlap(b1, b2)
-        local minX1, maxX1, minY1, maxY1 = table.unpack(b1)
-        local minX2, maxX2, minY2, maxY2 = table.unpack(b2)
-        return not (maxX1 < minX2 or maxX2 < minX1 or maxY1 < minY2 or maxY2 < minY1)
+  local function bboxes_overlap(b1, b2)
+    local minX1, maxX1, minY1, maxY1 = table.unpack(b1)
+    local minX2, maxX2, minY2, maxY2 = table.unpack(b2)
+    return not (maxX1 < minX2 or maxX2 < minX1 or maxY1 < minY2 or maxY2 < minY1)
+  end
+
+  -- ---------------------------------------------------------------
+  -- cloning / projection helpers
+  -- ---------------------------------------------------------------
+  local next_frag_id = 1
+  local function clone_fragment(orig)
+    local copy = {}
+    for k,v in pairs(orig) do if k ~= "segment" then copy[k] = v end end
+    copy.segment = {}
+    for _, P in ipairs(orig.segment or {}) do
+      copy.segment[#copy.segment+1] = {P[1], P[2], P[3], P[4]}
     end
+    copy.__id = next_frag_id; next_frag_id = next_frag_id + 1
+    return copy
+  end
 
-    -- Primitive metric (size) for clipping order
-    local function primitive_metric(p)
-        if is_point(p) then return 0 end
-        if is_line_segment(p) then
-            local A, B = p.segment[1], p.segment[2]
-            return math.sqrt((A[1]-B[1])^2 + (A[2]-B[2])^2 + (A[3]-B[3])^2)
-        end
-        if is_triangle(p) then
-            local A, B, C = p.segment[1], p.segment[2], p.segment[3]
-            local ux, uy, uz = B[1]-A[1], B[2]-A[2], B[3]-A[3]
-            local vx, vy, vz = C[1]-A[1], C[2]-A[2], C[3]-A[3]
-            local cx, cy, cz = uy*vz - uz*vy, uz*vx - ux*vz, ux*vy - uy*vx
-            return 0.5 * math.sqrt(cx*cx + cy*cy + cz*cz)
-        end
-        return math.huge
+  local function convert_clone_segment_to_projected(clone)
+    local out = {}
+    for _, P in ipairs(clone.segment or {}) do
+      local x, y, z, w = P[1] or 0, P[2] or 0, P[3] or 0, P[4]
+      if w == nil or w == 0 then
+        out[#out+1] = {x,y,z}
+      else
+        local rw = 1/w
+        out[#out+1] = {x*rw, y*rw, z*rw}
+      end
     end
+    clone.segment = out
+    return #out > 0
+  end
 
-    -- Equality helpers
-    local function points_equal(A, B) return ((A[1]-B[1])^2 + (A[2]-B[2])^2 + (A[3]-B[3])^2) < eps^2 end
-    local function segment_equal(sa, sb)
-        if #sa ~= #sb then return false end
-        for k = 1, #sa do if not points_equal(sa[k], sb[k]) then return false end end
-        return true
+  local function make_fragment_from_points(pts, orig)
+    local typ = (#pts==1 and "point") or (#pts==2 and "line segment") or "triangle"
+    if #pts > 3 then while #pts > 3 do table.remove(pts) end end
+    local frag = {}
+    for k,v in pairs(orig or {}) do frag[k] = v end
+    frag.segment = {}
+    for _, P in ipairs(pts) do frag.segment[#frag.segment+1] = {P[1],P[2],P[3]} end
+    frag.type = typ
+    frag.__id = next_frag_id; next_frag_id = next_frag_id + 1
+    return frag
+  end
+
+  local function normalize_points(arr)
+    local out = {}
+    for _, P in ipairs(arr or {}) do
+      if #P >= 3 then out[#out+1] = {P[1],P[2],P[3]} end
     end
-    local function fragments_equal(orig, frags)
-        return #frags == 1 and orig.type == frags[1].type and segment_equal(orig.segment, frags[1].segment)
+    return out
+  end
+
+  local function fragments_from_partition_result(result, orig)
+    local frags = {}
+    if not result then return frags end
+    for _, pts in pairs(result) do
+      local eu = normalize_points(pts)
+      if #eu > 0 then
+        frags[#frags+1] = make_fragment_from_points(eu, orig)
+      end
     end
+    return frags
+  end
 
-    -- Check real geometric intersection
-    local function primitives_intersect(a, b)
-        if is_point(a) or is_point(b) then return false end
-        if is_line_segment(a) and is_line_segment(b) then
-            return line_segment_line_segment_intersection(a.segment, b.segment) ~= nil
-        elseif is_line_segment(a) and is_triangle(b) then
-            return line_segment_triangle_intersection(a.segment, b.segment) ~= nil
-        elseif is_triangle(a) and is_line_segment(b) then
-            return line_segment_triangle_intersection(b.segment, a.segment) ~= nil
-        elseif is_triangle(a) and is_triangle(b) then
-            return triangle_triangle_intersections(a.segment, b.segment) ~= nil
-        end
-        return false
+  -- ---------------------------------------------------------------
+  -- splice helper
+  -- ---------------------------------------------------------------
+  local function splice_replace_at(tbl, idx, frags)
+    if DEBUG then
+      texio.write_nl(("lua | splice_replace_at: replacing index %d with %d fragments"):format(idx,#frags))
     end
+    table.remove(tbl, idx)
+    for k=#frags,1,-1 do table.insert(tbl, idx, frags[k]) end
+  end
 
-    -- Clip primitive `a` by primitive `b`
-    local function clip_a_by_b(a, b)
-        -- fallback: always return at least one fragment
-        local function wrap_fragment(seg)
-            return { segment = seg.segment or seg, type = a.type, drawoptions = a.drawoptions, filloptions = a.filloptions, name = a.name }
-        end
-
-        if is_point(a) then return { wrap_fragment(a.segment) } end
-
-        if is_line_segment(a) and is_line_segment(b) then
-            local segs = line_segment_line_segment_clip(a.segment, b.segment)
-            if segs then
-                local result = { wrap_fragment(segs[1]) }
-                if segs[2] then table.insert(result, wrap_fragment(segs[2])) end
-                return result
-            end
-        elseif is_line_segment(a) and is_triangle(b) then
-            local segs = line_segment_triangle_clip(a.segment, b.segment)
-            if segs then
-                local result = { wrap_fragment(segs[1]) }
-                if segs[2] then table.insert(result, wrap_fragment(segs[2])) end
-                return result
-            end
-        elseif is_triangle(a) and is_triangle(b) then
-            local tris = safe_triangle_triangle_clip(a.segment, b.segment)
-            if tris and #tris > 0 then
-                local fa = a.filloptions
-                local result = {}
-                for _, t in ipairs(tris) do table.insert(result, { segment = t.segment, type = "triangle", filloptions = fa }) end
-                return result
-            end
-        end
-        return { wrap_fragment(a.segment) }
+  -- ---------------------------------------------------------------
+  -- working copy
+  -- ---------------------------------------------------------------
+  local working = {}
+  for i=1,#items do
+    local c = clone_fragment(items[i])
+    if convert_clone_segment_to_projected(c) then
+      working[#working+1] = c
     end
+  end
 
+  -- ---------------------------------------------------------------
+  -- partition loop
+  -- ---------------------------------------------------------------
+  local iter, changed = 0, true
+  while changed and iter < max_depth do
+    iter = iter+1
+    changed = false
+    local attempted = {}   -- reset each outer iteration
 
-    ----------------------------------------------------------------
-    -- Iterative clipping until stable
-    ----------------------------------------------------------------
-    local iter, changed = 0, true
-    while changed and iter < max_depth do
-        iter = iter + 1
-        changed = false
-        local n = #items
-        local i = 1
-        while i <= n do
-            local j = i + 1
-            while j <= n do
-                -- Only clip if bounding boxes overlap
-                if bboxes_overlap({get_bbox(items[i])}, {get_bbox(items[j])}) then
-                    local first_metric, second_metric = primitive_metric(items[i]), primitive_metric(items[j])
-                    local first_index, second_index = first_metric <= second_metric and i or j, first_metric <= second_metric and j or i
+    local i=1
+    while i <= #working do
+      local j=i+1
+      while j <= #working do
+        local A,B = working[i], working[j]
+        if not bboxes_overlap({get_bbox(A)}, {get_bbox(B)}) then
+          j=j+1
+        else
+          local partA, partB, action
+          if is_triangle(A) and is_triangle(B) then
+            action="tt_A"; partA = triangle_triangle_partition(A.segment,B.segment)
+          elseif is_line_segment(A) and is_triangle(B) then
+            action="lt_A"; partA = line_segment_triangle_clip(A.segment,B.segment)
+          elseif is_triangle(A) and is_line_segment(B) then
+            action="tl_B"; partB = line_segment_triangle_clip(B.segment,A.segment)
+          elseif is_line_segment(A) and is_line_segment(B) then
+            action="ll_A"; partA = line_segment_line_segment_partition(A.segment,B.segment)
+          end
 
-                    -- Clip first by second
-                    local frags1 = clip_a_by_b(items[first_index], items[second_index])
-                    if not fragments_equal(items[first_index], frags1) then
-                        for _, v in ipairs(frags1) do
-                            if v.filloptions == nil then v.filloptions = items[first_index].filloptions end
-                            if v.drawoptions == nil then v.drawoptions = items[first_index].drawoptions end
-                            if v.name == nil then v.name = items[first_index].name end
-                        end
-                        items[first_index] = frags1[1]
-                        for k = 2, #frags1 do table.insert(items, first_index + k - 1, frags1[k]) end
-                        changed = true
-                        break
-                    end
+          local sigA, sigB = fragment_signature(A, eps_local), fragment_signature(B, eps_local)
+          local key = sigA.."|"..sigB.."|"..(action or "none")
 
-                    -- Clip second by first
-                    local frags2 = clip_a_by_b(items[second_index], items[first_index])
-                    if not fragments_equal(items[second_index], frags2) then
-                        for _, v in ipairs(frags2) do
-                            if v.filloptions == nil then v.filloptions = items[second_index].filloptions end
-                            if v.drawoptions == nil then v.drawoptions = items[second_index].drawoptions end
-                            if v.name == nil then v.name = items[second_index].name end
-                        end
-                        items[second_index] = frags2[1]
-                        for k = 2, #frags2 do table.insert(items, second_index + k - 1, frags2[k]) end
-                        changed = true
-                        break
-                    end
+          if attempted[key] then
+            j=j+1
+          else
+            local function process(target, target_index, part, sigOther)
+              if not part then return false end
+              local frags = fragments_from_partition_result(part, target)
+              if #frags==0 then return false end
+
+              local kept = {}
+              for _,f in ipairs(frags) do
+                local s = fragment_signature(f, eps_local)
+                if s ~= sigA and s ~= sigB and not global_seen[s] then
+                  global_seen[s] = true
+                  kept[#kept+1] = f
                 end
-                j = j + 1
+              end
+              if #kept==0 then return false end
+              splice_replace_at(working, target_index, kept)
+              return true
             end
-            -- Restart from first item if any clipping occurred
-            i = changed and 1 or i + 1
-        end
-    end
 
-
-   
-
-    ----------------------------------------------------------------
-    -- Build occlusion graph and SCC-based topological sort
-    ----------------------------------------------------------------
-    local bboxes, graph = {}, {}
-    for i, p in ipairs(items) do bboxes[i] = {get_bbox(p)}; graph[i] = {} end
-
-    for i = 1, #items-1 do
-        for j = i+1, #items do
-            if bboxes_overlap(bboxes[i], bboxes[j]) then
-                local r = cmp(items[i], items[j])
-                if r == true then table.insert(graph[i], j)
-                elseif r == false then table.insert(graph[j], i) end
+            local did = false
+            if partA then did = process(A,i,partA,sigB) end
+            if not did and partB then did = process(B,j,partB,sigA) end
+            if not did then
+              attempted[key] = true   -- only mark if no change
+              j=j+1
+            else
+              changed=true; i=math.max(1,i-1); break
             end
+          end
         end
+      end
+      i=i+1
     end
+  end
 
-    -- Tarjan SCC
-    local index, stack, indices, lowlink, onstack, sccs = 0, {}, {}, {}, {}, {}
-    for i = 1, #items do indices[i], lowlink[i] = -1, -1 end
+  -- ---------------------------------------------------------------
+  -- replace items with working
+  -- ---------------------------------------------------------------
+  for k=#items,1,-1 do items[k]=nil end
+  for _,v in ipairs(working) do items[#items+1]=v end
 
-    local function dfs(v)
-        indices[v], lowlink[v] = index, index
-        index = index + 1
-        table.insert(stack, v); onstack[v] = true
-        for _, w in ipairs(graph[v]) do
-            if indices[w] == -1 then dfs(w); lowlink[v] = math.min(lowlink[v], lowlink[w])
-            elseif onstack[w] then lowlink[v] = math.min(lowlink[v], indices[w]) end
-        end
-        if lowlink[v] == indices[v] then
-            local scc = {}
-            while true do
-                local w = table.remove(stack); onstack[w] = false
-                table.insert(scc, w)
-                if w == v then break end
-            end
-            table.insert(sccs, scc)
-        end
+  -- ---------------------------------------------------------------
+  -- occlusion graph + SCC topo sort
+  -- ---------------------------------------------------------------
+  local n=#items
+  local bboxes,graph={},{}
+  for i=1,n do bboxes[i]={get_bbox(items[i])}; graph[i]={} end
+  for i=1,n-1 do
+    for j=i+1,n do
+      if bboxes_overlap(bboxes[i],bboxes[j]) then
+        local r=cmp(items[i],items[j])
+        if r==true then table.insert(graph[i],j)
+        elseif r==false then table.insert(graph[j],i) end
+      end
     end
+  end
 
-    for v = 1, #items do if indices[v] == -1 then dfs(v) end end
-
-    -- Build SCC graph and indegrees
-    local scc_index, scc_graph, indeg = {}, {}, {}
-    for i, comp in ipairs(sccs) do
-        for _, v in ipairs(comp) do scc_index[v] = i end
-        scc_graph[i], indeg[i] = {}, 0
+  local index,stack,indices,lowlink,onstack,sccs=0,{}, {}, {}, {}, {}
+  for i=1,n do indices[i],lowlink[i]=-1,-1 end
+  local function dfs(v)
+    indices[v],lowlink[v]=index,index; index=index+1
+    stack[#stack+1]=v; onstack[v]=true
+    for _,w in ipairs(graph[v]) do
+      if indices[w]==-1 then dfs(w); lowlink[v]=math.min(lowlink[v],lowlink[w])
+      elseif onstack[w] then lowlink[v]=math.min(lowlink[v],indices[w]) end
     end
-    for v = 1, #items do
-        for _, w in ipairs(graph[v]) do
-            local si, sj = scc_index[v], scc_index[w]
-            if si ~= sj then
-                table.insert(scc_graph[si], sj)
-                indeg[sj] = indeg[sj] + 1
-            end
-        end
+    if lowlink[v]==indices[v] then
+      local scc={}
+      while true do
+        local w=table.remove(stack); onstack[w]=false
+        scc[#scc+1]=w
+        if w==v then break end
+      end
+      sccs[#sccs+1]=scc
     end
+  end
+  for v=1,n do if indices[v]==-1 then dfs(v) end end
 
-    -- Topological sort of SCCs
-    local queue, sorted = {}, {}
-    for i = 1, #sccs do if indeg[i] == 0 then table.insert(queue, i) end end
-    while #queue > 0 do
-        local i = table.remove(queue, 1)
-        for _, v in ipairs(sccs[i]) do table.insert(sorted, items[v]) end
-        for _, j in ipairs(scc_graph[i]) do
-            indeg[j] = indeg[j] - 1
-            if indeg[j] == 0 then table.insert(queue, j) end
-        end
+  local scc_index,scc_graph,indeg={}, {}, {}
+  for i,comp in ipairs(sccs) do
+    for _,v in ipairs(comp) do scc_index[v]=i end
+    scc_graph[i],indeg[i]={},0
+  end
+  for v=1,n do
+    for _,w in ipairs(graph[v]) do
+      local si,sj=scc_index[v],scc_index[w]
+      if si~=sj then table.insert(scc_graph[si],sj); indeg[sj]=indeg[sj]+1 end
     end
+  end
 
-    return sorted
+  local queue,sorted={},{}
+  for i=1,#sccs do if indeg[i]==0 then queue[#queue+1]=i end end
+  while #queue>0 do
+    local i=table.remove(queue,1)
+    for _,v in ipairs(sccs[i]) do sorted[#sorted+1]=items[v] end
+    for _,j in ipairs(scc_graph[i]) do
+      indeg[j]=indeg[j]-1
+      if indeg[j]==0 then queue[#queue+1]=j end
+    end
+  end
+
+  return sorted
 end
 
 
 
 
 
--- Example:
--- segments = topo_sort_with_cycles(segments, occlusion_sort_segments)
+
+
+
 
 local function reverse_inplace(t)
     local n = #t
@@ -1374,7 +1539,7 @@ local function display_segments()
     end
     
     -- Perform sorting after filtering out skipped segments
-    filtered_segments = topo_sort_with_cycles(filtered_segments, occlusion_sort_segments, 5)
+    filtered_segments = topo_sort_with_cycles(filtered_segments, occlusion_sort_segments, 16)
     
     -- Reverse the order after sorting
     reverse_inplace(filtered_segments)
