@@ -67,8 +67,7 @@ local function cross_product(u,v)
 end
 
 local function sign(number)
-    if math.abs(number) < 0.000001 then return "zero" end
-    if number > 0 then return "positive" end
+    if number > -0.0000001 then return "positive" end
     return "negative"
 end
 
@@ -82,8 +81,8 @@ local function point_point_occlusion_sort(P1, P2)
         If the points are not the same point, then calculate their
         depth directly.
     ]]
-    if distance(P1, P2) > 0.001 then 
-        if distance({{P1[1][1], P1[1][2], 0, 1}}, {{P2[1][1], P2[1][2], 0, 1}}) < 0.001 then
+    if distance(P1, P2) > 0.0000001 then 
+        if distance({{P1[1][1], P1[1][2], 0, 1}}, {{P2[1][1], P2[1][2], 0, 1}}) < 0.0000001 then
             return P1[1][3] > P2[1][3]
         end
     end
@@ -210,7 +209,7 @@ local function point_line_segment_occlusion_sort(P, L)
     ]]
     local F = {{P[1][1], P[1][2], 0, 1}}
     local G = {{true_projection[1][1], true_projection[1][2], 0, 1}}
-    if distance(F, G) < 0.001 then
+    if distance(F, G) < 0.0000001 then
         local tmp
         if (
             sign(projection[1][1]) == sign(line_direction_vector[1][1]) and
@@ -273,7 +272,7 @@ local function point_triangle_occlusion_sort(P, T)
     local T3T1xT3P1 = cross_product(T3T1, T3P1)
     local sign_T3T1xT3P1 = sign(T3T1xT3P1[1][3])
 
-    local tmp = (dist1 > 0.001 and dist2 > 0.001 and dist3 > 0.001)
+    local tmp = (dist1 > 0.0000001 and dist2 > 0.0000001 and dist3 > 0.0000001)
     --if not tmp then return false end
     if (
         sign_T1T2xT1P1 == sign_T2T3xT2P1 and 
