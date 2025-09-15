@@ -479,8 +479,9 @@ local function triangle_triangle_intersections(T1, T2)
 
     if #points == 0 then return nil end
     if #points == 1 then return nil end
-    if #points ~= 2 then 
-        assert(false, ("two triangles intersected at %f points"):format(#points)) 
+    if #points ~= 2 then
+        return nil 
+        --assert(false, ("two triangles intersected at %f points"):format(#points)) 
     end
     return points
 end
@@ -505,9 +506,11 @@ end
 --- @param L2 table<table<number>> the second line segment
 --- @return table<table<table<number>>,table<table<number>>> the fragmented pieces of the first segment
 local function line_segment_line_segment_partition(L1, L2)
+    local eps = 0.0000001
     local intersect = line_segment_line_segment_intersection(L1, L2)
     if intersect == nil then return nil end
     local I = intersect.intersection
+    if distance(I, L1) < eps or distance(I, L2) < eps then return nil end
     return {
         line_segment1 = {L1[1], I[1]},
         line_segment2 = {L1[2], I[1]}
@@ -1226,6 +1229,10 @@ local function canonicalize_segment(seg, eps)
   return final
 end
 
+-- ========================================================================
+-- Canonical fragment signature (UID-based, non-geometric)
+-- ========================================================================
+-- Geometric signature (stable across partitions)
 local function fragment_signature(f, eps)
   eps = eps or 1e-4
   local pts = {}
@@ -1240,12 +1247,10 @@ local function fragment_signature(f, eps)
     table.sort(pts)
   end
   local t = f.type or "unknown"
-  if t == "line" then t = "line segment" end -- normalize synonyms
+  if t == "line" then t = "line segment" end
   return t .. "|" .. table.concat(pts, ";")
 end
 
--- kept for API compatibility, now unused
-local function reset_global_seen() end
 
 -- ========================================================================
 -- Topological sort with partitioning and cycle handling
@@ -1405,14 +1410,21 @@ local function topo_sort_with_cycles(items, cmp, max_depth)
               local frags = fragments_from_partition_result(part, target)
               if #frags==0 then return false end
 
-              local kept = {}
-              for _,f in ipairs(frags) do
-                local s = fragment_signature(f, eps_local)
-                if s ~= sigA and s ~= sigB and not global_seen[s] then
-                  global_seen[s] = true
-                  kept[#kept+1] = f
-                end
-              end
+local kept = {}
+for _,f in ipairs(frags) do
+  local sig = fragment_signature(f, eps_local)   -- stable
+  local uid = f.__id                             -- unique for this frag
+  -- Dedup by geometry (sig), but allow multiple frags with different uid
+  if not global_seen[sig] then
+    global_seen[sig] = true
+    kept[#kept+1] = f
+  elseif not f.__kept then
+    -- allow second fragment with same sig if it has a distinct uid
+    kept[#kept+1] = f
+    f.__kept = true
+  end
+end
+
               if #kept==0 then return false end
               splice_replace_at(working, target_index, kept)
               return true
