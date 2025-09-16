@@ -1,0 +1,171 @@
+\ProvidesFile{lua-tikz3dtools-doc-style}
+
+\PassOptionsToPackage{
+    backend=biber
+    ,style=alphabetic
+    ,sorting=nyt  
+}{biblatex}
+\PassOptionsToPackage{colorlinks = true}{hyperref}
+\PassOptionsToPackage{depth = 4}{bookmark}
+\setcounter{tocdepth}{3}
+
+\RequirePackage{
+    mathtools
+    ,amsthm
+    ,fontspec
+    ,unicode-math
+    ,siunitx
+    ,microtype
+    ,tikz
+    ,booktabs
+    ,enumext
+    ,extarrows
+    ,cancel
+    ,subcaption
+    ,nicematrix
+    ,lua-tikz3dtools
+    ,biblatex
+    ,makeidx
+    ,old-arrows
+    ,xpatch
+    ,hyperref
+}
+\usetikzlibrary{
+    decorations.pathreplacing
+    ,tikzmark
+    ,arrows.meta
+    ,angles
+    ,bending
+    ,quotes
+    ,patterns
+    ,fit
+}
+
+\tikzset{
+  % https://tex.stackexchange.com/a/602573/319072
+  % specifically for pivots, free vars, and incons. rows
+  inconsistency row/.style={
+    rectangle
+    ,fill=gray!40
+    ,draw=black
+    ,semithick
+    ,inner sep=1pt
+    ,fit = #1
+  }
+  ,free variable/.style={
+    rectangle
+    ,draw=black
+    ,semithick
+    ,fill=gray!40
+    ,inner sep=1pt
+    ,rounded corners=5pt
+    ,fit=#1
+  }
+  ,pivot/.style={
+    fill=gray!40
+    ,draw=black
+    ,semithick
+    ,inner sep=1pt
+    ,rounded corners=3pt
+  }
+  %%% General matrix highlighting
+  ,column/.style={
+    rectangle
+    ,draw=black
+    ,semithick
+    ,fill=gray!40
+    ,inner sep=3pt
+    ,rounded corners=5pt
+    ,fit=#1
+  }
+  % https://tex.stackexchange.com/a/21396/319072
+  ,matrix highlight/.style 2 args={
+    rectangle
+    ,draw=#1
+    ,semithick
+    ,fill=gray!40
+    ,inner sep=2pt
+    ,rounded corners=5pt
+    ,fit=#2
+  }
+  ,color element/.style={
+    fill=gray!40
+    ,draw=#1
+    ,semithick
+    ,inner sep=2pt
+    ,rounded corners=5pt
+  }
+  % highlight is not for matrices! it is for regular stuff
+  ,highlight/.style = {
+    draw=none
+    ,fill=gray!40
+    ,inner sep=3pt
+  }
+  ,margin base/.style = {baseline = {($(current bounding box.north)+(0,\baselineskip)$)}}
+}   
+\newcommand{\tmn}[3][]{\tikzmarknode[#1]{#2}{#3}}
+\newcommand{\pivot}[1]{\tmn[pivot]{pivot}{#1}}
+
+\addbibresource{lua-tikz3dtools-doc-bibliography.bib}
+
+\defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\setmainfont{Libertinus Serif}
+\setsansfont{Libertinus Sans}
+\setmonofont{Libertinus Mono}
+\setmathfont{Libertinus Math}
+
+% https://tex.stackexchange.com/a/746215/319072
+\xpatchcmd{\arrowfill@}{\relax#4}{\relax\demote@{#4}}{}{}
+\xpatchcmd{\arrowfill@}{#4\mkern}{\demote@{#4}\mkern}{}{}
+\def\demote@#1{%
+  \ifx#1\displaystyle
+    \scriptstyle
+  \else
+    \ifx#1\textstyle
+      \scriptstyle
+    \else
+      \scriptscriptstyle
+    \fi
+  \fi
+}
+\renewcommand{\vec}{\overrightarrow}
+
+\sisetup{
+  detect-all,       % respects surrounding font
+  per-mode=symbol,  % m/s not m s^{-1}
+  output-decimal-marker=., % use dot instead of comma
+}
+
+\DeclareMathOperator{\Span}{Span}
+
+\newtheorem{theorem}{Theorem}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{example}{Example}[section]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\newtheorem*{note}{Note}
+\newtheorem*{notation}{Notation}
+\newtheorem{solutiontemp}{Solution}[example]
+\newenvironment{solution}
+    {\renewcommand\thesolutiontemp{\theexample}\solutiontemp}
+    {\endsolutiontemp}
+
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+% \DeclareCaptionFormat{custom}{#1#2\par\noindent#3}
+% \captionsetup{
+%     format=custom
+%     ,justification=raggedright
+%     ,singlelinecheck=false
+% }
+% \captionsetup[subfigure]{format=hang}
+
+\newcommand{\vast}{\bBigg@{4}}
+\newcommand{\Vast}{\bBigg@{5}}
+\newcommand{\vastl}{\mathopen\vast}
+\newcommand{\vastm}{\mathrel\vast}
+\newcommand{\vastr}{\mathclose\vast}
+\newcommand{\Vastl}{\mathopen\Vast}
+\newcommand{\Vastm}{\mathrel\Vast}
+\newcommand{\Vastr}{\mathclose\Vast}

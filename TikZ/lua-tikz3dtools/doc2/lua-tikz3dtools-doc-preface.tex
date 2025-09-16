@@ -1,0 +1,93 @@
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+
+\section*{Purpose of This Work}
+% Write 1–2 paragraphs that:
+% - Explain why you undertook this work (academic, professional, or personal motivation).
+% - State the intended contribution: theoretical insight, practical tool, pedagogical resource, etc.
+% - Clarify the value for readers (why they should care about this work).
+
+I undertook this work because I was not satisfied with the existing
+tools for illustrating scenes with \(3\)D parametric objects in
+\TeX{}, such as surfaces. From the perspective of computer graphics
+as a whole, the ability to occlusion-order non-intersecting and
+non-cyclically overlapping \(0\)--\(2\)-dimensional affine simplices
+in \(3\)D---together with the systematic partitioning of simplices to
+eliminate intersections and cyclic overlaps---is a foundational
+advance. While my own motivation arose from the needs of a
+\TeX{} illustrator, I recognized that this framework represents a
+paradigm shift in mathematics illustration and, more broadly, a
+landmark contribution to computer graphics. My goals were therefore
+twofold: to create the kind of illustration tool I had long
+envisioned, and to establish priority in implementing this
+transformative idea.
+
+I have developed a systematic method for occlusion ordering
+\(0\)--\(2\)-dimensional affine simplices in three dimensions.
+In addition, I have implemented a framework for eliminating
+intersections through partitioning, with the resolution of
+cyclic overlaps planned for the next version of the software.
+This work matters because it provides the only known approach
+for generating scenes with parametric objects that both
+intersect coherently and are occlusion-sorted robustly. In
+short, this is a rigorous and comprehensive software framework
+for handling intersections and occlusion ordering of affine
+simplices in three dimensions.
+
+\section*{Context and Background}
+% Write 1–2 paragraphs that:
+% - Place the work in its institutional or research context (e.g., thesis project, funded research, independent study).
+% - If relevant, describe the broader academic or industrial landscape in which the work sits.
+% - Briefly acknowledge any special circumstances (e.g., interdisciplinary nature, collaboration across fields).
+
+This book documents the \LaTeX{} package \luatikztdtools{}, which
+implements a groundbreaking algorithm for \(3\)D illustrations
+composed of \(0\)--\(2\)-dimensional affine simplices. Although the
+software is designed for creating illustrations in \LaTeX{}, the
+underlying method represents a significant advance for the broader
+field of computer graphics.
+
+\section*{Acknowledgments of Guidance and Support}
+% Write 1–2 paragraphs that:
+% - Express gratitude to supervisors, mentors, or advisors who provided intellectual or technical guidance.
+% - Recognize collaborators, peers, or communities that influenced the work.
+% - Acknowledge institutional or financial support (scholarships, grants, lab access, software/hardware resources).
+
+I am deeply grateful to the \TeX{} Stack Exchange community, whose
+many contributions and generous assistance have been invaluable in
+helping me develop my skills as an illustrator. I also acknowledge
+the Math Stack Exchange community for several insights that proved
+helpful along the way. This work would not have been possible without
+the years of learning made available by my peers on \TeX{} Stack
+Exchange, nor without the foundational training in programming and
+linear algebra that I received from my professors at my local
+university.
+
+\section*{Author's Contribution and Perspective}
+% Write 1–2 paragraphs that:
+% - Clarify your personal role and unique contributions (e.g., system design, proofs, experiments, visualizations).
+% - If the work was collaborative, define what you specifically contributed.
+% - Optionally share a personal note on your perspective or journey (why this problem matters to you).
+
+I am the principal designer of nearly all of \luatikztdtools{},
+with a few specific components assisted by ChatGPT. My two
+primary original contributions are the occlusion-ordering
+algorithm and the simplex-partitioning algorithm. The portion
+produced with ChatGPT's assistance concerns the recursive
+traversal of segments that applies my algorithms. Apart from
+this limited assistance, the work was carried out independently,
+with valuable input and feedback from the \TeX{} Stack Exchange
+community.
+
+\section*{Structure of the Document}
+% Write 1 short paragraph that:
+% - Give a roadmap of the thesis/book: briefly describe what each chapter covers.
+% - Keep it concise (one sentence per chapter).
+% - Help orient the reader before they dive into the main content.
+
+This book is organized into five chapters. Chapter~1 presents the
+problem statement, defining and framing the central challenge.
+Chapter~2 reviews the relevant literature. Chapter~3 describes the
+methodology, including the algorithms developed. Chapter~4 provides
+validation of the approach, and Chapter~5 presents the results and
+analysis.
