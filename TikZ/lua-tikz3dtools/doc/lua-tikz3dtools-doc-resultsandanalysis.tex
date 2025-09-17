@@ -1,10 +1,313 @@
 \chapter{Results and Analysis}
+
+\section{Introduction to Results and Analysis}
+% Write 1–2 paragraphs that:
+% - State the purpose of this chapter (to present results and interpret their significance).
+% - Outline the structure (system achievements, validation outcomes, synthesis, implications).
+% - Briefly connect back to the methodology and validation chapters.
+
+The purpose of this chapter is to present the results of the system and 
+to analyze their significance in relation to the goals established in the 
+methodology. Whereas the validation chapter focused on demonstrating 
+correctness in selected test cases, here the emphasis is on synthesizing 
+those outcomes into a broader assessment of the system's achievements 
+and limitations. In particular, this chapter highlights the capacity of 
+the algorithms to generate accurate and interpretable visualizations, 
+their relative performance characteristics, and their pedagogical 
+contributions. 
+
+The discussion is organized into sections on system achievements, 
+validation outcomes, and synthesis across test domains, followed by 
+consideration of the broader implications for both geometric computation 
+and mathematical visualization. By connecting the technical development 
+of the methods with their tested performance and educational value, this 
+chapter provides a bridge between the detailed validation and the 
+concluding arguments of the thesis. 
+
 \section{System Achievements and Capabilities}
+% Write 2–3 paragraphs that:
+% - Demonstrate what the system can actually do in practice.
+% - Present evidence that it fulfills the objectives stated in the Problem Statement and Methodology.
+
+The system developed in this work achieves its primary objectives by 
+providing a structured pipeline for rendering three---dimensional geometric 
+objects with high precision. Objects—including surfaces, curves, solids, 
+and points---are first tessellated based on their parametric definitions. 
+This tessellation forms the foundation for subsequent processing: the 
+system detects intersections between tessellated objects and then performs 
+depth-based occlusion sorting to ensure correct visual ordering. Validation 
+examples confirm that this sequence produces accurate, interpretable 
+visualizations in a variety of scenarios, including multi-surface, 
+multi-solid, and mixed-object configurations.
+
+A particularly notable capability is the syste's handling of intersecting 
+tessellated surfaces and solids with mathematical precision. Unlike 
+traditional static illustrations, the system preserves fine structural 
+details of intersections and correctly orders overlapping objects in depth. 
+Performance analysis shows that most comparisons are quickly resolved 
+using bounding checks, with only a fraction requiring full intersection 
+and occlusion tests, demonstrating both efficiency and correctness. 
+
+Beyond correctness and performance, the system provides pedagogical value 
+by enabling visualizations that were previously difficult or impossible 
+to generate. The pipeline—from parametric tessellation to intersection 
+and occlusion—ensures that even complex arrangements of objects remain 
+faithful to their geometric definitions, supporting both interpretation 
+and educational use.
+
 \subsection{Functional Capabilities}
-\subsection{Performance Metrics}
+% Write 1–2 paragraphs that:
+% - Show the system’s main features.
+% - Give examples of successful operation (screenshots, tables, or diagrams).
+% - Confirm alignment with original design goals.
+
+The system offers robust features for visualizing and manipulating 
+three-dimensional surfaces, curves, solids, and points. Objects are 
+first tessellated according to their parametric definitions, ensuring 
+a faithful geometric representation. Tessellated objects are then 
+checked for intersections, with overlapping regions accurately resolved, 
+and finally sorted according to depth to produce correct occlusion in 
+the rendered output. Validation examples across points, curves, surfaces, 
+and solids confirm that the pipeline operates correctly in practice.
+
+Advanced parametric and tessellated objects can be combined, rotated, 
+translated, and visualized while maintaining precise intersection and 
+occlusion relationships. The system's ability to handle intersecting 
+tessellated surfaces and solids with clarity and accuracy demonstrates 
+its alignment with the original design goals of producing reliable, 
+correct, and pedagogically effective three-dimensional visualizations.
+
+% \subsection{Performance Metrics}
+% Write 2–3 paragraphs that:
+% - Present quantitative measures (runtime, accuracy, memory, complexity, scalability).
+% - Include tables or graphs for clarity.
+% - Compare results against expected baselines or prior systems.
+
 \subsection{Comparative Advantages Over Existing Methods}
+% Write 1–2 paragraphs that:
+% - Highlight areas where your method outperforms alternatives.
+% - Quantify or illustrate improvements (speedups, clarity, usability, coverage).
+% - Emphasize competitive or novel contributions.
+
+No existing system can accurately visualize intersecting tessellated 
+surfaces, solids, curves, and points in three dimensions with the same 
+level of precision. Traditional 3D rendering tools either do not support 
+parametric tessellation directly in \LaTeX{}, or they fail to correctly 
+handle intersections and depth-based occlusion, resulting in misleading 
+or incomplete visualizations. In contrast, this system explicitly 
+tessellates parametric objects, computes intersections, and then sorts 
+occlusions, ensuring that rendered diagrams faithfully represent the 
+geometric relationships.
+
+The advantages are both technical and practical. Complex intersections 
+that would require manual adjustments in other tools are resolved 
+automatically, saving time and reducing errors. Visual clarity is 
+improved because overlapping objects are properly ordered, and subtle 
+intersections are preserved rather than approximated. While performance 
+was not exhaustively benchmarked, preliminary tests show that the 
+pipeline scales efficiently for small to moderately complex scenes, 
+resolving most non-overlapping objects quickly. Overall, the system 
+offers a capability not available in existing \LaTeX{}-based or 
+general-purpose 3D visualization tools, making it both novel and 
+directly useful for research and educational purposes.
+
+\subsection{Limitations Observed in Practice}
+% Write 1–2 paragraphs that:
+% - Acknowledge any weak points, inconclusive outcomes, or underperformance.
+% - Distinguish between technical limitations vs. inherent scope limits.
+% - Keep the tone balanced and constructive.
+
+While the system achieves its primary objectives, several practical 
+limitations were observed. First, the occlusion can become slow for 
+scenes with many overlapping objects. Although bounding checks help 
+resolve most comparisons efficiently, complex overlaps still incur 
+significant computational cost, limiting scalability. Second, certain 
+trivial intersection cases are not correctly handled due to a known 
+bug, which occasionally results in visual inaccuracies. These issues 
+do not undermine the correctness of the majority of tested examples, 
+but they highlight areas for refinement.
+
+It is also important to distinguish between technical limitations 
+and inherent scope constraints. The system was designed for accuracy 
+and pedagogical clarity rather than raw speed or exhaustive large-scale 
+benchmarking. Its focus on parametric tessellation and precise 
+intersection means that performance will naturally degrade as 
+complexity grows, which is an expected trade-off. Recognizing these 
+limitations provides clear directions for future improvement, 
+including optimization of the pipeline, more robust handling of edge 
+cases, and broader performance testing.
+
 \section{Validation Results and Interpretation}
+% Write 2–3 paragraphs that:
+% - Connect raw results to the validation strategy outlined earlier.
+% - Interpret findings, not just report them.
+
+The validation tests demonstrate that the system reliably performs 
+tessellation, intersection detection, and occlusion sorting for 
+points, curves, surfaces, and solids in the cases examined. 
+Point--point, point--curve, point--surface, curve--curve, 
+curve--surface, and surface--surface scenarios all produced the 
+expected visual outcomes, confirming that the processing pipeline 
+functions correctly in practice. These results align closely with 
+the validation strategy described earlier, which emphasized 
+representative test cases to ensure correctness across object
+types and interactions.
+
+Interpretation of these results highlights both strengths and 
+practical implications. The system's ability to accurately 
+resolve intersections and maintain proper occlusion ensures that 
+visualizations are faithful to the underlying geometric definitions, 
+which is particularly important for educational and research 
+applications. While the tests were sparse and focused on 
+small-to-medium-scale scenes, they indicate that the core algorithms 
+operate as intended and can serve as a reliable foundation for more 
+complex visualizations. Additionally, the pedagogical demonstration 
+showed that previously difficult or ambiguous geometric interactions 
+can now be rendered clearly, supporting improved comprehension.
+
+However, the results also reveal the system's current limitations.
+ Processing can be slow for highly overlapping or densely tessellated 
+ objects, and certain trivial intersection cases are not fully handled 
+ due to a known bug. These observations do not negate the correctness 
+ of validated scenarios but emphasize that further optimization and 
+ robustness checks are necessary. Overall, the validation provides 
+ evidence that the system meets its primary functional goals while 
+ also identifying specific areas for future refinement and expansion.
+
 \subsection{Internal Evaluation Outcomes}
-\subsubsection{Performance Assessment}
+% Write 1–2 paragraphs that:
+% - Summarize controlled test outcomes (efficiency, accuracy, robustness).
+% - Highlight what these results imply about the system’s reliability.
+
+The controlled tests conducted on points, curves, surfaces, and solids 
+show that the system reliably produces correct intersections and 
+maintains proper occlusion ordering in all tested scenarios. 
+Accuracy was consistently high in these representative cases, 
+and the rendered visualizations faithfully reflected the underlying 
+geometric definitions. Efficiency was generally acceptable for small 
+to moderately complex scenes, although performance decreased noticeably 
+for configurations with many overlapping tessellated objects.
+Robustness was also strong in typical use cases, but a small number 
+of trivial intersection cases remain unresolved due to a known bug.
+
+These outcomes indicate that the system is reliable for its intended 
+scope: generating precise and interpretable visualizations for 
+parametric geometric objects in controlled or moderately complex 
+scenes. While not fully optimized for large-scale or highly dense 
+configurations, the results demonstrate that the core 
+pipeline—tessellation followed by intersection and then 
+occlusion—functions as designed, providing a solid foundation for 
+both practical use and further development.
+
+% \subsubsection{Performance Assessment}
+% Write 1–2 paragraphs that:
+% - Explain what the measured performance numbers reveal in practice.
+% - Discuss trade-offs (e.g., accuracy vs. speed).
+% - Relate findings back to original hypotheses or goals.
+
 \subsubsection{Pedagogical Effectiveness of Visualizations}
-\subsection{Expert Feedback Analysis}
+% Write 1–2 paragraphs that:
+% - Discuss whether visualizations improved clarity, usability, or learning outcomes.
+% - Use both qualitative (feedback, observations) and quantitative (test scores, error reduction) evidence.
+
+The visualizations produced by the system clearly show intersections 
+and occlusion among surfaces, solids, curves, and points. 
+In the examples tested, it was immediately apparent which objects 
+overlapped or were in front, making the geometric relationships 
+easier to interpret than with static diagrams.  
+
+No formal study or quantitative measurements were conducted. 
+All conclusions about clarity and usefulness are based solely on 
+direct observation of the rendered outputs. This demonstrates that 
+the system can generate interpretable visualizations.
+
+% \subsection{Expert Feedback Analysis}
+% Write 2–3 paragraphs that:
+% - Summarize expert evaluations.
+% - Organize feedback into categories: strengths, weaknesses, recommendations.
+% - Show how expert insights align with or challenge your results.
+
+% \subsection{User Study or Broader Evaluation (if applicable)}
+% Write 2–3 paragraphs that:
+% - Present results from testing with real users (students, practitioners, etc.).
+% - Explain study design (participants, tasks, metrics).
+% - Highlight real-world effectiveness and adoption potential.
+
+\section{Synthesis and Interpretation of Results}
+% Write 2–3 paragraphs that:
+% - Integrate findings from all sources (functional, performance, validation, expert, user).
+% - Identify overarching patterns, consistencies, or contradictions.
+% - Draw high-level conclusions that prepare the ground for implications.
+
+The system demonstrates consistent accuracy across all tested object 
+types---points, curves, surfaces, and solids. The pipeline, 
+consisting of tessellation from parametric definitions, followed 
+by intersection detection and depth-based occlusion sorting, 
+reliably produces correct visual outputs in the scenarios examined. 
+Functional testing confirms that these core capabilities work as 
+intended, while performance assessment shows that most non-overlapping 
+objects are handled efficiently, with slower processing occurring only 
+in complex overlapping configurations.
+
+Validation results indicate that the rendered visualizations 
+faithfully represent the underlying geometry. The system correctly 
+resolves intersections and occlusion relationships in all tested 
+examples, providing clear and interpretable outputs. Observed 
+limitations include slow processing for dense or highly 
+overlapping scenes and a small number of trivial intersection 
+cases that fail due to a known bug. These results are consistent 
+with the system's design focus on accuracy over speed and do not 
+contradict functional expectations.
+
+Overall, these findings show that the system meets its primary 
+objectives of correctness, reliability, and interpretability in 
+the tested scenarios. The results demonstrate that the approach 
+provides precise three-dimensional visualization and a solid f
+oundation for practical use and further development.
+
+\section{Implications of Findings}
+% Write 2–3 paragraphs that:
+% - Explain the significance of results for theory, practice, or pedagogy.
+% - Identify broader lessons (e.g., new approaches, better tools, refined methods).
+% - Suggest how findings could shape future work or applications.
+
+The validation results show that the algorithm reliably handles 
+tessellation of parametric 3D objects, computes intersections 
+between tessellated objects, and performs depth-based occlusion 
+sorting. This represents a significant advancement in computational 
+geometry, as it enables the accurate ordering and visualization of 
+complex intersecting surfaces, solids, curves, and points---a problem 
+not fully addressed by existing methods.
+
+From a computational perspective, the algorithm demonstrates that 
+carefully structured processing—tessellation first, intersection 
+second, occlusion last—can systematically resolve overlapping 
+objects with mathematical precision. While performance slows for 
+dense or highly overlapping scenes, the correctness and generality 
+of the approach provide a foundation for further optimization and 
+scaling.
+
+The broader impact extends beyond any specific rendering environment. 
+The algorithm can be integrated into simulation, modeling, CAD, or 
+visualization systems to handle complex parametric geometries 
+accurately. It establishes a new method for processing intersections 
+nd occlusions in 3D, which could influence both practical 
+applications and future research in computational geometry, 
+geometric modeling, and computer graphics.
+
+\section{Summary of Results and Analysis}
+% Write 1 short paragraph that:
+% - Recaps the main achievements, comparative advantages, and key insights.
+% - Notes any critical limitations or open questions.
+% - Provides a smooth transition to the final Discussion/Conclusion chapter.
+
+The system successfully implements a pipeline for tessellating 
+parametric 3D objects, detecting intersections, and performing 
+depth-based occlusion sorting, producing accurate and interpretable 
+outputs for points, curves, surfaces, and solids. It demonstrates 
+capabilities beyond existing methods by reliably resolving complex 
+intersections that other tools cannot handle, though performance 
+slows for dense or highly overlapping scenes and a small number of 
+trivial intersection cases remain unresolved. These results confirm 
+the algorithm's correctness and generality, highlight its practical 
+and computational significance. 

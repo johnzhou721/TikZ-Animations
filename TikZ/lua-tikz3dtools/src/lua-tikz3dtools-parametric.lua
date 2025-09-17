@@ -82,7 +82,7 @@ end
 --- @param M table<table<number>> an augmented matrix
 --- @return table<table<number>> the solution set and free variables
 local function gauss_jordan(M)
-
+    
     -- basic validation
     local m = #M        -- number of columns (vars + RHS)
     if m == 0 then return {} end
@@ -302,6 +302,14 @@ local function point_triangle_intersecting(P, T)
     return distance(S, P) < eps and point_in_triangle(P, T)
 end
 
+--- length of a vector
+--- @param u table<table<number>> the vector to be measured
+--- @return number the vectors length
+local function length(u)
+    local result = math.sqrt((u[1][1])^2 + (u[1][2])^2 + (u[1][3])^2)
+    return result
+end
+
 --- return coordinates and free variables for line-line intersection
 --- @param L1 table<table<number>> affine basis of a line
 --- @param L1 table<table<number>> another 1D affine basis
@@ -349,14 +357,6 @@ local function line_segment_line_segment_intersection(L1, L2)
     return nil
 end
 
---- length of a vector
---- @param u table<table<number>> the vector to be measured
---- @return number the vectors length
-local function length(u)
-    local result = math.sqrt((u[1][1])^2 + (u[1][2])^2 + (u[1][3])^2)
-    return result
-end
-
 --- obtains the coordinates and free variables of the intersection 
 --- between a line and a plane, each defined by their affine bases.
 --- @param L table<table<number>> an affine basis of a line
@@ -372,27 +372,6 @@ local function line_plane_intersection(L, T)
     -- (t) * LU - (s) * TU - (w) * TV = TO - LO
     local rhs = vector_subtraction(TO, LO)
 
-
-    local normal = cross_product(TU, TV)
-    local normal_length = length(normal)
-    if normal_length < eps then
-        -- plane basis is degenerate (area ~ 0)
-        return nil
-    end
-    -- Check if line direction is perpendicular to normal (i.e. lies in plane)
-    dot_product(LU, normal)
-    if math.abs(dot_product(LU, normal)) < eps then
-        -- line direction is parallel to the plane. Now check if the line lies in plane:
-        if math.abs(dot_product(rhs, normal)) < eps then
-            -- the line lies in the plane (coplanar)
-            return { solution = {}, freevars = {1}, coplanar = true }
-        else
-            -- line is parallel but not in plane -> no intersection
-            return nil
-        end
-    end
-
-
     local augmented_matrix = {
         {LU[1][1], LU[1][2], LU[1][3]},
         {-TU[1][1], -TU[1][2], -TU[1][3]},
@@ -401,12 +380,13 @@ local function line_plane_intersection(L, T)
     }
     local sol = gauss_jordan(augmented_matrix)
     if not sol then
-        print("No solution: line-plane system inconsistent")
+        --print("No solution: line-plane system inconsistent")
         return nil
     end
     if #sol.freevars > 0 then
-        print("Line lies in the plane (coplanar case). Free vars:", #sol.freevars)
+        --print("Line lies in the plane (coplanar case). Free vars:", #sol.freevars)
     end
+    
     return sol
 end
 
@@ -421,23 +401,30 @@ local function line_segment_triangle_intersection(L, T)
     local LA = {LO[1], LU[1]}
     local TO = {T[1]}
     local TU = vector_subtraction({T[2]}, TO)
+    local TUA = {TO[1], TU[1]}
     local TV = vector_subtraction({T[3]}, TO)
+    local TVA = {TO[1], TV[1]}
     local TA = {TO[1], TU[1], TV[1]}
+    local TUVA = {
+        vector_addition(TO, TU)[1]
+        ,vector_subtraction(TV, TU)[1]
+    }
     local coeffs = line_plane_intersection(LA, TA)
-    if coeffs == nil then return nil end 
-    if #coeffs.solution == 0 then return nil end 
-    local t = coeffs.solution[1]
-    if 0-eps<=t and t<=1+eps then
-        if t>1 then t = 1 elseif t<0 then t = 0 end
-        local I = vector_addition(
-            LO,
-            scalar_multiplication(t, LU)
-        )
-        if point_in_triangle(I, T) then 
-            return {
-                solution = coeffs,
-                intersection = I
-            }
+    if coeffs == nil then return nil end
+    if #coeffs.freevars == 0 then 
+        local t = coeffs.solution[1]
+        if 0-eps<=t and t<=1+eps then
+            if t>1 then t = 1 elseif t<0 then t = 0 end
+            local I = vector_addition(
+                LO,
+                scalar_multiplication(t, LU)
+            )
+            if point_in_triangle(I, T) then 
+                return {
+                    solution = coeffs,
+                    intersection = I
+                }
+            end
         end
     end
     return nil
@@ -458,7 +445,7 @@ local function triangle_triangle_intersections(T1, T2)
     local function add_unique(P)
         if not P then return nil end
         for _, Q in ipairs(points) do
-            if distance(P, Q) < eps then return nil end
+            if distance(P, Q) < 1e-8 then return nil end
         end
         table.insert(points, P)
     end
@@ -478,8 +465,13 @@ local function triangle_triangle_intersections(T1, T2)
     end
 
     if #points == 0 then return nil end
-    if #points == 1 then return nil end
+    if #points == 1 then 
+        --print(("two triangles intersected at %f points"):format(#points))
+        return nil 
+        --assert(false, ("two triangles intersected at %f points"):format(#points)) 
+    end
     if #points ~= 2 then
+        --print(("two triangles intersected at %f points"):format(#points))
         return nil 
         --assert(false, ("two triangles intersected at %f points"):format(#points)) 
     end
@@ -510,7 +502,7 @@ local function line_segment_line_segment_partition(L1, L2)
     local intersect = line_segment_line_segment_intersection(L1, L2)
     if intersect == nil then return nil end
     local I = intersect.intersection
-    if distance(I, L1) < eps or distance(I, L2) < eps then return nil end
+    --if distance(I, L1) < eps or distance(I, L2) < eps then return nil end
     return {
         line_segment1 = {L1[1], I[1]},
         line_segment2 = {L1[2], I[1]}
@@ -686,6 +678,7 @@ local function triangle_triangle_partition(T1, T2)
         return nil
         --assert(false, "triangle_triangle_partition doesn't have exactly two points")
     end
+    
     local quad = {}
     local tri1
     local A, B = points[1], points[2]
@@ -704,6 +697,7 @@ local function triangle_triangle_partition(T1, T2)
         table.insert(quad, T1C[2])
         tri1 = {A[1], B[1], T1A[2]}
     end
+    
     quad = centroid_sort(quad)
     return {
         tri1 = tri1,
@@ -1198,7 +1192,7 @@ register_tex_cmd(
 -- ========================================================================
 
 local function canonicalize_segment(seg, eps)
-  eps = eps or 1e-4
+  eps = eps or 1e-7
   local out = {}
   -- remove near-duplicates
   for _, P in ipairs(seg) do
@@ -1234,7 +1228,7 @@ end
 -- ========================================================================
 -- Geometric signature (stable across partitions)
 local function fragment_signature(f, eps)
-  eps = eps or 1e-4
+  eps = eps or 1e-7
   local pts = {}
   if f.segment then
     local seg = canonicalize_segment(f.segment, eps)
@@ -1410,20 +1404,20 @@ local function topo_sort_with_cycles(items, cmp, max_depth)
               local frags = fragments_from_partition_result(part, target)
               if #frags==0 then return false end
 
-local kept = {}
-for _,f in ipairs(frags) do
-  local sig = fragment_signature(f, eps_local)   -- stable
-  local uid = f.__id                             -- unique for this frag
-  -- Dedup by geometry (sig), but allow multiple frags with different uid
-  if not global_seen[sig] then
-    global_seen[sig] = true
-    kept[#kept+1] = f
-  elseif not f.__kept then
-    -- allow second fragment with same sig if it has a distinct uid
-    kept[#kept+1] = f
-    f.__kept = true
-  end
-end
+            local kept = {}
+            for _,f in ipairs(frags) do
+            local sig = fragment_signature(f, eps_local)   -- stable
+            local uid = f.__id                             -- unique for this frag
+            -- Dedup by geometry (sig), but allow multiple frags with different uid
+            if not global_seen[sig] then
+                global_seen[sig] = true
+                kept[#kept+1] = f
+            elseif not f.__kept then
+                -- allow second fragment with same sig if it has a distinct uid
+                kept[#kept+1] = f
+                f.__kept = true
+            end
+            end
 
               if #kept==0 then return false end
               splice_replace_at(working, target_index, kept)

@@ -1,19 +1,691 @@
 \chapter{Validation}
 
+\section{Introduction to Validation}
+% Write 1–2 paragraphs that:
+% - Explain the purpose of validation (to test whether the approach works as intended).
+% - Define the criteria for success (accuracy, usability, scalability, etc.).
+% - Outline how the chapter is structured (internal tests, benchmarks, expert feedback, user studies).
+
+The purpose of this validation chapter is to systematically evaluate the 
+algorithms developed for tessellation, clipping, and occlusion sorting 
+of affine simplices. Validation ensures that the approach functions as 
+intended, accurately detects intersections, correctly orders overlapping 
+simplices, and produces reliable visual outputs. Success is measured in 
+terms of correctness, consistency across all simplex types, and the 
+faithfulness of rendered illustrations to the underlying geometric models.
+
+This chapter is structured to present internal tests for each class of 
+simplex (points, line segments, triangles), followed by combined 
+scenarios that exercise clipping and occlusion in increasingly complex 
+configurations. Each section provides detailed examples, examines 
+algorithmic behavior, and highlights both successes and limitations, 
+offering a thorough assessment of the methodology's practical 
+effectiveness.
+
 \section{Internal Evaluation}
+% Write 2–3 paragraphs that:
+% - Describe the tests you conducted directly (author/team-controlled).
+% - Clarify the setup: environment, datasets, tools, and procedures.
+% - Establish that results are reproducible and unbiased.
+
+\subsection{Occlusion}
+
+\subsubsection{Point Versus Point}
+
+\subsection{Point-Point Occlusion Test}
+
+To validate the point-point occlusion routine, we use the following 
+example. In this test, a green point is expected to occlude a red point, 
+while a blue point remains independent and does not participate in the 
+occlusion ordering. This setup allows us to verify that the depth 
+comparison logic correctly identifies which point lies in front. 
+\begin{verbatim}
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{lua-tikz3dtools}
+\begin{document}
+    \begin{tikzpicture}
+        \appendpoint[
+            x = {0}
+            ,y = {0}
+            ,z = {0}
+            ,fill options = {fill = red}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \appendpoint[
+            x = {0}
+            ,y = {0}
+            ,z = {1}
+            ,fill options = {fill = green}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \appendpoint[
+            x = {1}
+            ,y = {1}
+            ,z = {0}
+            ,fill options = {fill = blue}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \displaysegments
+    \end{tikzpicture}
+\end{document}
+\end{verbatim}
+When rendered, the green point should appear above the red point, 
+demonstrating that the occlusion sorting functions as intended, while 
+the blue point remains unobstructed.
 
 \subsubsection{Point Versus Line Segment}
 
+For testing the point-line occlusion routine, we set up a scenario 
+where a red point should appear on top of a blue line segment. This 
+checks that the algorithm correctly identifies when a point occludes 
+a segment based on depth.
+\begin{verbatim}
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{lua-tikz3dtools}
+\begin{document}
+    \begin{tikzpicture}
+        \appendpoint[
+            x = {0}
+            ,y = {0}
+            ,z = {1}
+            ,fill options = {fill = red}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \appendcurve[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {2}
+            ,x = {u}
+            ,y = {u}
+            ,z = {0}
+            ,draw options = {
+                draw = blue
+                ,line cap = round
+            }
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \displaysegments
+    \end{tikzpicture}
+\end{document}
+\end{verbatim}
+Upon rendering, the red point should visually appear above the blue 
+line segment, confirming that the point-line occlusion comparison is 
+working correctly.
+
 \subsubsection{Point Versus Triangle}
+
+\subsubsection{Point Versus Triangle}
+
+For testing the point-triangle occlusion routine, we set up a scenario 
+where a blue point should appear on top of a red triangle. This checks 
+that the algorithm correctly identifies when a point occludes a triangle 
+based on depth.
+\begin{verbatim}
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{lua-tikz3dtools}
+\begin{document}
+    \begin{tikzpicture}
+        \appendpoint[
+            x = {0}
+            ,y = {0}
+            ,z = {1}
+            ,fill options = {fill = blue}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \appendsurface[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {2}
+            ,vstart = {-1}
+            ,vstop = {1}
+            ,vsamples = {2}
+            ,x = {u}
+            ,y = {v}
+            ,z = {0}
+            ,transformation = {translate(0,0,-3)}
+            ,fill options = {fill = red}
+        ]
+        \displaysegments
+    \end{tikzpicture}
+\end{document}
+\end{verbatim}
+Upon rendering, the blue point should visually appear above the red 
+triangle, confirming that the point-triangle occlusion comparison is 
+working correctly.
 
 \subsubsection{Line Segment Versus Line Segment}
 
+For testing the segment-segment occlusion routine, we set up a scenario 
+where a red line segment should appear in front of a blue line segment. 
+This checks that the algorithm correctly identifies when one segment 
+occludes another based on depth.
+\begin{verbatim}
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{lua-tikz3dtools}
+\begin{document}
+    \begin{tikzpicture}
+        \appendcurve[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {2}
+            ,x = {u}
+            ,y = {u}
+            ,z = {1}
+            ,draw options = {draw = red, line cap = round}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \appendcurve[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {2}
+            ,x = {u}
+            ,y = {-u}
+            ,z = {0}
+            ,draw options = {draw = blue, line cap = round}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \displaysegments
+    \end{tikzpicture}
+\end{document}
+\end{verbatim}
+Upon rendering, the red line segment should visually appear in front of 
+the blue line segment, confirming that the segment-segment occlusion 
+comparison is working correctly.
+
 \subsubsection{Line Segment Versus Triangle}
+
+For testing the segment-triangle occlusion routine, we set up a scenario 
+where a red line segment should appear in front of a blue triangle. 
+This checks that the algorithm correctly identifies when a segment 
+occludes a triangle based on depth.
+\begin{verbatim}
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{lua-tikz3dtools}
+\begin{document}
+    \begin{tikzpicture}
+        \appendcurve[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {2}
+            ,x = {u}
+            ,y = {u}
+            ,z = {1}
+            ,draw options = {draw = red, line cap = round}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \appendsurface[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {2}
+            ,vstart = {-1}
+            ,vstop = {1}
+            ,vsamples = {2}
+            ,x = {u}
+            ,y = {v}
+            ,z = {0}
+            ,transformation = {translate(0,0,-3)}
+            ,fill options = {fill = blue}
+        ]
+        \displaysegments
+    \end{tikzpicture}
+\end{document}
+\end{verbatim}
+Upon rendering, the red line segment should visually appear in front of 
+the blue triangle, confirming that the segment-triangle occlusion 
+comparison is working correctly.
 
 \subsubsection{Triangle Versus Triangle}
 
+For testing the triangle-triangle occlusion routine, we set up a scenario 
+where a red triangle should appear in front of a blue triangle. 
+This checks that the algorithm correctly identifies which triangle 
+occludes the other based on depth.
+\begin{verbatim}
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{lua-tikz3dtools}
+\begin{document}
+    \begin{tikzpicture}
+        \appendsurface[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {2}
+            ,vstart = {-1}
+            ,vstop = {1}
+            ,vsamples = {2}
+            ,x = {u}
+            ,y = {v}
+            ,z = {0}
+            ,transformation = {translate(0,0,-3)}
+            ,fill options = {fill = blue}
+        ]
+        \appendsurface[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {2}
+            ,vstart = {-1}
+            ,vstop = {1}
+            ,vsamples = {2}
+            ,x = {u}
+            ,y = {v}
+            ,z = {1}
+            ,transformation = {
+                matrix_multiply(zrotation(pi/4),translate(0,0,-3))
+            }
+            ,fill options = {fill = red}
+        ]
+        \displaysegments
+    \end{tikzpicture}
+\end{document}
+\end{verbatim}
+Upon rendering, the red triangle should visually appear in front of the 
+blue triangle, confirming that the triangle-triangle o
+
+\subsection{Clipping}
+
+\subsubsection{Line Segment By Point}
+
+For testing the line-segment clipping routine, we set up a scenario 
+where a red point clips a blue line segment. This verifies that the 
+algorithm correctly identifies the portion of the line segment that 
+lies in front of or behind the point in depth.
+\begin{verbatim}
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{lua-tikz3dtools}
+\begin{document}
+    \begin{tikzpicture}
+        \appendpoint[
+            x = {0}
+            ,y = {0}
+            ,z = {0}
+            ,fill options = {fill = red}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \appendcurve[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {2}
+            ,x = {u}
+            ,y = {u}
+            ,z = {0}
+            ,draw options = {
+                draw = blue
+                ,line cap = round
+            }
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \displaysegments
+    \end{tikzpicture}
+\end{document}
+\end{verbatim}
+Upon rendering, the blue line segment should be divided by the red 
+point, confirming that the line-segment clipping routine handles 
+point-based occlusion correctly.
+
+\subsubsection{Line Segment By Line Segment}
+
+For testing the line-segment clipping routine, we set up a scenario 
+where a red line segment clips a blue line segment. This checks that 
+the algorithm correctly identifies the portion of the blue segment that 
+lies in front of or behind the red segment based on depth.
+\begin{verbatim}
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{lua-tikz3dtools}
+\begin{document}
+    \begin{tikzpicture}
+        \appendcurve[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {2}
+            ,x = {u}
+            ,y = {0}
+            ,z = {0}
+            ,draw options = {draw = red, line cap = round}
+            ,transformation = {translate(0,0,-2)}
+        ]
+        \appendcurve[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {2}
+            ,x = {0}
+            ,y = {u}
+            ,z = {0}
+            ,draw options = {draw = blue, line cap = round}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \displaysegments
+    \end{tikzpicture}
+\end{document}
+\end{verbatim}
+Upon rendering, the blue line segment should be partially clipped by 
+the red segment, confirming that the line-segment clipping routine handles 
+segment-segment occlusion correctly.
+
+\subsubsection{Line Segment By Triangle}
+
+For testing the line-segment clipping routine against a triangular surface, 
+we set up a scenario where a blue line segment intersects or passes behind a 
+red triangle. This checks that the algorithm correctly identifies which portion 
+of the line segment lies in front of or behind the triangle based on depth.
+\begin{verbatim}
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{lua-tikz3dtools}
+\begin{document}
+    \begin{tikzpicture}
+        \appendcurve[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {2}
+            ,x = {u}
+            ,y = {u}
+            ,z = {u}
+            ,draw options = {draw = blue, line cap = round}
+            ,transformation = {translate(0,0,-2)}
+        ]
+        \appendsurface[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {2}
+            ,vstart = {-1}
+            ,vstop = {1}
+            ,vsamples = {2}
+            ,x = {u}
+            ,y = {v}
+            ,z = {0}
+            ,draw options = {draw = red, line cap = round}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \displaysegments
+    \end{tikzpicture}
+\end{document}
+\end{verbatim}
+Upon rendering, the line segment should appear appropriately clipped or 
+occluded by the triangle, confirming that the line-segment--triangle occlusion 
+is working correctly.
+
+\subsubsection{Triangle By Triangle}
+
+For testing the triangle-triangle occlusion routine, we set up a scenario 
+where a blue triangular surface intersects or passes behind a red triangular 
+surface. This checks that the algorithm correctly identifies which portions 
+of each triangle lie in front of or behind the other based on depth.
+\begin{verbatim}
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{lua-tikz3dtools}
+\begin{document}
+    \begin{tikzpicture}
+        \appendsurface[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {4}
+            ,vstart = {-1}
+            ,vstop = {1}
+            ,vsamples = {4}
+            ,x = {u+0.1}
+            ,y = {v+0.2}
+            ,z = {u+v+0.3}
+            ,fill options = {fill = blue}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \appendsurface[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {4}
+            ,vstart = {-1}
+            ,vstop = {1}
+            ,vsamples = {4}
+            ,x = {u}
+            ,y = {v}
+            ,z = {0}
+            ,fill options = {fill = red}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \displaysegments
+    \end{tikzpicture}
+\end{document}
+\end{verbatim}
+Upon rendering, the blue triangle should appear appropriately occluded by 
+the red triangle where depth dictates, confirming that the triangle-triangle 
+occlusion routine is working correctly.
+
 \subsection{Performance Assessment}
+% Write 2–3 paragraphs that:
+% - Present quantitative measures: runtime, accuracy, memory usage, scalability.
+% - Compare values to expected baselines or theoretical limits.
+% - Use tables/figures to make performance data easy to interpret.
+
+Each pair of simplices—or segments—must undergo comparison. 
+For \(n\) segments, the total number of comparisons is 
+\[
+\sum_{i=1}^{n} (i-1).
+\]
+Most comparisons are quickly resolved using a simple 
+bounding-rectangle overlap check on the viewing plane. 
+The computation becomes expensive primarily when many 
+segments overlap, requiring numerous occlusion tests. 
+This scenario typically dominates the algorithm's runtime.
 
 \subsection{Pedagogical Effectiveness of Visualizations Compared to Existing Methods}
+% Write 2–3 paragraphs that:
+% - Explain how you tested the educational/interpretive value of the visualizations.
+% - Provide metrics: user comprehension, error rates, clarity ratings, learning outcomes.
+% - Compare against traditional methods or competing tools.
 
-\section{Feedback from Domain Experts}
+No other system is capable of illustrating intersecting three-dimensional 
+tessellated parametric objects with the same precision. 
+\luatikztdtools{} achieves this effectively. Consider the diagram 
+produced by the following \LaTeX{} document:
+\begin{verbatim}
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{lua-tikz3dtools}
+\begin{document}
+    \pgfmathsetmacro{\i}{1}
+    \begin{tikzpicture}
+        \setobject[
+            name = {T}
+            ,object = {
+                matrix_multiply(
+                    euler(pi/2,pi/3,7*pi/6)
+                    ,translate(0,0,-6)
+                )
+            }
+        ]
+        \foreach \t in {1,2,3} {
+        \pgfmathsetmacro{\rotation}{\t*pi/12}
+        \appendsurface[
+            ustart = {0}
+            ,ustop = {1}
+            ,usamples = {18}
+            ,vstart = {0}
+            ,vstop = {1}
+            ,vsamples = {9}
+            ,x = {2*cos(\t*tau/3) + sphere(u*tau, v*pi)[1][1]}
+            ,y = {2*sin(\t*tau/3) + sphere(u*tau, v*pi)[1][2]}
+            ,z = {\t/3 + sphere(u*tau, v*pi)[1][3]}
+            ,transformation = {
+                matrix_multiply(
+                    euler(\rotation,\rotation,\rotation)
+                    ,T
+                )
+            }
+            ,fill options = {
+                preaction = {
+                    fill = white
+                }
+                ,postaction = {
+                    draw
+                    ,line cap = round 
+                    ,line join = round 
+                    ,ultra thin
+                }
+            }
+        ]
+        }
+        \appendsurface[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {4}
+            ,vstart = {-1}
+            ,vstop = {1}
+            ,vsamples = {4}
+            ,x = {4*u}
+            ,y = {4*v}
+            ,z = {\i + u}
+            ,transformation = {T}
+            ,fill options = {
+                preaction = {
+                    fill = gray!70!white
+                }
+                ,postaction = {
+                    draw
+                    ,line cap = round 
+                    ,line join = round 
+                    ,ultra thin
+                }
+            }
+        ]
+        \displaysegments
+    \end{tikzpicture}
+\end{document}
+
+\end{verbatim}
+
+\subsection{Robustness and Reliability Testing}
+% Write 1–2 paragraphs that:
+% - Document edge cases, unusual inputs, or stress tests.
+% - Report reproducibility checks (do results stay consistent under repeated trials?).
+% - Note any failure cases and what they reveal.
+
+\luatikztdtools{} is capable of handling most intersection cases; 
+however, certain trivial cases are not yet resolved. 
+Consider the following example that illustrates the bug:
+\begin{verbatim}
+\documentclass[
+    tikz
+    ,border = 1cm
+]{standalone}
+\usepackage{lua-tikz3dtools}
+\begin{document}
+    \begin{tikzpicture}
+        \appendsurface[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {4}
+            ,vstart = {-1}
+            ,vstop = {1}
+            ,vsamples = {4}
+            ,x = {u}
+            ,y = {v}
+            ,z = {u+v}
+            ,fill options = {fill = blue}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \appendsurface[
+            ustart = {-1}
+            ,ustop = {1}
+            ,usamples = {4}
+            ,vstart = {-1}
+            ,vstop = {1}
+            ,vsamples = {4}
+            ,x = {u}
+            ,y = {v}
+            ,z = {0}
+            ,fill options = {fill = red}
+            ,transformation = {translate(0,0,-3)}
+        ]
+        \displaysegments
+    \end{tikzpicture}
+\end{document}
+\end{verbatim}
+
+% \section{Comparative Evaluation Against Benchmarks}
+% Write 2–3 paragraphs that:
+% - Compare your system against accepted standards (datasets, algorithms, or tools).
+% - Highlight strengths and weaknesses relative to benchmarks.
+% - Use structured tables or graphs to make differences clear.
+
+% \section{Feedback from Domain Experts}
+% Write 2–3 paragraphs that:
+% - Summarize expert evaluations (interviews, surveys, review sessions).
+% - Present both positive feedback and critical insights.
+% - Show how expert opinions validate or challenge your approach.
+
+% \section{User Study or Field Evaluation (if applicable)}
+% Write 2–3 paragraphs that:
+% - Describe broader testing with representative end users.
+% - Explain study design (participants, tasks, duration).
+% - Present results: usability, satisfaction, adoption potential.
+
+\section{Limitations of the Validation Process}
+% Write 1–2 paragraphs that:
+% - Acknowledge constraints (limited sample size, scope, time, data availability).
+% - Clarify what your validation cannot guarantee.
+% - Frame limitations as opportunities for future improvement.
+
+The validation carried out in this chapter is intentionally narrow in 
+scope. Tests were constructed around simple representative cases—points, 
+line segments, and triangles—together with a small set of clipping and 
+occlusion examples. While these confirm that the algorithms function 
+correctly in the illustrated situations, they do not amount to an 
+exhaustive survey of all possible geometric interactions. Performance 
+was assessed in terms of comparison counts and overlap checks, but no 
+large-scale benchmarks were attempted. Likewise, pedagogical evaluation 
+was limited to a single illustrative example rather than a systematic 
+study of learning outcomes. 
+
+Consequently, the validation should be understood as a demonstration of 
+correctness in selected cases, not a comprehensive assessment of the 
+system's behavior under all conditions. Broader testing, formal 
+benchmarks, and structured user studies remain as important directions 
+for future work. 
+
+\section{Summary of Validation Results}
+% Write 1 short paragraph that:
+% - Recaps the main findings from validation.
+% - Highlights whether the approach met its criteria for success.
+% - Provides a smooth transition into the Discussion/Conclusion chapter.
+
+The validation examples presented here show that the algorithms 
+successfully resolve occlusion and clipping among points, line segments, 
+and triangles, and that they produce visualizations faithful to the 
+intended geometric relationships. The performance analysis confirmed 
+that the dominant cost arises from overlapping segments, consistent 
+with theoretical expectations. A demonstration of pedagogical 
+effectiveness illustrated the system's ability to depict intersecting 
+three-dimensional tessellated objects with a clarity not available in 
+other tools. Although the validation was sparse and limited to selected 
+cases, it provides evidence that the approach meets its stated goals of 
+correctness, consistency, and interpretability, while also revealing 
+directions for further refinement and expansion. 

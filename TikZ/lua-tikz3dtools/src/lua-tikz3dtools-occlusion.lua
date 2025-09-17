@@ -5,6 +5,7 @@
     We use homogeneous vector convention throughout
     {{x, y, z, w, 1}}
 ]]
+local eps = 0.0000001
 --- The dot product.
 --- @param u table<table<number>> a vector
 --- @param v table<table<number>> another vector
@@ -98,7 +99,7 @@ end
 local function gauss_jordan_cols(AugCols, opts)
     opts = opts or {}
     local copy_input = (opts.copy == nil) and true or not not opts.copy
-    local eps = opts.eps or 1e-12
+    local eps = 0.0000001
 
     -- basic validation
     local m = #AugCols
@@ -221,7 +222,7 @@ local function point_line_segment_occlusion_sort(P, L)
             tmp = -1
         end
         local test = tmp * length(projection) / length(line_direction_vector)
-        if (0<=test and test<=1) then
+        if (0-eps<=test and test<=1+eps) then
             return point_point_occlusion_sort(P, true_projection)
         end
     end
@@ -230,7 +231,10 @@ end
 
 
 
-
+--- point versus triangle occlusion comparator
+--- @param P table<table<number>> the point
+--- @param T table<table<number>> the triangle
+--- @return boolean|nil the result of the occlusion comparison
 local function point_triangle_occlusion_sort(P, T)
 
     --[[
@@ -293,7 +297,7 @@ local function point_triangle_occlusion_sort(P, T)
             s = sol[2]
         end
         if t == nil or s == nil then return nil end
-        if 0<=t and t<=1 and 0<=s and s<=1 then 
+        if 0-eps<=t and t<=1+eps and 0-eps<=s and s<=1+eps then 
             local a = vector_addition(o, scalar_multiplication(t, u))
             local b = vector_addition(a, scalar_multiplication(s, v))
             return point_point_occlusion_sort(P, b)
@@ -305,8 +309,10 @@ end
 
 
 
-
-
+--- line segment versus line segment occlusion sort
+--- @param L1 table<table<number>> the first line segment
+--- @param L2 table<table<number>> the second line segment
+--- @return boolean|nil the result of the occlusion comparison
 local function line_segment_line_segment_occlusion_sort(L1, L2)
     local L1A, L1B = {{L1[1][1], L1[1][2], 0, 1}}, {{L1[2][1], L1[2][2], 0, 1}}
     local L2A, L2B = {{L2[1][1], L2[1][2], 0, 1}}, {{L2[2][1], L2[2][2], 0, 1}}
@@ -329,7 +335,7 @@ local function line_segment_line_segment_occlusion_sort(L1, L2)
             s = sol[2]
         end
         if t == nil or s == nil then return nil end
-        if (0 <= t and t<=1 and 0 <= s and s <= 1) then
+        if (0-eps <= t and t<=1+eps and 0-eps <= s and s <= 1+eps) then
             local L1_inverse = vector_addition({L1[1]}, scalar_multiplication(t, vector_subtraction({L1[2]}, {L1[1]})))
             local L2_inverse = vector_addition({L2[1]}, scalar_multiplication(s, vector_subtraction({L2[2]}, {L2[1]})))
             return point_point_occlusion_sort(L1_inverse, L2_inverse)
@@ -352,6 +358,11 @@ local function line_segment_line_segment_occlusion_sort(L1, L2)
     return nil
 end
 
+
+--- line segment versus triangle test
+--- @param L table<table<number>> the line segment
+--- @param LT table<table<number>> the triangle
+--- @return boolean|nil the result of the occlusion comparison
 local function line_segment_triangle_occlusion_sort(L, T)
     local A = point_triangle_occlusion_sort({L[1]}, T)
     local B = point_triangle_occlusion_sort({L[2]}, T)
@@ -380,6 +391,11 @@ local function line_segment_triangle_occlusion_sort(L, T)
     return nil
 end
 
+
+--- triangle versus triangle occlusion sort
+--- @param L1 table<table<number>> the first triangle
+--- @param L2 table<table<number>> the second triangle
+--- @return boolean|nil the result of the occlusion comparison
 local function triangle_triangle_occlusion_sort(T1, T2)
 
     local T1AB, T1BC, T1CA = {T1[1],T1[2]}, {T1[2],T1[3]}, {T1[3],T1[1]}

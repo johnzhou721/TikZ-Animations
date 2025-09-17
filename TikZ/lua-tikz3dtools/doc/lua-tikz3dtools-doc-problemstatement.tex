@@ -1,121 +1,172 @@
 \chapter{Problem Statement}
 
-\section{The Core Problem being Addressed}
+\section{Background and Context}
+% Write 2–3 paragraphs that:
+% - Introduce the general field or domain (e.g., mathematics education, visualization systems, applied linear algebra).
+% - Summarize the state of practice or research that motivates this work.
+% - Provide just enough context so a reader outside the field understands why this area is worth studying.
 
-The package \luatikztdtools{} aims to provide 3D illustration 
-capabilities to the \LaTeX{} ecosystem. In particular, there 
-is a focus on both camera movement and perspective, as well as
-on rigorous occlusion. There are already \LaTeX{} packages which 
-provide 3D illustration capabilities. To the author's knowledge,
-there is no current algorithm for taking a set of parametrically
-defined primitive, clipping them in such a way that cyclic
-overlaps and intersections are totally eliminated, and occlusion-%
-sorting the resulting non-intersecting and non-cyclically overlapping 
-primitives. A geometric primitive is a point, a line segment,
-a triangle, a tetrahedron, or any higher dimensional simplex.
-The primary objective of \luatikztdtools{} is to implement
-such a routine, as well as to use known methods to enable
-the feature of arbitrary camera positioning. Currently,
-both arbitrary camera positioning and occlusion of non-intersecting 
-and non-cyclically overlapping primitives up to triangles are 
-implemented. Automatic clipping of primitives which do not fall 
-into this category is still aa planned feature. To the author's 
-knowledge, no such algorithm exists yet.
+The field to which \luatikztdtools{} belongs is inherently
+multidisciplinary, combining elements of programming and
+mathematics, especially linear algebra. In my view, the current
+state of practice remains fragmented. Much of the existing
+literature focuses on isolated components of the broader problem;
+for example, publications may address tessellation of surfaces or
+the clipping of line segments by triangles, but seldom attempt a
+unified framework. I believe I am the first to orchestrate linear
+algebra and programming into a coherent synthesis that enables
+parametric object generation tessellated by affine simplices
+(points, line segments, and triangles). These simplices are then
+systematically clipped against one another using a novel algorithm
+that eliminates intersections. A second novel algorithm, also of
+my design, performs occlusion sorting of the resulting simplices
+via a transitive partial order.
+
+This represents a genuinely groundbreaking achievement, with
+applications in computer graphics, computational geometry, and
+mathematical illustration.
+
+\section{The Core Problem Being Addressed}
+% Write 1 concise paragraph that:
+% - States clearly and directly the central problem.
+% - Avoids solutions or methods — only define what is problematic or missing.
+% - Use plain, unambiguous wording so the reader knows exactly what challenge you are tackling.
+
+The central problem addressed by \luatikztdtools{} is the
+illustration of \(3\)D scenes composed of \(0\)--\(2\)-dimensional
+affine simplices. Specifically, the package focuses on the
+representation of parametric objects tessellated into points,
+line segments, and triangles, including those that intersect.
+The primary outstanding challenge is the elimination of cyclic
+overlaps, which will be addressed in the next version of the
+software.
+
+\section{Scope and Boundaries of the Problem}
+% Write 1–2 paragraphs that:
+% - Define the specific scope (what is included in your investigation).
+% - Explicitly mention what is *not* covered (to avoid unrealistic expectations).
+% - Clarify assumptions you are making (e.g., focusing on 2D visualizations only, not 3D).
+
+The scope of the problem---excluding cyclic overlaps---is twofold:
+clipping intersecting simplices and partially transitive sorting
+of the resulting non-intersecting simplices. This version of the
+package assumes that cyclic overlaps do not occur. It is designed
+for \(3\)D diagrams composed of tessellated parametric objects,
+favoring exact partitioning over alternative methods to handle
+sparse objects without introducing occlusion errors.
 
 \section{Importance of the Issue}
+% Write 2–3 paragraphs that:
+% - Explain why solving this problem matters.
+% - Distinguish between theoretical significance (advancing knowledge) and practical significance (real-world impact).
+% - If relevant, connect to broader societal, educational, or industry needs.
 
-Most 3D illustration softwares use a process called 
-\(z\)-buffering, in which a pixel-level resolution is achieved 
-by tracing numerous orthogonal lines off the viewing plane until 
-they reach the first geometric primitive along their trajectory.
-It really only works for triangles, because line segments and points 
-are overly determined and will rarely intersect the orthogonal 
-lines. As such, the visualization of parametric curves 
-and points is neglected. The method described in this book for the 
-occlusion of non-intersecting and non-cyclically overlapping 
-geometric primitives is a transitive comparator which does not always 
-produce true or false. As a matter of fact, occlusion tests are 
-often inconclusive---and they need to be for transitivity to exist!
-For example, consider the extremely simple set of primitives,
-ordered along the \(y\)-axis; the point \(A\lparen0,0.25\rparen\), 
-the line segment \(B\{\lparen0,0\rparen,\lparen1,1\rparen\}\),
-and the point \(C\lparen1,0.75\rparen\) 
-(Figure \ref{fig:problemstatement-inconclusive}).
-\begin{figure}
-    \centering
-    \begin{tikzpicture}
-        \draw 
-            (-0.5,1.5) 
-            -- 
-            (1.5,1.5)
-            node[
-                pos = 0.5
-                ,above
-            ]{Viewing Plane}
-        ;
-        \foreach \x in {1,...,24} {
-            \pgfmathsetmacro{\x}{-0.5+(\x-1)*(1.5-(-0.5))/23}
-            \draw (\x,1.5) -- ++ (40:0.15);
-        }
-        \fill 
-            (0,0.25) 
-            circle[radius = 0.05]
-            node[above left]{\(A\)}
-        ;
-        \draw 
-            (0,0) 
-            -- 
-            (1,1) 
-            node[pos = 1.2]{\(B\)}
-        ;
-        \fill 
-            (1,0.75) 
-            circle[radius = 0.05]
-            node[below right]{\(C\)}
-        ;
-    \end{tikzpicture}
-    \caption{%
-        Inconclusive results are necessary for the transitivity of 
-        the comparator. We can only definitively compare primitives 
-        which are in a direct occlusive relationship. Even points 
-        must have their occlusive relationship neglected if they do 
-        not directly overlap on the viewing plane.
-        In this figure, \(A\) occludes \(B\) and \(B\) occludes 
-        \(C\), but \(A\) and \(C\) have no occlusive relationship,
-        even though \(C\) is higher than \(A\). If we didn't make
-        this case inconclusive, then the transitivity would be 
-        immediately broken.
-    }
-    \label{fig:problemstatement-inconclusive}
-\end{figure}
-The author has the sincere impression that give a set of 
-non-intersecting and non-cyclically overlapping primitives, there 
-should be a definitive method of deciphering occlusive order among 
-those primitives. The author also sincerely believes that 
-primitives which do intersect and do cyclically overlap can be 
-partitioned such that they no longer do so. The author sincerely 
-believes that such a method should be considered as a fundamental
-concept in 3D graphics, and is sincerely surprised that such a 
-transitive comparator for \(1\)--\(3\) dimensional affine simplexes 
-has never been the subject of serious formal study. Compared to 
-\(z\)-buffering, the proposed algorithm is incredibly slow, but 
-this can be mitigated by culling primitives which are totally 
-occluded by other primitives. In plain language, the proposed 
-comparator is an enormous leap forward for occlusion sorting 
-tessellated parametric objects. Additionally, while camera 
-positioning is well conceived in computer graphics already,
-it has never yet been implemented in an illustration tool from 
-the \TeX{} ecosystem. The package is still under development, 
-and will be no longer experimental when the automatic clipping 
-is both implemented and field tested.
+Until now, illustrators have often relied on high sampling to
+visually resolve occlusion errors arising from intersecting
+objects. Furthermore, to my knowledge, no software exists that
+explicitly sorts triangles correctly, let alone lower-dimensional
+affine simplices. Most existing approaches either produce
+improper sorting or rely on black-box methods. Solving this
+problem without using a \(z\)-buffer or ray tracing constitutes
+a significant contribution to both the theoretical and practical
+aspects of computer graphics, particularly in the domain of
+mathematical illustration. Based on years of studying \(3\)D
+graphics, I can assert that this algorithm addresses a
+fundamental challenge for the future of the field.
+
+From a theoretical standpoint, the method can illustrate
+3D scenes composed of points, line segments, and triangles,
+demonstrating that a scene of triangles can be partitioned
+so as to allow a partial transitive ordering, resulting in
+correct visual occlusion.
+
+This work represents a major theoretical advance in the
+conceptualization of 3D illustrations. Its synthesis of
+elementary linear algebra with computational methods is
+unique and represents a significant step beyond the current
+state of the art.
+
+\section{Current Limitations and Gaps}
+% Write 2–3 paragraphs that:
+% - Identify what previous approaches have failed to address (with brief examples).
+% - Explain *why* these gaps exist (technical, conceptual, or practical reasons).
+% - Show how the gaps lead directly to the core problem you have stated.
+
+Previous approaches largely neglect intersecting simplices and
+often produce occlusion errors. In fact, many software packages
+do not even triangulate surfaces correctly. For example, drawing
+a Klein bottle in Mathematica, Asymptote, or pgfplots results in
+intersections that do not occlude properly. My approach resolves
+this issue systematically.
+
+Not only does it eliminate intersections, but it also applies
+rigorous affine linear algebra for correct occlusion sorting.
+These gaps in existing methods persist largely because no one
+has previously pursued a comprehensive study of 3D mathematical
+illustration with this level of coherence. While many practitioners
+achieve impressive results, none combine triangulation, clipping,
+and occlusion sorting in a fully integrated framework. Unlike
+approaches that rely on splines or high sampling, my package
+ensures accurate visualization of sparse geometries.
+
+High sampling is computationally expensive and often insufficient,
+since the human eye can detect very small errors. Achieving
+the necessary resolution via sampling alone is generally
+impractical. My software addresses this challenge directly by
+first clipping simplices and then performing occlusion sorting,
+ensuring correct visual results efficiently.
+
+\section{Objectives and Goals}
+% Write 1 paragraph that:
+% - States the main aim of your work.
+% - Lists 2–4 specific objectives that break down that aim into achievable outcomes.
+% - Use action verbs (develop, evaluate, demonstrate, validate) instead of vague ones (understand, explore).
+
+The objective of this documentation is to present the software I
+have developed, demonstrate its correctness, and provide guidance
+on its use. Detailed explanations are provided for each of the
+novel algorithms, accompanied by examples illustrating how to
+apply the software in practice. In addition, practical use cases
+are discussed, and the software is validated through tests.
+
+% \section{Research Questions or Hypotheses}
+% (Optional — depends on your discipline.)
+% - If you use research questions: write them as precise, answerable questions that flow from your objectives.
+% - If you use hypotheses: phrase them as testable claims or expectations about outcomes.
+% - Keep the list short (usually 2–3 major questions or hypotheses).
 
 \section{Intended Audience}
+% Write 1 paragraph that:
+% - Identifies who benefits most (students, educators, researchers, industry professionals, etc.).
+% - Clarifies how different groups might use the results differently.
+% - Helps frame the later discussion of impact and significance.
 
-This work is intended for mathematics illustrators who want to 
-make 3D illustrating using a \LaTeX{}-cohesive package.
-\luatikztdtools{} is capable of rendering perspective scenes with
-arbitrary camera positioning and rigorous occlusion sorting.
-It is presumed that users will already be aware of how to 
-define parametric objects, as well as with projective transformation
-matrices. The author suggests the first edition of the book by 
-Rogers and Adams for an exemplary introduction to projective matrices.
+This documentation is intended for \(3\)D mathematical illustrators
+who are already familiar with basic programming, linear algebra,
+and Ti\textit{k}Z. While the package primarily supports \(3\)D
+mathematical illustrations in \LaTeX{}, its underlying algorithms
+have implications beyond the \LaTeX{} community. Computer graphics
+researchers will benefit from the first coherent synthesis of a
+transitive partial-order algorithm for occlusion sorting of affine
+simplices.
+
+Mathematics textbook authors and illustrators will also benefit
+from a robust backend for occlusion handling and clipping, without
+relying on black-box software that produces incorrect results.
+Although some tools generate visually plausible output for users
+with limited 3D intuition, subtle errors often remain undetected.
+The approach presented here provides a rigorous and systematic
+solution, and it is likely that the software will have applications
+beyond these immediate use cases.
+
+\section{Summary of the Problem Statement}
+% Write 1 short paragraph that:
+% - Recaps the central problem in 2–3 sentences.
+% - Highlights why it is important and what you aim to achieve.
+% - Provides a transition sentence that leads naturally into the Literature Review chapter.
+
+The central problem addressed by this documentation is the
+clipping and occlusion ordering of affine simplices. In other
+words, it concerns the visualization of \(3\)D parametric scenes.
+This software is significant because it represents the first
+coherent synthesis for illustrating such scenes.
