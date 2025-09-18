@@ -1252,7 +1252,7 @@ end
 
 local function topo_sort_with_cycles(items, cmp, max_depth)
   max_depth = max_depth or 2000
-  local eps_local = 1e-4   -- less strict tolerance
+  local eps_local = 1e-7   -- less strict tolerance
   local DEBUG = false
 
   local global_seen = {}   -- local deduplication per call
