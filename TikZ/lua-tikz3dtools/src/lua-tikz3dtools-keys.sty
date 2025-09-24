@@ -8,7 +8,7 @@
             ,/lua-tikz3dtools/parametric/matrix/.cd % abbreviated "m"
                 ,object/.code = {\edef\luatikztdtools@p@m@transformation{#1}}
                 ,object = {identity_matrix()}
-                ,name/.code = {\edef\luatikztdtools@p@m@name{#1}}
+                ,name/.code = {\protected@edef\luatikztdtools@p@m@name{#1}}
                 ,name = {Change me!}
             ,/lua-tikz3dtools/parametric/point/.cd % abbreviated "p"
                 ,x/.code = {\edef\luatikztdtools@p@p@x{#1}}

@@ -228,6 +228,8 @@ local function point_line_segment_intersecting(P, L)
         ,{rhs[1][1], rhs[1][2], rhs[1][3]}
     }
     local sol = gauss_jordan(augmented_matrix)
+    if not sol then return false end 
+    if #sol.solution < 1 then return false end
     local t = sol.solution[1]
     return 0-eps<=t and t<=1+eps
 end
@@ -1188,6 +1190,52 @@ register_tex_cmd(
 
 
 -- ========================================================================
+-- Distance-based geometric signature for uniqueness
+-- ========================================================================
+local function distance_squared(p1, p2)
+  local dx,dy,dz = p1[1]-p2[1], p1[2]-p2[2], p1[3]-p2[3]
+  return dx*dx + dy*dy + dz*dz
+end
+
+local function fragments_are_equal(F1, F2, eps)
+  eps = eps or 1e-7
+  if #F1 ~= #F2 then return false end
+
+  local function all_vertices_match(fa, fb)
+    local used = {}
+    for i=1,#fa do
+      local matched = false
+      for j=1,#fb do
+        if not used[j] and distance({fa[i]}, {fb[j]}) < eps then
+          used[j] = true
+          matched = true
+          break
+        end
+      end
+      if not matched then return false end
+    end
+    return true
+  end
+
+  return all_vertices_match(F1, F2) and all_vertices_match(F2, F1)
+end
+
+
+
+local function unique_fragment_signature(frag, global_seen, eps)
+  eps = eps or 1e-7
+  for _, other in pairs(global_seen) do
+    if fragments_are_equal(frag, other, eps) then
+      return nil -- already seen
+    end
+  end
+  -- new fragment, add to global_seen
+  global_seen[#global_seen+1] = frag
+  return true
+end
+
+
+-- ========================================================================
 -- Canonical fragment signature + helpers
 -- ========================================================================
 
@@ -1404,20 +1452,13 @@ local function topo_sort_with_cycles(items, cmp, max_depth)
               local frags = fragments_from_partition_result(part, target)
               if #frags==0 then return false end
 
-            local kept = {}
-            for _,f in ipairs(frags) do
-            local sig = fragment_signature(f, eps_local)   -- stable
-            local uid = f.__id                             -- unique for this frag
-            -- Dedup by geometry (sig), but allow multiple frags with different uid
-            if not global_seen[sig] then
-                global_seen[sig] = true
-                kept[#kept+1] = f
-            elseif not f.__kept then
-                -- allow second fragment with same sig if it has a distinct uid
-                kept[#kept+1] = f
-                f.__kept = true
-            end
-            end
+                local kept = {}
+                for _, f in ipairs(frags) do
+                if unique_fragment_signature(f, global_seen, eps_local) then
+                    kept[#kept+1] = f
+                end
+                end
+
 
               if #kept==0 then return false end
               splice_replace_at(working, target_index, kept)
