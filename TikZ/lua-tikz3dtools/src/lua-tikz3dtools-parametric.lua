@@ -1201,7 +1201,7 @@ local function fragments_are_equal(Ff1, Ff2, eps)
   eps = eps or 1e-7
   local F1, F2 = Ff1.segment, Ff2.segment
   if #F1 == 0 or #F2 == 0 then texio.write_nl("WARNING | fragments_are_equal : Degenerate or type error") end
-    
+
   if #F1 ~= #F2 then return false end
 
   local function all_vertices_match(fa, fb)
