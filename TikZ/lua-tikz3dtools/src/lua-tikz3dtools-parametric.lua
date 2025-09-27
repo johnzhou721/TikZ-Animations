@@ -1225,7 +1225,7 @@ end
 local function unique_fragment_signature(frag, global_seen, eps)
   eps = eps or 1e-7
   for _, other in pairs(global_seen) do
-    if fragments_are_equal(frag, other, eps) then
+    if fragments_are_equal(frag.segment, other.segment, eps) then
       return nil -- already seen
     end
   end
