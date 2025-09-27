@@ -1197,8 +1197,9 @@ local function distance_squared(p1, p2)
   return dx*dx + dy*dy + dz*dz
 end
 
-local function fragments_are_equal(F1, F2, eps)
+local function fragments_are_equal(Ff1, Ff2, eps)
   eps = eps or 1e-7
+  local F1, F2 = Ff1.segment, Ff2.segment
   if #F1 == 0 or #F2 == 0 then texio.write_nl("WARNING | fragments_are_equal : Degenerate or type error") end
     
   if #F1 ~= #F2 then return false end
@@ -1227,7 +1228,7 @@ end
 local function unique_fragment_signature(frag, global_seen, eps)
   eps = eps or 1e-7
   for _, other in pairs(global_seen) do
-    if fragments_are_equal(frag.segment, other.segment, eps) then
+    if fragments_are_equal(frag, other, eps) then
       return nil -- already seen
     end
   end
