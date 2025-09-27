@@ -1450,30 +1450,23 @@ local function topo_sort_with_cycles(items, cmp, max_depth)
           if attempted[key] then
             j=j+1
           else
-local function process(target, target_index, part)
-  if not part then return false end
-  local frags = fragments_from_partition_result(part, target)
-  if #frags == 0 then return false end
+            local function process(target, target_index, part, sigOther)
+              if not part then return false end
+              local frags = fragments_from_partition_result(part, target)
+              if #frags==0 then return false end
 
-  local kept = {}
-  local sig_target = fragment_signature(target, eps_local)
+                local kept = {}
+                for _, f in ipairs(frags) do
+                if unique_fragment_signature(f, global_seen, eps_local) then
+                    kept[#kept+1] = f
+                end
+                end
 
-  for _, f in ipairs(frags) do
-    local s = fragment_signature(f, eps_local)
-    -- Accept the fragment if:
-    --  * it is not identical to the fragment we're replacing (prevents no-op re-inserts),
-    --  * and we haven't globally seen that signature before.
-    if s ~= sig_target and not global_seen[s] then
-      global_seen[s] = true
-      kept[#kept+1] = f
-    end
-  end
 
-  if #kept == 0 then return false end
-  splice_replace_at(working, target_index, kept)
-  return true
-end
-
+              if #kept==0 then return false end
+              splice_replace_at(working, target_index, kept)
+              return true
+            end
 
             local did = false
             if partA then did = process(A,i,partA,sigB) end

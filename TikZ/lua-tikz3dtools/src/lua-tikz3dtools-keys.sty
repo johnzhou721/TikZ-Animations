@@ -6,27 +6,27 @@
     ,/lua-tikz3dtools/.cd 
         ,/lua-tikz3dtools/parametric/.cd % appreviated "p"
             ,/lua-tikz3dtools/parametric/matrix/.cd % abbreviated "m"
-                ,object/.code = {\protected@edef\luatikztdtools@p@m@transformation{#1}}
+                ,object/.code = {\edef\luatikztdtools@p@m@transformation{#1}}
                 ,object = {identity_matrix()}
                 ,name/.code = {\protected@edef\luatikztdtools@p@m@name{#1}}
                 ,name = {Change me!}
             ,/lua-tikz3dtools/parametric/point/.cd % abbreviated "p"
-                ,x/.code = {\protected@edef\luatikztdtools@p@p@x{#1}}
-                ,y/.code = {\protected@edef\luatikztdtools@p@p@y{#1}}
-                ,z/.code = {\protected@edef\luatikztdtools@p@p@z{#1}}
+                ,x/.code = {\edef\luatikztdtools@p@p@x{#1}}
+                ,y/.code = {\edef\luatikztdtools@p@p@y{#1}}
+                ,z/.code = {\edef\luatikztdtools@p@p@z{#1}}
                 ,fill options/.estore in = \luatikztdtools@p@p@filloptions
-                ,transformation/.code = {\protected@edef\luatikztdtools@p@p@transformation{#1}}
+                ,transformation/.code = {\edef\luatikztdtools@p@p@transformation{#1}}
                 ,x = {0}
                 ,y = {0}
                 ,z = {0}
                 ,fill options = {fill}
                 ,transformation = {identity_matrix()}
             ,/lua-tikz3dtools/parametric/label/.cd % abbreviated "l"
-                ,x/.code = {\protected@edef\luatikztdtools@p@l@x{#1}}
-                ,y/.code = {\protected@edef\luatikztdtools@p@l@y{#1}}
-                ,z/.code = {\protected@edef\luatikztdtools@p@l@z{#1}}
-                ,name/.code = {\protected@edef\luatikztdtools@p@l@name{#1}}
-                ,transformation/.code = {\protected@edef\luatikztdtools@p@l@transformation{#1}}
+                ,x/.code = {\edef\luatikztdtools@p@l@x{#1}}
+                ,y/.code = {\edef\luatikztdtools@p@l@y{#1}}
+                ,z/.code = {\edef\luatikztdtools@p@l@z{#1}}
+                ,name/.code = {\edef\luatikztdtools@p@l@name{#1}}
+                ,transformation/.code = {\edef\luatikztdtools@p@l@transformation{#1}}
                 ,x = {0}
                 ,y = {0}
                 ,z = {0}
@@ -36,15 +36,15 @@
                 ,ustart/.estore in = \luatikztdtools@p@c@ustart
                 ,ustop/.estore in = \luatikztdtools@p@c@ustop
                 ,usamples/.estore in = \luatikztdtools@p@c@usamples
-                ,x/.code = {\protected@edef\luatikztdtools@p@c@x{#1}}
-                ,y/.code = {\protected@edef\luatikztdtools@p@c@y{#1}}
-                ,z/.code = {\protected@edef\luatikztdtools@p@c@z{#1}}
-                ,transformation/.code = {\protected@edef\luatikztdtools@p@c@transformation{#1}}
+                ,x/.code = {\edef\luatikztdtools@p@c@x{#1}}
+                ,y/.code = {\edef\luatikztdtools@p@c@y{#1}}
+                ,z/.code = {\edef\luatikztdtools@p@c@z{#1}}
+                ,transformation/.code = {\edef\luatikztdtools@p@c@transformation{#1}}
                 ,draw options/.estore in = \luatikztdtools@p@c@drawoptions
-                ,arrow tip/.code = {\protected@edef\luatikztdtools@p@c@arrowtip{#1}}
-                ,arrow tail/.code = {\protected@edef\luatikztdtools@p@c@arrowtail{#1}}
-                ,arrow tip options/.code = {\protected@edef\luatikztdtools@p@c@arrowtipoptions{#1}}
-                ,arrow tail options/.code = {\protected@edef\luatikztdtools@p@c@arrowtailoptions{#1}}
+                ,arrow tip/.code = {\edef\luatikztdtools@p@c@arrowtip{#1}}
+                ,arrow tail/.code = {\edef\luatikztdtools@p@c@arrowtail{#1}}
+                ,arrow tip options/.code = {\edef\luatikztdtools@p@c@arrowtipoptions{#1}}
+                ,arrow tail options/.code = {\edef\luatikztdtools@p@c@arrowtailoptions{#1}}
                 ,ustart = {0}
                 ,ustop = {1} 
                 ,usamples = {64}
@@ -64,11 +64,11 @@
                 ,vstart/.estore in = \luatikztdtools@p@s@vstart
                 ,vstop/.estore in = \luatikztdtools@p@s@vstop 
                 ,vsamples/.estore in = \luatikztdtools@p@s@vsamples 
-                ,x/.code = {\protected@edef\luatikztdtools@p@s@x{#1}}
-                ,y/.code = {\protected@edef\luatikztdtools@p@s@y{#1}}
-                ,z/.code = {\protected@edef\luatikztdtools@p@s@z{#1}}
-                ,transformation/.code = {\protected@edef\luatikztdtools@p@s@transformation{#1}}
-                ,fill options/.code = {\protected@edef\luatikztdtools@p@s@filloptions{#1}}
+                ,x/.code = {\edef\luatikztdtools@p@s@x{#1}}
+                ,y/.code = {\edef\luatikztdtools@p@s@y{#1}}
+                ,z/.code = {\edef\luatikztdtools@p@s@z{#1}}
+                ,transformation/.code = {\edef\luatikztdtools@p@s@transformation{#1}}
+                ,fill options/.code = {\edef\luatikztdtools@p@s@filloptions{#1}}
                 ,ustart = {0}
                 ,ustop = {1}
                 ,usamples = {10}
@@ -90,10 +90,10 @@
                 ,wstart/.estore in = \luatikztdtools@p@solid@wstart
                 ,wstop/.estore in = \luatikztdtools@p@solid@wstop 
                 ,wsamples/.estore in = \luatikztdtools@p@solid@wsamples 
-                ,x/.code = {\protected@edef\luatikztdtools@p@solid@x{#1}}
-                ,y/.code = {\protected@edef\luatikztdtools@p@solid@y{#1}}
-                ,z/.code = {\protected@edef\luatikztdtools@p@solid@z{#1}}
-                ,transformation/.code = {\protected@edef\luatikztdtools@p@solid@transformation{#1}}
+                ,x/.code = {\edef\luatikztdtools@p@solid@x{#1}}
+                ,y/.code = {\edef\luatikztdtools@p@solid@y{#1}}
+                ,z/.code = {\edef\luatikztdtools@p@solid@z{#1}}
+                ,transformation/.code = {\edef\luatikztdtools@p@solid@transformation{#1}}
                 ,fill options/.estore in = \luatikztdtools@p@solid@filloptions
                 ,ustart = {0}
                 ,ustop = {1}
