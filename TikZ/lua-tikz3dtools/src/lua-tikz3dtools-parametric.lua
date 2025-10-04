@@ -337,6 +337,15 @@ end
 --- @param L2 table<table<number>> the second line segment
 --- @return table<table<table<number>>,table<table<number>>>|nil the solution coefficients and solution set
 local function line_segment_line_segment_intersection(L1, L2)
+    local num = 0
+    for _, P1 in ipairs(L1) do 
+        for _, P2 in ipairs(L2) do 
+            if distance({P1}, {P2}) < eps then 
+                num = num + 1
+            end
+        end
+    end
+    if num ~= 0 then return nil end
     local L1O = {L1[1]}
     local L1U = vector_subtraction({L1[2]}, L1O)
     local L1A = {L1O[1], L1U[1]}
@@ -347,7 +356,7 @@ local function line_segment_line_segment_intersection(L1, L2)
     if coeffs == nil then return nil end
     if #coeffs.solution == 0 then return nil end
     local t, s = coeffs.solution[1], coeffs.solution[2]
-    if 0-eps <= t and t <= 1+eps and 0-eps <= s and s <= 1+eps then
+    if 0 < t - eps and t < 1 - eps and 0 < s - eps and s < 1 - eps then
         return {
             coefficients = coeffs,
             intersection = vector_addition(
@@ -398,6 +407,15 @@ end
 --- @return table<table<table<number>>,table<table<number>>>|nil the solution coefficients and literal R3 intersection point
 local function line_segment_triangle_intersection(L, T)
     local eps = 0.0000001
+    local num = 0
+    for _, P1 in ipairs(L) do 
+        for _, P2 in ipairs(T) do 
+            if distance({P1}, {P2}) < eps then 
+                num = num + 1
+            end
+        end
+    end
+    if num ~= 0 then return nil end
     local LO = {L[1]}
     local LU = vector_subtraction({L[2]}, LO)
     local LA = {LO[1], LU[1]}
@@ -504,7 +522,18 @@ local function line_segment_line_segment_partition(L1, L2)
     local intersect = line_segment_line_segment_intersection(L1, L2)
     if intersect == nil then return nil end
     local I = intersect.intersection
-    --if distance(I, L1) < eps or distance(I, L2) < eps then return nil end
+    if distance(I, L1) < eps then 
+        return {
+            line_segment1 = {L2[1], I[1]},
+            line_segment2 = line_segment1
+        }
+    end
+    if distance(I, L2) < eps then 
+        return {
+            line_segment1 = {L1[1], I[1]},
+            line_segment2 = line_segment1
+        }
+    end
     return {
         line_segment1 = {L1[1], I[1]},
         line_segment2 = {L1[2], I[1]}
@@ -1187,6 +1216,22 @@ register_tex_cmd(
 )
 
 
+local function close(p, q, eps)
+  return math.abs(p[1]-q[1]) < eps
+     and math.abs(p[2]-q[2]) < eps
+     and math.abs(p[3]-q[3]) < eps
+end
+
+local function segments_are_equal(s1, s2, eps)
+  eps = eps or 1e-7
+  if #s1 ~= 2 or #s2 ~= 2 then return false end
+  local a1, a2 = s1[1], s1[2]
+  local b1, b2 = s2[1], s2[2]
+
+  -- unordered match: {a1,a2} = {b1,b2}
+  return ( (close(a1,b1,eps) and close(a2,b2,eps))
+        or (close(a1,b2,eps) and close(a2,b1,eps)) )
+end
 
 
 -- ========================================================================
@@ -1220,8 +1265,6 @@ local function fragments_are_equal(F1, F2, eps)
   return all_vertices_match(F1, F2) and all_vertices_match(F2, F1)
 end
 
-
-
 local function unique_fragment_signature(frag, global_seen, eps)
   eps = eps or 1e-7
   for _, other in pairs(global_seen) do
@@ -1233,7 +1276,6 @@ local function unique_fragment_signature(frag, global_seen, eps)
   global_seen[#global_seen+1] = frag
   return true
 end
-
 
 -- ========================================================================
 -- Canonical fragment signature + helpers
@@ -1275,23 +1317,48 @@ end
 -- Canonical fragment signature (UID-based, non-geometric)
 -- ========================================================================
 -- Geometric signature (stable across partitions)
-local function fragment_signature(f, eps)
-  eps = eps or 1e-7
-  local pts = {}
-  if f.segment then
-    local seg = canonicalize_segment(f.segment, eps)
-    for _, P in ipairs(seg) do
-      local x = math.floor((P[1] or 0)/eps + 0.5)
-      local y = math.floor((P[2] or 0)/eps + 0.5)
-      local z = math.floor((P[3] or 0)/eps + 0.5)
-      pts[#pts+1] = string.format("%d,%d,%d", x, y, z)
-    end
-    table.sort(pts)
-  end
-  local t = f.type or "unknown"
-  if t == "line" then t = "line segment" end
-  return t .. "|" .. table.concat(pts, ";")
+local function close(p, q, eps)
+  return math.abs(p[1]-q[1]) < eps
+     and math.abs(p[2]-q[2]) < eps
+     and math.abs(p[3]-q[3]) < eps
 end
+
+--- Create a unique signature string for any fragment
+--- Ensures line segments are order-independent
+--- @param frag table a fragment (point, line segment, or triangle)
+--- @param eps number tolerance
+--- @return string the signature
+local function fragment_signature(frag, eps)
+  eps = eps or 1e-7
+
+  local function key_point(p)
+    -- round to tolerance to avoid floating noise
+    return string.format("%.7f,%.7f,%.7f", p[1], p[2], p[3])
+  end
+
+  if frag.type == "point" then
+    return "P:" .. key_point(frag.segment[1])
+
+  elseif frag.type == "line segment" then
+    local a = key_point(frag.segment[1])
+    local b = key_point(frag.segment[2])
+    -- unordered: sort lexicographically
+    if a < b then
+      return "L:" .. a .. "|" .. b
+    else
+      return "L:" .. b .. "|" .. a
+    end
+
+  elseif frag.type == "triangle" then
+    local pts = {}
+    for i = 1,3 do pts[i] = key_point(frag.segment[i]) end
+    table.sort(pts)
+    return "T:" .. table.concat(pts, "|")
+  end
+
+  return "?"
+end
+
 
 
 -- ========================================================================
@@ -1447,29 +1514,30 @@ local function topo_sort_with_cycles(items, cmp, max_depth)
           if attempted[key] then
             j=j+1
           else
-local function process(target, target_index, part)
-  if not part then return false end
-  local frags = fragments_from_partition_result(part, target)
-  if #frags == 0 then return false end
 
-  local kept = {}
-  local sig_target = fragment_signature(target, eps_local)
+            local function process(target, target_index, part)
+                if not part then return false end
+                local frags = fragments_from_partition_result(part, target)
+                if #frags == 0 then return false end
 
-  for _, f in ipairs(frags) do
-    local s = fragment_signature(f, eps_local)
-    -- Accept the fragment if:
-    --  * it is not identical to the fragment we're replacing (prevents no-op re-inserts),
-    --  * and we haven't globally seen that signature before.
-    if s ~= sig_target and not global_seen[s] then
-      global_seen[s] = true
-      kept[#kept+1] = f
-    end
-  end
+                local kept = {}
+                local sig_target = fragment_signature(target, eps_local)
 
-  if #kept == 0 then return false end
-  splice_replace_at(working, target_index, kept)
-  return true
-end
+                for _, f in ipairs(frags) do
+                    local s = fragment_signature(f, eps_local)
+                    -- Accept the fragment if:
+                    --  * it is not identical to the fragment we're replacing (prevents no-op re-inserts),
+                    --  * and we haven't globally seen that signature before.
+                    if s ~= sig_target and not global_seen[s] then
+                    global_seen[s] = true
+                    kept[#kept+1] = f
+                    end
+                end
+
+                if #kept == 0 then return false end
+                splice_replace_at(working, target_index, kept)
+                return true
+            end
 
 
             local did = false
