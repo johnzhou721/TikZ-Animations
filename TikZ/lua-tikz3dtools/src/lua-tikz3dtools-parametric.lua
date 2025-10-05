@@ -1,4 +1,4 @@
-
+-- lua-tikz3dtools-parametric.lua
 --- indiscernable distance
 local eps = 0.0000001
 

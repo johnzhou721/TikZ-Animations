@@ -1,5 +1,5 @@
 Package Name:  lua-tikz3dtools \
-Package Version: v2.0.0, 2025/09/17 \
+Package Version: v2.0.1, 2025/10/05 \
 GitHub: https://github.com/Pseudonym321/TikZ-Animations/tree/master1/TikZ/lua-tikz3dtools \
 Author Name: Jasper Nice
 
@@ -24,6 +24,10 @@ v1.1.0:
 - Robust primitive sorting, so long as they do not intersect, and do not cyclically overlap.
 - Arrow tips for curves
 
-v2.0.0
+v2.0.0:
 
 - nearly robust clipping
+
+v2.0.1:
+
+- robust partitioning of tiles which are capable.
